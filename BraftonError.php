@@ -28,10 +28,14 @@ class BraftonErrorReport {
      */
     private $level;
     
+    private $domain;
     //Construct our error reporting functions
-    public function __construct(){
+    public function __construct($api, $brand){
         $this->url = $_SERVER['REQUEST_URI'];
-        $this->e_key = '147258369';
+        $this->domain = $_SERVER['HTTP_HOST'];
+        $this->api = $api;
+        $this->brand = $brand;
+        $this->e_key = 'ucocfukkuineaxf2lzl3x6h9';
         $this->post_url = 'http://updater.cl-subdomains.com/errorlog/wordpress/error/'.$this->e_key;
         $this->level = 2;
         $this->section = 'loop';
@@ -87,8 +91,9 @@ class BraftonErrorReport {
 
             $brafton_error = $this->b_e_log();
             $errorlog = array(
-                'Domain'    => 'mine',
-                'API'       => 'my key',
+                'Domain'    => $this->domain,
+                'API'       => $this->api,
+                'Brand'     => $this->brand,
                 'client_sys_time'  => date(get_option('date_format')) . " " . date("H:i:s"),
                 'error'     => get_class($e).' : '.$e->getseverity().' | '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().' brafton_level '.$this->level.' in section '.$this->section
             );
@@ -100,7 +105,8 @@ class BraftonErrorReport {
                     'error' => $errorlog
                 )
             );
-            $this->level = 2;
+            $this->level = 1;
+            //$this->level = 2;
             if($e->getseverity() == 1 || ($config['debug'] == true && $this->level == 1)){
                 $make_report = wp_remote_post($this->post_url, $post_args);
                 header("LOCATION:$this->url&b_error=vital");
