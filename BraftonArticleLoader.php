@@ -1,5 +1,5 @@
 <?php
-require 'libs/SampleAPIClientLibrary/ApiHandler.php';
+require 'libs/APIClientLibrary/ApiHandler.php';
 
 class BraftonArticleLoader extends BraftonFeedLoader {
     //set as costants instead 
@@ -131,10 +131,23 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $meta_array = array(
                     'brafton_id'        => $brafton_id
                 );
+                if(is_plugin_active('wordpress-seo/wp-seo.php')){
+                    $meta_array = array_merge($meta_array, array(
+                        '_yoast_wpseo_title'    => $post_title,
+                        '_yoast_wpseo_metadesc' => $post_excerpt,
+                        '_yoast_wpseo_metakeywords' => ''
+                    ));
+                }
+                if(function_exists('aioseop_get_version')){
+                    $meta_array = array_merage($meta_array, array(
+                        '_aioseop_description'  => $post_excerpt,
+                        '_aioseop_keywords'     => ''
+                    ));
+                }
                 $this->add_needed_meta($post_id, $meta_array);
                 //update_post_meta($post_id, 'brafton_id', $brafton_id);
                 if($post_image != 'NULL' && $post_image != NULL){
-                    $temp_name = $this->image_download($post_image, $post_id, $image_id, $image_alt);
+                    $temp_name = $this->image_download($post_image, $post_id, $image_id, $image_alt, $post_image_caption);
                     update_post_meta($post_id, 'pic_id', $image_id);
                 }
                 

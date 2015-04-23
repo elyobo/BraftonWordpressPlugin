@@ -89,9 +89,9 @@ class BraftonFeedLoader {
         return $date_array;
            
     }
-    public function image_download($post_image, $post_id, $image_id, $image_alt){
+    public function image_download($post_image, $post_id, $image_id, $image_alt, $image_caption){
         //Set the section for error reporting
-        $this->errors->setsection('image_download');
+        $this->errors->set_section('image_download');
         //Download the image to the temp folder for preperation as a fake $_FILE
         $temp_file = download_url($post_image);
         $wp_filetype = wp_check_filetype(basename($post_image), NULL);
@@ -118,9 +118,9 @@ class BraftonFeedLoader {
         $attachment = array(
             'guid'  => $up_url,
             'post_mime_type' => $wp_filetype['type'],
-            'post_title'    => 'ldkjdf',
-            'post_excerpt'  => 'ldkjsfl',
-            'post_content'     => 'dlkjds'
+            'post_title'    => $image_caption,
+            'post_excerpt'  => $image_caption,
+            'post_content'     => $image_caption
         );						
         $attach_id = wp_insert_attachment($attachment, $up_dir, $post_id);
         update_post_meta($attach_id, '_wp_attachment_image_alt', $image_alt);

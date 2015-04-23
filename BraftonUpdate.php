@@ -29,13 +29,14 @@ class Brafton_Update
      */
     public $slug;
  
+    public $brand;
     /**
      * Initialize a new instance of the WordPress Auto-Update class
      * @param string $current_version
      * @param string $update_path
      * @param string $plugin_slug
      */
-    function __construct($current_version, $update_path, $plugin_slug)
+    function __construct($current_version, $update_path, $plugin_slug, $brand)
     {
         // Set the class public variables
         $this->current_version = $current_version;
@@ -43,6 +44,7 @@ class Brafton_Update
         $this->plugin_slug = $plugin_slug;
         list ($t1, $t2) = explode('/', $plugin_slug);
         $this->slug = str_replace('.php', '', $t2);
+        $this->brand = $brand;
  
         // define the alternative API for updating checking
         add_filter('pre_set_site_transient_update_plugins', array(&$this, 'check_update'));
@@ -72,8 +74,8 @@ class Brafton_Update
         }
  
         // Get the remote version
-        //$remote_version = $this->getRemote_version();
-        $remote_version = 158;
+        $remote_version = $this->getRemote_version();
+        //$remote_version = 158;
         $remote_info = $this->getRemote_information();
 
         // If a newer version is available, add the update
@@ -81,14 +83,12 @@ class Brafton_Update
             $obj = new stdClass();
             $obj->slug = $this->slug;
             $obj->new_version = $remote_version;
-            $obj->url = $this->update_path;
-            //$obj->url = 'http://myupload.com';
-            //$obj->package = $remote_info->package;
-            $obj->package = 'http://myupload.com/hey.zip';
+            $obj->url = $remote_info->download_link;
+            $obj->package = $remote_info->package;
             $obj->fields = array(
-                'description' => 'this is the first desc',
+                'description' => $remote_info->sections['description'],
                 'sections'  => array(
-                    'faq'   => 'faqs'
+                    'changelog'   => $remote_info->sections['changelog']
                 ),
             );
             $transient->response[$this->plugin_slug] = $obj;
@@ -110,33 +110,27 @@ class Brafton_Update
     //registers wheither it is our plugin or not if it is add results filter
     public function check_info($false,$action, $arg)
     {
-
-        /*
-        if ($arg->slug === $this->slug) {
-            $information = $this->getRemote_information();
-            return $information;
-        }
-        return false;
-       */
         //echo "<h1>Brafton Plugin</h1>";
         if($arg->slug === $this->slug){
-        $obj = new stdClass();
-        $obj->slug = $this->slug;
-        $obj->plugin_name = 'plugin.php';
-        $obj->name = 'brafton';
-        $obj->new_version = '5';
-        $obj->requires = '3.0';
-        $obj->tested = '4.3';
-        $obj->downloaded = 12540;
-        $obj->last_updated = '2012-01-12';
-        $obj->homepage = 'http://mysite.com';
-        $obj->sections = array(
-        'description' => 'The new version of the Auto-Update plugin',
-        'another_section' => 'This is another section',
-        'changelog' => 'Some new features'
-      );
-        $obj->download_link = 'http://localhost/update.php';
-        return add_filter('plugins_api_result', array($this, 'check_inf'), 10, 3);
+            $remote_info = $this->getRemote_information();
+            $obj = new stdClass();
+            $obj->slug = $this->slug;
+            $obj->plugin_name = $remote_info->plugin_name;
+            $obj->name = $remote_info->plugin_name;
+            $obj->new_version = $remote_info->new_version;
+            $obj->requires = $remote_info->requires;
+            $obj->tested = $remote_info->tested;
+            $obj->downloaded = $remote_info->downloaded;
+            $obj->last_updated = $remote_info->last_updated;
+            $obj->homepage = $remote_info->homepage;
+            $obj->sections = array(
+            'description' => $remote_info->sections['description'],
+            'changelog' => $remote_info->sections['changelog']
+          );
+            $obj->download_link = $remote_info->download_link;
+            $obj->package = $remote_info->package;
+            add_filter('plugins_api_result', array($this, 'check_inf'), 10, 3);
+            return $obj;
         }
         return false;
         //echo '<pre>1';
@@ -158,28 +152,27 @@ class Brafton_Update
         //echo "<h1>Brafton Plugin</h1>";
         //These will come from the api loading in only the appropriate variables based on the domain that they have the api from
         if($arg->slug === $this->slug){
+            $remote_info = $this->getRemote_information();
             $obj = new stdClass();
-            $obj->slug = 'plugin.php';
-            $obj->plugin_name = 'plugin.php';
-            $obj->name = 'Content Importer';
-            $obj->new_version = '4';
-            $obj->requires = '3.0';
-            $obj->tested = '4.3';
-            $obj->downloaded = 9581;
+            $obj->slug = $this->slug;
+            $obj->plugin_name = $remote_info->plugin_name;
+            $obj->name = $remote_info->plugin_name;
+            $obj->new_version = $remote_info->new_version;
+            $obj->requires = $remote_info->requires;
+            $obj->tested = $remote_info->tested;
+            $obj->downloaded = $remote_info->downloaded;
             $obj->banners = array(
-                'low'   => 'http://localhost/wordpress_a/wp-content/plugins/newPlugin/admin/img/brafton.png',
-                'high'  => 'http://localhost/wordpress_a/wp-content/plugins/newPlugin/admin/img/brafton.png'
+                'low'   => $remote_info->banners['low'],
+                'high'  => $remote_info->banners['high']
             );
-            $obj->last_updated = '2012-01-12';
-            $obj->homepage = 'http://mysite.com';
-            $obj->rating = 85;
-            $obj->num_ratings = 6685;
-            $obj->sections = array(
-                'description' => 'The new version of the Auto-Update plugin',
-                'Services' => 'This is another section',
-                'changelog' => 'Some new features'
-            );
-            $obj->download_link = 'http://localhost/update.php';
+            $obj->last_updated = $remote_info->last_updated;
+            $obj->homepage = $remote_info->homepage;
+            $obj->rating = 75;
+            $obj->ratings = array(0,0,7,96,875,1008);
+            $obj->num_ratings = 1916;
+            $obj->sections = $remote_info->sections;
+            $obj->download_link = $remote_info->download_link;
+            $obj->package = $remote_info->package;
             $obj->external = true;
             return $obj;
         }
@@ -202,7 +195,7 @@ class Brafton_Update
  
     //Gets the Plugin information from the update API
     public function getRemote_information(){
-        $request = wp_remote_post($this->update_path, array('body' => array('action' => 'info')));
+        $request = wp_remote_post($this->update_path, array('body' => array('action' => 'info', 'brand' => $this->brand)));
         if (!is_wp_error($request) || wp_remote_retrieve_response_code($request) === 200) {
             //echo '<br> these are the request dumps'; echo '<pre>';var_dump($request);
             return unserialize($request['body']);
@@ -214,10 +207,11 @@ class Brafton_Update
 add_action('init', 'wptuts_activate_au');
 function wptuts_activate_au(){
     //variable is defined in the main plugin file.
+    $brand = BraftonOptions::getSingleOption('braftonApiDomain');
     global $brafton_plugin_slug;
     global $BraftonPluginData;
     $brafton_plugin_current_version = $BraftonPluginData['Version'];
-    $brafton_plugin_remote_path = 'http://localhost/pluginupdates/update/wordpress/update';
-    new Brafton_Update ($brafton_plugin_current_version, $brafton_plugin_remote_path, $brafton_plugin_slug);
+    $brafton_plugin_remote_path = 'http://updater.cl-subdomains.com/u/wordpress/update/';
+    new Brafton_Update ($brafton_plugin_current_version, $brafton_plugin_remote_path, $brafton_plugin_slug, $brand);
 }
 ?>

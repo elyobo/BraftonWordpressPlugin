@@ -32,7 +32,7 @@ class BraftonErrorReport {
     public function __construct(){
         $this->url = $_SERVER['REQUEST_URI'];
         $this->e_key = '147258369';
-        $this->post_url = 'http://localhost/pluginupdates/update/errorlog/wordpress/error/'.$this->e_key;
+        $this->post_url = 'http://updater.cl-subdomains.com/errorlog/wordpress/error/'.$this->e_key;
         $this->level = 2;
         $this->section = 'loop';
         register_shutdown_function(array($this,  'check_for_fatal'));
@@ -100,6 +100,7 @@ class BraftonErrorReport {
                     'error' => $errorlog
                 )
             );
+            $this->level = 2;
             if($e->getseverity() == 1 || ($config['debug'] == true && $this->level == 1)){
                 $make_report = wp_remote_post($this->post_url, $post_args);
                 header("LOCATION:$this->url&b_error=vital");

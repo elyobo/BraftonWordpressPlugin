@@ -61,7 +61,9 @@ class BraftonOptions {
                     'endingButtonLink'      => ''
                     ),
             'braftonMarproStatus'       => 'off',
-            'braftonOpenGraphStatus'    => 'off'
+            'braftonMarproId'           => '',
+            'braftonOpenGraphStatus'    => 'off',
+            'braftonRestyle'            => 0
         );
         //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
         if($old_options = get_option('BraftonOptions')){
@@ -104,7 +106,9 @@ class BraftonOptions {
                     'endingButtonLink'      => ''
                     ),
             'braftonMarproStatus'       => 'off',
-            'braftonOpenGraphStatus'    => 'off'
+            'braftonMarproId'           => '',
+            'braftonOpenGraphStatus'    => 'off',
+            'braftonRestyle'            => 0
             );
             $default_options = wp_parse_args($old_options, $default_options);
             add_option('BraftonOptions', $default_options);

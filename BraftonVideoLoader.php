@@ -61,12 +61,14 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     }
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($brafton_id){
+        global $wpdb;
         $catArray = array();
         $cNum = $this->ClientCategory->ListForArticle($brafton_id, 0, 100)->totalCount;
         for($i=0;$i<$cNum;$i++){
             $catId = $this->ClientCategory->ListForArticle($brafton_id,0,100)->items[$i]->id;
             $catNew = $this->ClientCategory->Get($catId);
-            $catArray[] = $catNew->name;
+            $slugObj = get_category_by_slug($wpdb->escape($catNew->name));
+                $catArray[] = $slugObj->term_id;
         }
         return $catArray;
         
@@ -79,6 +81,76 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         $date_array = array($post_date_gmt, $post_date);
         return $date_array;
            
+    }
+    function generate_source_tag($src, $resolution){
+        $tag = ''; 
+        $ext = pathinfo($src, PATHINFO_EXTENSION); 
+
+        return sprintf('<source src="%s" type="video/%s" data-resolution="%s" />', $src, $ext, $resolution );
+    }
+    public function generateEmbed($list, $splash, $brafton_id){
+        $video =  "<div id='singlePostVideo'>";
+        $atlantis = false;
+        //define video types
+        $atlatisjs = sprintf( "<video id='video-%s' class=\"ajs-default-skin atlantis-js\" controls preload=\"auto\" width='512' height='288' poster='%s' >", $brafton_id, $splash['preSplash'] ); 
+        $videojs = sprintf( "<video id='video-%s' class='video-js vjs-default-skin' controls preload='auto' width='512' height='288' poster='%s' data-setup src='' >", $brafton_id, $splash['preSplash']); 
+        switch($this->options['braftonVideoHeaderScript']){
+            case 'atlantisjs':
+            $video .= $atlatisjs;
+            $atlantis = true;
+            break;
+            default:
+            $video .= $videojs;
+            break;
+        }
+        foreach($list as $listItem){
+            $output = $this->VideoClientOutputs->Get($listItem->id);
+            $type = $output->type;
+            $path = $output->path;
+            $resolution = $output->height;
+            $source = $this->generate_source_tag($path, $resolution);
+            $video .= $source;
+        }
+        //build cta
+        if($atlantis){
+            $ctas = '';
+            $pause_text = $this->options['braftonVideoCTA']['pausedText'];
+            $pause_link = $this->options['braftonVideoCTA']['pausedLink'];
+            $end_title = $this->options['braftonVideoCTA']['endingTitle'];
+            $end_sub = $this->options['braftonVideoCTA']['endingSubtitle'];
+            $end_link = $this->options['braftonVideoCTA']['endingButtonLink'];
+            $end_text = $this->options['braftonVideoCTA']['endingButtonText'];
+            if($pause_text != ''){
+                $ctas =<<<EOT
+                    ,
+                    pauseCallToAction: {
+                        text: "<a href='$pause_link'>$pause_text</a>"
+                    },
+                    endOfVideoOptions:{
+                        callToAction: {
+                            title: "$end_title",
+                            subtitle: "$end_sub",
+                            button: {
+                                link: "$end_link",
+                                text: "$end_text"
+                            }
+                        }
+                    }
+EOT;
+            }
+            $video .=<<<EOC
+                <script type="text/javascript">
+                    var atlantisVideo = AtlantisJS.Init({
+                        videos:[{
+                            id: "video-$brafton_id"$ctas
+                        }]
+                    });
+            </script>
+EOC;
+        }
+        $video .= "</div>";
+        return $video;
+        
     }
     public function getVideoFeed(){
         $this->VideoClient = new AdferoVideoClient($this->VideoURL, $this->PublicKey, $this->PrivateKey);
@@ -114,21 +186,24 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     public function runLoop(){
         //Define local vars for the loop
         global $level, $wpdb, $post, $wp_rewrite;
-        $scale_axis = 500;
+        $scale_axis = 'y';
         $scale = 500;
         $counter = 0;
         foreach($this->ArticleList->items as $article){
+            if($counter>5){ return;}
             $brafton_id = $article->id;
             if( !($post_id = $this->brafton_post_exists($brafton_id)) || $this->override ){//Begin individual video article import
                 //Get the current article info in the loop
                 $thisArticle = $this->Client->Articles()->Get($brafton_id);
                 //Get the splash images for the video embed code
-                $preSplash = $thisArticle->fields['preSplash'];
-                $postSplash = $thisArticle->fields['postSplash'];
+                $postSplash = array(
+                    'preSplash'     => $thisArticle->fields['preSplash'], 
+                    'postSplash'    => $thisArticle->fields['postSplash']
+                );
                 //Need to find out if the video articles have a byline or not
                 //$post_author = $this->checkAuthor($this->options['braftonArticleDynamic'], $thisArticle->fields['byLine']);
                 //Get all the article info for inserting or updating the post
-                $post_author = $this->options['braftonArticleDynamic'];
+                $post_author = $this->options['braftonArticleAuthorDefault'];
                 $post_content = $thisArticle->fields['content'];
                 $post_title = $thisArticle->fields['title'];
                 $post_excerpt = $thisArticle->fields['extract'];
@@ -140,11 +215,7 @@ class BraftonVideoLoader extends BraftonFeedLoader {
                 
                 $compacted_article = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_status', 'post_excerpt');
                 $compacted_article['post_category'] = $this->assignCategories($brafton_id);
-                echo '<pre>';
-                var_dump($compacted_article);
-                echo '</pre>';
-                exit;
-                
+
                 if($post_id){//If the post existed but we are overriding values
                     $compacted_article['ID'] = $post_id;
                     $post_id = wp_update_post($compacted_article);
@@ -168,16 +239,45 @@ class BraftonVideoLoader extends BraftonFeedLoader {
                     $sitemap[]=$sitemapaddition;
                     */
                 }
+                //Generate the video embed code
+                $videoList = $this->VideoClientOutputs->ListForArticle($brafton_id,0,10);
+                $list = $videoList->items;
+                $embed_code = $this->generateEmbed($list, $postSplash, $brafton_id);
+                //get the photo
+                $thisPhoto = $this->ArticlePhotos->ListForArticle($brafton_id,0,100);
+                if(isset($thisPhoto->items[0]->id)){
+                    $photoId = $this->ArticlePhotos->Get($thisPhoto->items[0]->id)->sourcePhotoId;
+                    $photoURL = $this->PhotoClient->Photos()->GetScaleLocationUrl($photoId, $scale_axis, $scale)->locationUri;
+                    $post_image = strtok($photoURL, '?');
+                    $post_image_caption = $this->ArticlePhotos->Get($thisPhoto->items[0]->id)->fields['caption'];
+                    $image_alt = '';
+                    
+                    $image_id = $thisPhoto->items[0]->id;
+                    $temp_name = $this->image_download($post_image, $post_id, $image_id, $image_alt, $post_image_caption);
+                    update_post_meta($post_id, 'pic_id', $image_id);
+                }
                 $meta_array = array(
-                    'brafton_id'        => $brafton_id
+                    'brafton_id'        => $brafton_id,
+                    'brafton_video'     => $embed_code
                 );
+                if(is_plugin_active('wordpress-seo/wp-seo.php')){
+                    $meta_array = array_merge($meta_array, array(
+                        '_yoast_wpseo_title'    => $post_title,
+                        '_yoast_wpseo_metadesc' => $post_excerpt,
+                        '_yoast_wpseo_metakeywords' => ''
+                    ));
+                }
+                if(function_exists('aioseop_get_version')){
+                    $meta_array = array_merage($meta_array, array(
+                        '_aioseop_description'  => $post_excerpt,
+                        '_aioseop_keywords'     => ''
+                    ));
+                }
                 $this->add_needed_meta($post_id, $meta_array);
 
                 
-                //$videoList = $this->VideoClientOutputs->ListForArticle($brafton_id,0,10);
-                //$list = $videoList->items;
-                
             }//End the individual video article import
+            ++$counter;
         }
         
     }

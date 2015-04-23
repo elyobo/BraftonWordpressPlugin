@@ -89,6 +89,7 @@ function braftonWarnings(){
     //get the last importer run time for Articles 
     $status = 'updated';
     $last_run_time = wp_next_scheduled('braftonSetUpCron');
+    $last_run = 'N/A';
     if($last_run_time){
         $last_run = date('F d Y h:i:s', $last_run_time);
     }
@@ -176,6 +177,22 @@ function braftonDisplayLog(){
 /*
 General Settings Tab Functions Section
 */
+function braftonRestyle(){
+    global $options;
+    tooltip('Sometimes with our premium content user stylesheets can cause confilicts with the styles for the content.  Enable this feature to correct for this problem.  NOTE: You must have JQuery on your site for this to work.  If you currently do not have JQuery you can add it with the option above.');
+    ?>
+    <input type="radio" name="braftonRestyle" value="1" <?php checkRadioVal($options['braftonRestyle'], 1); ?>> Add Style Correction
+    <input type="radio" name="braftonRestyle" value="0" <?php checkRadioVal($options['braftonRestyle'], 0); ?>> No Style Correction
+<?php  
+}
+function braftonImportJquery(){
+    global $options;
+    $tip = 'Some sites already have jquery, set this to off if additional jquery script included with atlantisjs is causing issues.';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonImportJquery" value="on" <?php	checkRadioval($options['braftonImportJquery'], 'on'); ?> /> On
+    <input type="radio" name="braftonImportJquery" value="off" <?php checkRadioval($options['braftonImportJquery'], 'off'); ?>/> Off
+<?php 
+}
 //Displays the option for enabling open graph tags for single article pages
 function braftonOpenGraphStatus(){
     global $options;
@@ -284,6 +301,10 @@ function braftonApiDomain(){
         </select>
 <?php
 }
+
+/*
+Article settings Tab functions Section
+*/
 //Displays the Option for setting the API Key for use with the Artile Importer
 function braftonApiKey(){ 
     global $options;
@@ -293,9 +314,6 @@ function braftonApiKey(){
 
 <?php 
 }
-/*
-Article settings Tab functions Section
-*/
 //Displays the option for allowing overriding of previously imported articles.
 function braftonUpdateContent(){
     global $options;
@@ -413,14 +431,6 @@ function braftonVideoHeaderScript(){
     <input type="radio" id="neither" name="braftonVideoHeaderScript" value="off" <?php checkRadioval($options['braftonVideoHeaderScript'], 'off'); ?>/> Neither
 <?php
 }
-function braftonImportJquery(){
-    global $options;
-    $tip = 'Some sites already have jquery, set this to off if additional jquery script included with atlantisjs is causing issues.';
-    tooltip($tip); ?>
-    <input type="radio" name="braftonImportJquery" value="on" <?php	checkRadioval($options['braftonImportJquery'], 'on'); ?> /> On
-    <input type="radio" name="braftonImportJquery" value="off" <?php checkRadioval($options['braftonImportJquery'], 'off'); ?>/> Off
-<?php 
-}
 function braftonVideoCSS(){
     global $options;
     $tip = 'Extra CSS to fix a common issue where atlantisJS looks wonky.';
@@ -451,6 +461,14 @@ function braftonMarproStatus(){
     tooltip($tip); ?>
     <input type="radio" name="braftonMarproStatus" value="on" <?php	checkRadioval($options['braftonMarproStatus'], 'on'); ?> /> On
     <input type="radio" name="braftonMarproStatus" value="off" <?php checkRadioval($options['braftonMarproStatus'], 'off'); ?>/> Off
+<?php 
+}
+function braftonMarproId(){
+    global $options;
+    $tip = 'If using our Marpro Product you will need your Id.  You can obtain this information from your CMS';
+    tooltip($tip); ?>
+<input type="text" name="braftonMarproId" value="<?php
+		echo $options['braftonMarproId']; ?>"/>
 <?php 
 }
 //Manual Import Settings
@@ -490,19 +508,26 @@ function braftonRegisterSettings(){
             'general' // Section           
         );
         add_settings_field(
-            'braftonApiKey', // ID
-            'API Key', // Title 
-            'braftonApiKey' , // Callback
-            'brafton_general', // Page
-            'general' // Section           
-        );
-        add_settings_field(
             'braftonImporterUser', // ID
             'Importer User', // Title 
             'braftonImporterUser' , // Callback
             'brafton_general', // Page
             'general' // Section           
         );
+        add_settings_field(
+            'braftonImportJquery',
+            'Import JQuery Script',
+            'braftonImportJquery',
+            'brafton_general',
+            'general'
+        );
+        add_settings_field(
+            'braftonRestyle',
+            'Add Premium Styles',
+            'braftonRestyle',
+            'brafton_general',
+            'general'
+        );            
         add_settings_field(
             'braftonDefaultPostStatus',
             'Default Post Status',
@@ -578,6 +603,13 @@ function braftonRegisterSettings(){
             'article'
         );
         add_settings_field(
+            'braftonApiKey', // ID
+            'API Key', // Title 
+            'braftonApiKey' , // Callback
+            'brafton_article', // Page
+            'article' // Section           
+        );
+        add_settings_field(
             'braftonArticleDynamic',
             'Dynamic Author',
             'braftonArticleDynamic',
@@ -645,13 +677,6 @@ function braftonRegisterSettings(){
             'video'
         );
         add_settings_field(
-            'braftonImportJquery',
-            'Import JQuery Script',
-            'braftonImportJquery',
-            'brafton_video',
-            'video'
-        );
-        add_settings_field(
             'braftonVideoCSS',
             'Video CSS Fix',
             'braftonVideoCSS',
@@ -680,6 +705,13 @@ function braftonRegisterSettings(){
             'braftonMarproStatus',
             'Marpro Status',
             'braftonMarproStatus',
+            'brafton_marpro',
+            'marpro'
+        );
+        add_settings_field(
+            'braftonMarproId',
+            'Marpro Id',
+            'braftonMarproId',
             'brafton_marpro',
             'marpro'
         );
@@ -770,6 +802,7 @@ function redirect(){
    // header("LOCATION:my&b_error=vital");
     echo 'right hook';
 }
+/*
 add_action('admin_menu', 'braftonxml_sched_add_admin_pages');
 function braftonxml_sched_add_admin_pages(){
     $brand = BraftonOptions::getSingleOption('braftonApiDomain');
@@ -784,4 +817,5 @@ function braftonxml_sched_add_admin_pages(){
     add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'update_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
     add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'update_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
 }
+*/
 ?>
