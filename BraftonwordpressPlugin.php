@@ -38,6 +38,8 @@ class BraftonWordpressPlugin {
     public $importJquery;
     //is marpro on
     public $marproStatus;
+    //constant plugin version
+    const BRAFTON_VERSION = '2.5.0';
     
     public function __construct(){
         //fires when the plugin is activated
@@ -64,6 +66,7 @@ class BraftonWordpressPlugin {
     }
     public function BraftonActivation(){
         $option_init = BraftonOptions::ini_BraftonOptions();
+        wp_remote_post('http://updater.cl-subdomains.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'] )));
     }
     
     public function BraftonDeactivation(){
@@ -86,9 +89,11 @@ class BraftonWordpressPlugin {
     static function BraftonMarproScript(){
         $static = BraftonOptions::getSingleOption('braftonMarproStatus');
         $marproId = BraftonOptions::getSingleOption('braftonMarproId');
+        $domain = BraftonOptions::getSingleOption('braftonApiDomain');
+        $domain = str_replace('api', '', $domain);
         $pumpkin =<<<EOC
             <script>
-	(function(w,pk){var s=w.createElement('script');s.type='text/javascript';s.async=true;s.src='//pumpkin.castleford.com.au/pumpkin.js';var f=w.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);if(!pk.__S){window._pk=pk;pk.__S = 1.1;}pk.host='conversion.castleford.com.au';pk.clientId='$marproId';})(document,window._pk||[])
+	(function(w,pk){var s=w.createElement('script');s.type='text/javascript';s.async=true;s.src='//pumpkin$domain/pumpkin.js';var f=w.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);if(!pk.__S){window._pk=pk;pk.__S = 1.1;}pk.host='conversion$domain';pk.clientId='$marproId';})(document,window._pk||[])
 </script>
 EOC;
         if($static == 'on'){
