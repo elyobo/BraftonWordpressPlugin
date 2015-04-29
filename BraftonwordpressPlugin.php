@@ -52,7 +52,7 @@ class BraftonWordpressPlugin {
         add_action('wp_head', array($this, 'BraftonOpenGraph'));
         add_action('wp_head', array($this, 'BraftonVideoHead'));
         add_action('wp_head', array($this, 'BraftonJQuery'));
-        add_action('wp_footer', array($this, 'BraftonMarproScript'));
+        add_action('wp_footer', array('BraftonMarpro', 'MarproScript'));
         add_action('wp_footer', array($this, 'BraftonRestyle'));
         add_action('admin_menu', array($this, 'BraftonAdminMenu'));
         add_action('braftonSetUpCron', array($this, 'BraftonCronArticle'));
@@ -86,20 +86,6 @@ class BraftonWordpressPlugin {
         add_submenu_page('BraftonArticleLoader', 'Archives', 'Archives', 'update_plugins', 'BraftonArticleLoader&tab=4', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'update_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'update_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
-    }
-    static function BraftonMarproScript(){
-        $static = BraftonOptions::getSingleOption('braftonMarproStatus');
-        $marproId = BraftonOptions::getSingleOption('braftonMarproId');
-        $domain = BraftonOptions::getSingleOption('braftonApiDomain');
-        $domain = str_replace('api', '', $domain);
-        $pumpkin =<<<EOC
-            <script>
-	(function(w,pk){var s=w.createElement('script');s.type='text/javascript';s.async=true;s.src='//pumpkin$domain/pumpkin.js';var f=w.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);if(!pk.__S){window._pk=pk;pk.__S = 1.1;}pk.host='conversion$domain';pk.clientId='$marproId';})(document,window._pk||[])
-</script>
-EOC;
-        if($static == 'on'){
-            echo $pumpkin;   
-        }
     }
     static function BraftonRestyle(){
     $static = BraftonOptions::getSingleOption('braftonRestyle');
