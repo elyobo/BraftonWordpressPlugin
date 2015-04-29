@@ -19,6 +19,7 @@ include 'BraftonVideoLoader.php';
 include 'BraftonMarpro.php';
 include 'admin/BraftonAdminFunctions.php';
 
+define("BRAFTON_VERSION", '2.5.0');
 class BraftonWordpressPlugin {
     /*
      *All these variables are only used within this class however this class is instantiated in each method of itself
@@ -39,7 +40,7 @@ class BraftonWordpressPlugin {
     //is marpro on
     public $marproStatus;
     //constant plugin version
-    const BRAFTON_VERSION = '2.5.0';
+
     
     public function __construct(){
         //fires when the plugin is activated

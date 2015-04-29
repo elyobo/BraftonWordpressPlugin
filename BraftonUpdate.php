@@ -88,7 +88,7 @@ class Brafton_Update
             $obj->fields = array(
                 'description' => $remote_info->sections['description'],
                 'sections'  => array(
-                    'changelog'   => $remote_info->sections['changelog']
+                    'changelog'   => html_entity_decode($remote_info->sections['changelog'])
                 ),
             );
             $transient->response[$this->plugin_slug] = $obj;
@@ -125,7 +125,7 @@ class Brafton_Update
             $obj->homepage = $remote_info->homepage;
             $obj->sections = array(
             'description' => $remote_info->sections['description'],
-            'changelog' => $remote_info->sections['changelog']
+            'changelog' => html_entity_decode($remote_info->sections['changelog'])
           );
             $obj->download_link = $remote_info->download_link;
             $obj->package = $remote_info->package;
@@ -170,7 +170,11 @@ class Brafton_Update
             $obj->rating = 75;
             $obj->ratings = array(0,0,7,96,875,1008);
             $obj->num_ratings = 1916;
-            $obj->sections = $remote_info->sections;
+            $obj->sections = array(
+                'description' => $remote_info->sections['description'],
+                'services'      => $remote_info->sections['services'],
+                'changelog' => html_entity_decode($remote_info->sections['changelog'])
+            );
             $obj->download_link = $remote_info->download_link;
             $obj->package = $remote_info->package;
             $obj->external = true;

@@ -25,7 +25,15 @@ if(isset($_POST['submit'])){
         break;
         }
 }
-//admin functions page
+
+/*
+ *********************************************************************************************************************
+ *
+ * Admin Page Utility Functions
+ *
+ *********************************************************************************************************************
+ */
+
 //function for displaying instructions for each section.  gets passed the information from the add_settings_section() fucntion defined in the set_brafton_settings() function
 $new_options = new BraftonOptions();
 global $options;
@@ -41,9 +49,11 @@ function checkRadioVal($val, $check, $return=NULL){
         }
     }
 }
+
 function tooltip($tip){ ?>
     <img src="<?php echo plugin_dir_url( __FILE__ ); ?>img/tt.png" class="brafton_tt" title="<?php echo $tip; ?>">
 <?php }
+
 function switchCase($brand){
     switch ($brand){
         case 'api.brafton.com':
@@ -136,8 +146,48 @@ function print_section_info($args){
     }
 }
 /*
-Error Tab Functions Section
-*/
+ ************************************************************************************************
+ *
+ * Error Tab Functions Section
+ *
+ ************************************************************************************************
+ */
+function ErrorSettingsSetup(){
+    //Error Logs Tab
+        register_setting(
+            'brafton_error_options', // Option group
+            'brafton_error' );
+        //sets a section name for the options
+        add_settings_section(
+            'error', // ID
+            'Error Log', // Title
+            'print_section_info', // Callback
+            'brafton_error' // Page
+        );  
+        //each one of these adds a field with the options
+        add_settings_field(
+            'braftonDebugger', // ID
+            'Debug Mode', // Title 
+            'braftonDebugger' , // Callback
+            'brafton_error', // Page
+            'error' // Section           
+        );
+        add_settings_field(
+            'braftonClearLog', // ID
+            'Clear Error Log', // Title 
+            'braftonClearLog' , // Callback
+            'brafton_error', // Page
+            'error' // Section           
+        );
+        add_settings_field(
+            'braftonDisplayLog', // ID
+            'Error Log', // Title 
+            'braftonDisplayLog' , // Callback
+            'brafton_error', // Page
+            'error' // Section           
+        );
+}
+
 //Displays the Option for Turning on the Debugger
 function braftonDebugger(){
     global $options;
@@ -147,6 +197,7 @@ function braftonDebugger(){
     <input type="radio" name="braftonDebugger" value="0" <?php checkRadioVal($options['braftonDebugger'], 0); ?>> OFF
 <?php 
 }
+
 //Displays the option for Clearing the error Log from the database
 function braftonClearLog(){
     global $options;
@@ -156,6 +207,7 @@ function braftonClearLog(){
     <input type="radio" name="braftonClearLog" value="0" <?php checkRadioVal($options['braftonClearLog'], 0); ?>> Leave Log Intact
 <?php  
 }
+
 //Displays any errors currently in the Database from the braftonErrors Option
 function braftonDisplayLog(){
     $tip = 'Displays the actual errors for the importer';
@@ -174,318 +226,19 @@ function braftonDisplayLog(){
     </div>
 <?php 
 }
-/*
-General Settings Tab Functions Section
-*/
-function braftonRestyle(){
-    global $options;
-    tooltip('Sometimes with our premium content user stylesheets can cause confilicts with the styles for the content.  Enable this feature to correct for this problem.  NOTE: You must have JQuery on your site for this to work.  If you currently do not have JQuery you can add it with the option above.');
-    ?>
-    <input type="radio" name="braftonRestyle" value="1" <?php checkRadioVal($options['braftonRestyle'], 1); ?>> Add Style Correction
-    <input type="radio" name="braftonRestyle" value="0" <?php checkRadioVal($options['braftonRestyle'], 0); ?>> No Style Correction
-<?php  
-}
-function braftonImportJquery(){
-    global $options;
-    $tip = 'Some sites already have jquery, set this to off if additional jquery script included with atlantisjs is causing issues.';
-    tooltip($tip); ?>
-    <input type="radio" name="braftonImportJquery" value="on" <?php	checkRadioval($options['braftonImportJquery'], 'on'); ?> /> On
-    <input type="radio" name="braftonImportJquery" value="off" <?php checkRadioval($options['braftonImportJquery'], 'off'); ?>/> Off
-<?php 
-}
-//Displays the option for enabling open graph tags for single article pages
-function braftonOpenGraphStatus(){
-    global $options;
-    tooltip('Adds og: tags to the single.php pages.  These tags are used for social media sites.  Check if you have another SEO plugin currently generating these tags before turning them on');
-    ?>
-    <input type="radio" name="braftonOpenGraphStatus" value="1" <?php checkRadioVal($options['braftonOpenGraphStatus'], 1); ?>> Add Tags
-    <input type="radio" name="braftonOpenGraphStatus" value="0" <?php checkRadioVal($options['braftonOpenGraphStatus'], 0); ?>> No Tags
-<?php  
-}
-//Display the option for Brafton Categories
-function braftonCategories(){
-    global $options;
-    $tip = 'This option is for using categories set by the article when importer.  *RECOMENDATION: Set to Brafton Categories';
-    tooltip($tip); ?>
-<input type="radio" name="braftonCategories" value="categories" <?php checkRadioval($options['braftonCategories'], 'categories'); ?> /> Brafton Categories                
-<input type="radio" name="braftonCategories" value="none_cat" <?php checkRadioval($options['braftonCategories'], 'none_cat');
-?> /> None
-<?php 
-}
-//Displays the option for using custom categories
-function braftonCustomCategories(){
-    global $options;
-    $tip = 'Each category seperated by a comma. I.E. (first,second,third)';
-    tooltip($tip); ?>
-<input type="text" name="braftonCustomCategories" value="<?php
-		echo $options['braftonCustomCategories'];
-?>"/>
-<?php     
-}
-//Displays the option for support for Tags
-function braftonTags(){
-    global $options;
-    $tip = 'Tags are rarely used and hold no true SEO Value, however we provide you with options if you choose to use them. The Option you select must be included in your XML Feed.';
-    tooltip($tip); ?>
-<input type="radio" name="braftonTags" value="tags" <?php checkRadioval($options['braftonTags'], 'tags'); ?> />Tags as tags<br />              
-<input type="radio" name="braftonTags" value="keywords" <?php checkRadioval($options['braftonTags'], 'keywords');?> />Keywords as tags<br />
-<input type="radio" name="braftonTags" value="cats" <?php checkRadioval($options['braftonTags'], 'cats');?> />Categories as tags<br />
-<input type="radio" name="braftonTags" value="none_tags" <?php checkRadioval($options['braftonTags'], 'none_tags');?> /> None 
-<?php 
-}
-//Displays the option for Custom Tags
-function braftonCustomTags(){
-    global $options;
-    $tip = 'Each tag seperated by a comma. I.E. (first,second,third)';
-    tooltip($tip); ?>
-<input type="text" name="braftonCustomTags" value="<?php
-		echo $options['braftonCustomTags']; ?>"/>
-<?php 
-}
-//Displays the option for setting the date for an article when imported
-function braftonSetDate(){
-    global $options;
-    $tip = 'Specify which date from your XML Feed to use as the publish date upon import';
-    tooltip($tip); ?>
-<input type="radio" name="braftonPublishDate" value="published" <?php checkRadioval($options['braftonPublishDate'], 'published'); ?> /> Published
-<input type="radio" name="braftonPublishDate" value="modified" <?php checkRadioval($options['braftonPublishDate'], 'modified'); ?>/> Last Modified
-<input type="radio" name="braftonPublishDate" value="created" <?php checkRadioval($options['braftonPublishDate'], 'created'); ?>/> Created
-<?php 
-}
-//Displays the option for Default Post Status upon import
-function braftonDefaultPostStatus(){
-    global $options;
-    $tip = 'Sets the default Post status for articles and video imported.  Draft affords the ability to approve an article before it is made live on the blog';
-    tooltip($tip); ?>
-    <input type="radio" name="braftonPostStatus" value="publish" <?php checkRadioval($options['braftonPostStatus'], 'publish'); ?> /> Published
-				<input type="radio" name="braftonPostStatus" value="draft" <?php checkRadioval($options['braftonPostStatus'], 'draft'); ?>/> Draft
-<?php     
-}
-//Displays the option for setting the importer user.  This option used to allow HTMl Tags needed for Premium content.
-function braftonImporterUser(){ 
-    global $options;
-    $args = array(
-        'role'      => 'administrator'
-    );
-    $admins = get_users($args);
-    $tip = 'Designate a User for the Importer. *NOTE: This is different than the Author';
-    tooltip($tip); ?>
-    <select name="braftonImporterUser">
-        <option value="">Select Importer User</option><?php 
-    foreach($admins as $u){ ?>
-        <option value="<?php echo $u->user_login; ?>" <?php checkRadioval($options['braftonImporterUser'], $u->user_login, 'selected'); ?>><?php echo $u->user_login; ?></option><?php 
-    }
-        ?></select>
-  
-<?php 
-}
-//Displays the option Turning the Importer itself OFF/ON.  
-function braftonStatus(){
-    global $options;
-    $tip = 'Turns the Importer ON/OFF while still maintaing your settings.';
-    tooltip($tip); ?>
-    <input type="radio" name="braftonStatus" value="1" <?php checkRadioval($options['braftonStatus'], 1); ?>> ON
-    <input type="radio" name="braftonStatus" value="0" <?php checkRadioval($options['braftonStatus'], 0); ?>> OFF 
-<?php 
-}
-//Displays the Options for setting the API Domain
-function braftonApiDomain(){
-    global $options;
-    $tip = 'Set the domain your XML Feed originates from.  This information can be obtained from your CMS.';
-    tooltip($tip); ?>
-    	<select name='braftonApiDomain'>
-            <option value="api.brafton.com" <?php checkRadioval($options['braftonApiDomain'], 'api.brafton.com', 'selected'); ?>>Brafton</option>
-            <option value="api.contentlead.com" <?php checkRadioval($options['braftonApiDomain'], 'api.contentlead.com', 'selected'); ?>>ContentLEAD</option>
-            <option value="api.castleford.com.au" <?php checkRadioval($options['braftonApiDomain'], 'api.castleford.com.au', 'selected'); ?>>Castleford</option>
+/********************************************************************************************
+ *
+ * General Settings Tab Functions Section
+ *
+ ********************************************************************************************
+ */
 
-        </select>
-<?php
-}
-
-/*
-Article settings Tab functions Section
-*/
-//Displays the Option for setting the API Key for use with the Artile Importer
-function braftonApiKey(){ 
-    global $options;
-    $tip = 'Enter Your API Key for your XML Feed.  This information can be obtained from your CMS. (Example: 2de93ffd-280f-4d4b-9ace-be55db9ad4b7)'; 
-    tooltip($tip); ?>
-    <input type="text" name="braftonApiKey" id="brafton_api_key" value="<?php echo $options['braftonApiKey']; ?>" />
-
-<?php 
-}
-//Displays the option for allowing overriding of previously imported articles.
-function braftonUpdateContent(){
-    global $options;
-    $tip = 'Setting this to ON will override edits made to posts within the last 30 days or using an archive file';
-    tooltip($tip); ?>
-<input type="radio" name="braftonUpdateContent" value="1" <?php checkRadioval($options['braftonUpdateContent'], 1); ?> /> On
-<input type="radio" name="braftonUpdateContent" value="0" <?php checkRadioval($options['braftonUpdateContent'], 0); ?>/> Off
-<?php     
-}
-//Displays the options for Using Dynamic Authors
-function braftonArticleDynamic(){
-    global $options;
-    $tip = "Sets Author to 'byLine' From the feed. If the Author does not exsist they will be added.
-Default auhor is returned if no author is set int he field or if new author cannot be created.";
-    tooltip($tip); ?>
-<input type="radio" name="braftonArticleDynamic" value="y" <?php checkRadioval($options['braftonArticleDynamic'], 'y'); ?> />Enable              
-<input type="radio" name="braftonArticleDynamic" value="n" <?php checkRadioval($options['braftonArticleDynamic'], 'n'); ?> />Disable<br />
-<?php 
-}
-//Displays the options for selecting the default author of imported content from a list of users.
-function braftonArticleAuthorDefault(){
-    global $options;
-    $tip = 'Set the Default Author for Articles upon Import';
-    tooltip($tip); 
-    wp_dropdown_users(array(
-			'name' => 'braftonArticleAuthorDefault',
-			'hide_if_only_one_author' => true,
-			'selected' => $options['braftonArticleAuthorDefault']
-		));
-}
-//Displays the Options for turning the Article Importer OFF/ON
-function braftonArticleStatus(){
-    global $options;
-    $tip = 'Turns the Article Importer ON/OFF.';
-    tooltip($tip); ?>
-    <input type="radio" name="braftonArticleStatus" value="1" <?php checkRadioval($options['braftonArticleStatus'], 1); ?>> ON
-    <input type="radio" name="braftonArticleStatus" value="0" <?php checkRadioval($options['braftonArticleStatus'], 0); ?>> OFF 
-<?php    
-}
-//Displays the Options for turning on custom post types for brafton content_ur
-function braftonArticlePostType(){
-    global $options;
-    $tip = 'Turn this option on to set custom post type for '.$options['braftonApiDomain'].' Content';
-    tooltip($tip); ?>
-    <input type="radio" name="braftonArticlePostType" value="1" <?php checkRadioval($options['braftonArticlePostType'], 1); ?>> ON
-    <input type="radio" name="braftonArticlePostType" value="0" <?php checkRadioval($options['braftonArticlePostType'], 0); ?>> OFF 
-<?php    
-}
-/*
-Archive Settings Tab function Section
-*/
-//Displays the options for uploading an archive file in place of retrieving a remote feed url
-function braftonArchiveUpload(){
-    $tip = 'Select an XML file to upload';
-    tooltip($tip); ?>
-<input type="file" id="braftonUpload" name="archive" size="40" disabled>
-<?php 
-}
-//Display sthe option for turning on the archive importer.  Must be tuned ON to be able to upload an archive file.
-function braftonArchiveImporterStatus(){
-    global $options;
-    $tip = 'Turns the ARchive Importer ON/OFF.  If this option is turned OFF selecting a file will result in nothing being imported.  You must turn this option ON AND upload a file.';
-    tooltip($tip); ?>
-    <input type="radio" class="archiveStatus" name="braftonArchiveImporterStatus" value="1" <?php checkRadioval($options['braftonArchiveImporterStatus'], 1); ?>> ON
-    <input type="radio" class="archiveStatus" name="braftonArchiveImporterStatus" value="0" <?php checkRadioval($options['braftonArchiveImporterStatus'], 0); ?>> OFF 
-<?php    
-}
-/*
-Video Settings Tab function Section
-*/
-//Displays the options to turn the Video Importer OFF/ON
-function braftonVideoStatus(){
-    global $options;
-    $tip = 'Turns the Video Importer ON/OFF.';
-    tooltip($tip); ?>
-    <input type="radio" name="braftonVideoStatus" value="1" <?php checkRadioval($options['braftonVideoStatus'], 1); ?>> ON
-    <input type="radio" name="braftonVideoStatus" value="0" <?php checkRadioval($options['braftonVideoStatus'], 0); ?>> OFF 
-<?php     
-}
-//Displays the option for entering Public Key for Video Feed
-function braftonVideoPublicKey(){
-    global $options;
-    $tip = 'Enter your Public Key provided to you from your CMS';
-    tooltip($tip); ?>
-<input type="text" name="braftonVideoPublicKey" id="brafton_video_public" value="<?php
-		echo $options['braftonVideoPublicKey']; ?>" />
-<?php     
-}
-//displays the option for entering Private key for video feed
-function braftonVideoPrivateKey(){
-    global $options;
-    $tip = 'Enter your Prive Key provided to you from your CMS';
-    tooltip($tip); ?>
-<input type="text" name="braftonVideoPrivateKey" id="brafton_video_secret" value="<?php
-		echo $options['braftonVideoPrivateKey']; ?>" />
-<?php     
-}
-//displays the option for enterign the Feed Number {ID}
-function braftonVideoFeed(){
-    global $options;
-    $tip = 'Enter your Feed Number. *NOTE: This is usually 0';
-    tooltip($tip); ?>
-<input type="text" name="braftonVideoFeed" value="<?php
-		echo $options['braftonVideoFeed']; ?>" />
-<?php 
-}
-//displays the option for selecting where to get the javascript used for playing videos
-function braftonVideoHeaderScript(){
-    global $options;
-    $tip = "Selecting 'Neither' will still import videojs embed code, this is just the script imports.  Turn if off for sites that already have video js script in the header.";
-    tooltip($tip);
-    ?>
-    <input type="radio" id="embed_type" name="braftonVideoHeaderScript" value="videojs" <?php checkRadioval($options['braftonVideoHeaderScript'], 'videojs'); ?> /> Video JS
-    <input type="radio" id="atlantis" name="braftonVideoHeaderScript" value="atlantisjs" <?php checkRadioval($options['braftonVideoHeaderScript'], 'atlantisjs'); ?>/> Atlantis JS
-    <input type="radio" id="neither" name="braftonVideoHeaderScript" value="off" <?php checkRadioval($options['braftonVideoHeaderScript'], 'off'); ?>/> Neither
-<?php
-}
-function braftonVideoCSS(){
-    global $options;
-    $tip = 'Extra CSS to fix a common issue where atlantisJS looks wonky.';
-    tooltip($tip); ?>
-<input type="radio" name="braftonVideoCSS" value="on" <?php checkRadioval($options['braftonVideoCSS'], 'on'); ?> /> On
-<input type="radio" name="braftonVideoCSS" value="off" <?php	checkRadioval($options['braftonVideoCSS'], 'off'); ?>/> Off
-<?php    
-}
-function braftonVideoCTAs(){
-    global $options;
-    $tip = "If using Atlantis JS for video playback you can set specific CTA's for when the Video is paused and finished";
-    tooltip($tip); ?>
-    <div class="b_v_cta">
-        <label>Paused CTA Text</label><br/><input type="text" name="braftonVideoCTA[pausedText]" value="<?php echo $options['braftonVideoCTA']['pausedText']; ?>"><br>
-        <label>Paused CTA Link</label><br/><input type="text" name="braftonVideoCTA[pausedLink]" value="<?php echo $options['braftonVideoCTA']['pausedLink']; ?>"><br>
-        <label>Ending CTA Title</label><br/><input type="text" name="braftonVideoCTA[endingTitle]" value="<?php echo $options['braftonVideoCTA']['endingTitle']; ?>"><br>
-        <label>Ending CTA Subtitle</label><br/><input type="text" name="braftonVideoCTA[endingSubtitle]" value="<?php echo $options['braftonVideoCTA']['endingSubtitle']; ?>"><br>
-        <label>Ending CTA Button Text</label><br/><input type="text" name="braftonVideoCTA[endingButtonText]" value="<?php echo $options['braftonVideoCTA']['endingButtonText']; ?>"><br>
-        <label>Ending CTA Button Link</label><br/><input type="text" name="braftonVideoCTA[endingButtonLink]" value="<?php echo $options['braftonVideoCTA']['endingButtonLink']; ?>"><br>
-    </div>
-<?php 
-}
-
-//function for the marpro section
-function braftonMarproStatus(){
-    global $options;
-    $tip = 'Turning on Marpro will add our custom script to the footer allowing for connection to your Asset Gateway for your marketing resources';
-    tooltip($tip); ?>
-    <input type="radio" name="braftonMarproStatus" value="on" <?php	checkRadioval($options['braftonMarproStatus'], 'on'); ?> /> On
-    <input type="radio" name="braftonMarproStatus" value="off" <?php checkRadioval($options['braftonMarproStatus'], 'off'); ?>/> Off
-<?php 
-}
-function braftonMarproId(){
-    global $options;
-    $tip = 'If using our Marpro Product you will need your Id.  You can obtain this information from your CMS';
-    tooltip($tip); ?>
-<input type="text" name="braftonMarproId" value="<?php
-		echo $options['braftonMarproId']; ?>"/>
-<?php 
-}
-//Manual Import Settings
-function braftonManualImport(){?>
-    <div class="manual_buttons"><?php submit_button('Import Articles'); ?></div>
-    <div class="manual_buttons"><?php submit_button('Import Videos'); ?></div>
-    <div class="manual_buttons"><?php submit_button('Get Categories'); ?></div>
-    <?php 
-}
-function braftonRegisterSettings(){
-//Defines each settings section for General, Articles, Videos, marpro, Archives, and Error Logs.  Each section is labeled with the appropriate settings section for finding the appropriate fucntion for displaying that option.
-
+//Set Up the General Settings Section
+function GeneralSettingsSetup(){
 //General Settings Tab
         register_setting(
-            'brafton_general_options', // Option group
+            'brafton_general_options', 
             'brafton_options' );
-        //sets a section name for the options
         add_settings_section(
             'general', // ID
             'General Importer Settings', // Title
@@ -583,7 +336,155 @@ function braftonRegisterSettings(){
             'braftonUpdateContent',
             'brafton_general',
             'general'
-        );
+        );   
+}
+//Option enables setting up override styles
+//TODO : Will be moving to s seperate section to inself for style
+function braftonRestyle(){
+    global $options;
+    tooltip('Sometimes with our premium content user stylesheets can cause confilicts with the styles for the content.  Enable this feature to correct for this problem.  NOTE: You must have JQuery on your site for this to work.  If you currently do not have JQuery you can add it with the option above.');
+    ?>
+    <input type="radio" name="braftonRestyle" value="1" <?php checkRadioVal($options['braftonRestyle'], 1); ?>> Add Style Correction
+    <input type="radio" name="braftonRestyle" value="0" <?php checkRadioVal($options['braftonRestyle'], 0); ?>> No Style Correction
+<?php  
+}
+
+//Importing a copy of JQuery for use if not currently using a copy.  JQuery is required for video playback using AtlantisJS as well as Marpro and syle overrides
+function braftonImportJquery(){
+    global $options;
+    $tip = 'Some sites already have jquery, set this to off if additional jquery script included with atlantisjs is causing issues.';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonImportJquery" value="on" <?php	checkRadioval($options['braftonImportJquery'], 'on'); ?> /> On
+    <input type="radio" name="braftonImportJquery" value="off" <?php checkRadioval($options['braftonImportJquery'], 'off'); ?>/> Off
+<?php 
+}
+
+//Displays the option for enabling open graph tags for single article pages
+function braftonOpenGraphStatus(){
+    global $options;
+    tooltip('Adds og: tags to the single.php pages.  These tags are used for social media sites.  Check if you have another SEO plugin currently generating these tags before turning them on');
+    ?>
+    <input type="radio" name="braftonOpenGraphStatus" value="1" <?php checkRadioVal($options['braftonOpenGraphStatus'], 1); ?>> Add Tags
+    <input type="radio" name="braftonOpenGraphStatus" value="0" <?php checkRadioVal($options['braftonOpenGraphStatus'], 0); ?>> No Tags
+<?php  
+}
+
+//Display the option for Brafton Categories
+function braftonCategories(){
+    global $options;
+    $tip = 'This option is for using categories set by the article when importer.  *RECOMENDATION: Set to Brafton Categories';
+    tooltip($tip); ?>
+<input type="radio" name="braftonCategories" value="categories" <?php checkRadioval($options['braftonCategories'], 'categories'); ?> /> Brafton Categories                
+<input type="radio" name="braftonCategories" value="none_cat" <?php checkRadioval($options['braftonCategories'], 'none_cat');
+?> /> None
+<?php 
+}
+
+//Displays the option for using custom categories
+function braftonCustomCategories(){
+    global $options;
+    $tip = 'Each category seperated by a comma. I.E. (first,second,third)';
+    tooltip($tip); ?>
+<input type="text" name="braftonCustomCategories" value="<?php
+		echo $options['braftonCustomCategories'];
+?>"/>
+<?php     
+}
+
+//Displays the option for support for Tags
+function braftonTags(){
+    global $options;
+    $tip = 'Tags are rarely used and hold no true SEO Value, however we provide you with options if you choose to use them. The Option you select must be included in your XML Feed.';
+    tooltip($tip); ?>
+<input type="radio" name="braftonTags" value="tags" <?php checkRadioval($options['braftonTags'], 'tags'); ?> />Tags as tags<br />              
+<input type="radio" name="braftonTags" value="keywords" <?php checkRadioval($options['braftonTags'], 'keywords');?> />Keywords as tags<br />
+<input type="radio" name="braftonTags" value="cats" <?php checkRadioval($options['braftonTags'], 'cats');?> />Categories as tags<br />
+<input type="radio" name="braftonTags" value="none_tags" <?php checkRadioval($options['braftonTags'], 'none_tags');?> /> None 
+<?php 
+}
+
+//Displays the option for Custom Tags
+function braftonCustomTags(){
+    global $options;
+    $tip = 'Each tag seperated by a comma. I.E. (first,second,third)';
+    tooltip($tip); ?>
+<input type="text" name="braftonCustomTags" value="<?php
+		echo $options['braftonCustomTags']; ?>"/>
+<?php 
+}
+
+//Displays the option for setting the date for an article when imported
+function braftonSetDate(){
+    global $options;
+    $tip = 'Specify which date from your XML Feed to use as the publish date upon import';
+    tooltip($tip); ?>
+<input type="radio" name="braftonPublishDate" value="published" <?php checkRadioval($options['braftonPublishDate'], 'published'); ?> /> Published
+<input type="radio" name="braftonPublishDate" value="modified" <?php checkRadioval($options['braftonPublishDate'], 'modified'); ?>/> Last Modified
+<input type="radio" name="braftonPublishDate" value="created" <?php checkRadioval($options['braftonPublishDate'], 'created'); ?>/> Created
+<?php 
+}
+
+//Displays the option for Default Post Status upon import
+function braftonDefaultPostStatus(){
+    global $options;
+    $tip = 'Sets the default Post status for articles and video imported.  Draft affords the ability to approve an article before it is made live on the blog';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonPostStatus" value="publish" <?php checkRadioval($options['braftonPostStatus'], 'publish'); ?> /> Published
+				<input type="radio" name="braftonPostStatus" value="draft" <?php checkRadioval($options['braftonPostStatus'], 'draft'); ?>/> Draft
+<?php     
+}
+
+//Displays the option for setting the importer user.  This option used to allow HTMl Tags needed for Premium content including but not limited to script, input, style ect.
+function braftonImporterUser(){ 
+    global $options;
+    $args = array(
+        'role'      => 'administrator'
+    );
+    $admins = get_users($args);
+    $tip = 'Designate a User for the Importer. *NOTE: This is different than the Author';
+    tooltip($tip); ?>
+    <select name="braftonImporterUser">
+        <option value="">Select Importer User</option><?php 
+    foreach($admins as $u){ ?>
+        <option value="<?php echo $u->user_login; ?>" <?php checkRadioval($options['braftonImporterUser'], $u->user_login, 'selected'); ?>><?php echo $u->user_login; ?></option><?php 
+    }
+        ?></select>
+  
+<?php 
+}
+
+//Displays the option Turning the Importer itself OFF/ON.  
+function braftonStatus(){
+    global $options;
+    $tip = 'Turns the Importer ON/OFF while still maintaing your settings.';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonStatus" value="1" <?php checkRadioval($options['braftonStatus'], 1); ?>> ON
+    <input type="radio" name="braftonStatus" value="0" <?php checkRadioval($options['braftonStatus'], 0); ?>> OFF 
+<?php 
+}
+
+//Displays the Options for setting the API Domain
+function braftonApiDomain(){
+    global $options;
+    $tip = 'Set the domain your XML Feed originates from.  This information can be obtained from your CMS.';
+    tooltip($tip); ?>
+    	<select name='braftonApiDomain'>
+            <option value="api.brafton.com" <?php checkRadioval($options['braftonApiDomain'], 'api.brafton.com', 'selected'); ?>>Brafton</option>
+            <option value="api.contentlead.com" <?php checkRadioval($options['braftonApiDomain'], 'api.contentlead.com', 'selected'); ?>>ContentLEAD</option>
+            <option value="api.castleford.com.au" <?php checkRadioval($options['braftonApiDomain'], 'api.castleford.com.au', 'selected'); ?>>Castleford</option>
+
+        </select>
+<?php
+}
+
+/********************************************************************************************
+ *
+ * Article settings Tab functions Section
+ *
+ ********************************************************************************************
+ */
+
+function ArticleSettingsSetup(){
 //Articles Tab
         register_setting(
             'brafton_article_options', // Option group
@@ -629,8 +530,134 @@ function braftonRegisterSettings(){
             'braftonArticlePostType',
             'brafton_article',
             'article'
+        );   
+}
+
+//Displays the Option for setting the API Key for use with the Artile Importer
+function braftonApiKey(){ 
+    global $options;
+    $tip = 'Enter Your API Key for your XML Feed.  This information can be obtained from your CMS. (Example: 2de93ffd-280f-4d4b-9ace-be55db9ad4b7)'; 
+    tooltip($tip); ?>
+    <input type="text" name="braftonApiKey" id="brafton_api_key" value="<?php echo $options['braftonApiKey']; ?>" />
+
+<?php 
+}
+
+//Displays the option for allowing overriding of previously imported articles.
+function braftonUpdateContent(){
+    global $options;
+    $tip = 'Setting this to ON will override edits made to posts within the last 30 days or using an archive file';
+    tooltip($tip); ?>
+<input type="radio" name="braftonUpdateContent" value="1" <?php checkRadioval($options['braftonUpdateContent'], 1); ?> /> On
+<input type="radio" name="braftonUpdateContent" value="0" <?php checkRadioval($options['braftonUpdateContent'], 0); ?>/> Off
+<?php     
+}
+
+//Displays the options for Using Dynamic Authors
+function braftonArticleDynamic(){
+    global $options;
+    $tip = "Sets Author to 'byLine' From the feed. If the Author does not exsist they will be added.
+Default auhor is returned if no author is set int he field or if new author cannot be created.";
+    tooltip($tip); ?>
+<input type="radio" name="braftonArticleDynamic" value="y" <?php checkRadioval($options['braftonArticleDynamic'], 'y'); ?> />Enable              
+<input type="radio" name="braftonArticleDynamic" value="n" <?php checkRadioval($options['braftonArticleDynamic'], 'n'); ?> />Disable<br />
+<?php 
+}
+
+//Displays the options for selecting the default author of imported content from a list of users.
+function braftonArticleAuthorDefault(){
+    global $options;
+    $tip = 'Set the Default Author for Articles upon Import';
+    tooltip($tip); 
+    wp_dropdown_users(array(
+			'name' => 'braftonArticleAuthorDefault',
+			'hide_if_only_one_author' => true,
+			'selected' => $options['braftonArticleAuthorDefault']
+		));
+}
+
+//Displays the Options for turning the Article Importer OFF/ON
+function braftonArticleStatus(){
+    global $options;
+    $tip = 'Turns the Article Importer ON/OFF.';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonArticleStatus" value="1" <?php checkRadioval($options['braftonArticleStatus'], 1); ?>> ON
+    <input type="radio" name="braftonArticleStatus" value="0" <?php checkRadioval($options['braftonArticleStatus'], 0); ?>> OFF 
+<?php    
+}
+
+//Displays the Options for turning on custom post types for brafton content_ur
+function braftonArticlePostType(){
+    global $options;
+    $tip = 'Turn this option on to set custom post type for '.$options['braftonApiDomain'].' Content';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonArticlePostType" value="1" <?php checkRadioval($options['braftonArticlePostType'], 1); ?>> ON
+    <input type="radio" name="braftonArticlePostType" value="0" <?php checkRadioval($options['braftonArticlePostType'], 0); ?>> OFF 
+<?php    
+}
+
+
+/*
+ *****************************************************************************************************
+ *
+ * Archive Settings Tab function Section
+ *
+ *****************************************************************************************************
+ */
+function ArchiveSettingSetup(){
+    //Archives Tab
+        register_setting(
+            'brafton_archive_options', // Option group
+            'brafton_archive' );
+        //sets a section name for the options
+        add_settings_section(
+            'archive', // ID
+            'Upload an Article Archive', // Title
+            'print_section_info', // Callback
+            'brafton_archive' // Page
         );
-//Videos Tab
+        add_settings_field(
+            'braftonArchiveImporterStatus',
+            'Archive Importer Status',
+            'braftonArchiveImporterStatus',
+            'brafton_archive',
+            'archive'
+        );
+        add_settings_field(
+            'braftonArchiveUpload',
+            'Upload an XML File',
+            'braftonArchiveUpload',
+            'brafton_archive',
+            'archive'
+        );
+}
+//Displays the options for uploading an archive file in place of retrieving a remote feed url
+function braftonArchiveUpload(){
+    $tip = 'Select an XML file to upload';
+    tooltip($tip); ?>
+<input type="file" id="braftonUpload" name="archive" size="40" disabled>
+<?php 
+}
+//Display sthe option for turning on the archive importer.  Must be tuned ON to be able to upload an archive file.
+function braftonArchiveImporterStatus(){
+    global $options;
+    $tip = 'Turns the ARchive Importer ON/OFF.  If this option is turned OFF selecting a file will result in nothing being imported.  You must turn this option ON AND upload a file.';
+    tooltip($tip); ?>
+    <input type="radio" class="archiveStatus" name="braftonArchiveImporterStatus" value="1" <?php checkRadioval($options['braftonArchiveImporterStatus'], 1); ?>> ON
+    <input type="radio" class="archiveStatus" name="braftonArchiveImporterStatus" value="0" <?php checkRadioval($options['braftonArchiveImporterStatus'], 0); ?>> OFF 
+<?php    
+}
+
+/*
+ **********************************************************************************************
+ *
+ * Video Settings Tab function Section
+ *
+ **********************************************************************************************
+ */
+
+function VideoSettingsSetup(){
+    //Videos Tab
         register_setting(
             'brafton_video_options', // Option group
             'brafton_video' );
@@ -690,7 +717,93 @@ function braftonRegisterSettings(){
             'brafton_video',
             'video'
         );
-//Marpro Tab
+}
+
+//Displays the options to turn the Video Importer OFF/ON
+function braftonVideoStatus(){
+    global $options;
+    $tip = 'Turns the Video Importer ON/OFF.';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonVideoStatus" value="1" <?php checkRadioval($options['braftonVideoStatus'], 1); ?>> ON
+    <input type="radio" name="braftonVideoStatus" value="0" <?php checkRadioval($options['braftonVideoStatus'], 0); ?>> OFF 
+<?php     
+}
+
+//Displays the option for entering Public Key for Video Feed
+function braftonVideoPublicKey(){
+    global $options;
+    $tip = 'Enter your Public Key provided to you from your CMS';
+    tooltip($tip); ?>
+<input type="text" name="braftonVideoPublicKey" id="brafton_video_public" value="<?php
+		echo $options['braftonVideoPublicKey']; ?>" />
+<?php     
+}
+
+//displays the option for entering Private key for video feed
+function braftonVideoPrivateKey(){
+    global $options;
+    $tip = 'Enter your Prive Key provided to you from your CMS';
+    tooltip($tip); ?>
+<input type="text" name="braftonVideoPrivateKey" id="brafton_video_secret" value="<?php
+		echo $options['braftonVideoPrivateKey']; ?>" />
+<?php     
+}
+
+//displays the option for enterign the Feed Number {ID}
+function braftonVideoFeed(){
+    global $options;
+    $tip = 'Enter your Feed Number. *NOTE: This is usually 0';
+    tooltip($tip); ?>
+<input type="text" name="braftonVideoFeed" value="<?php
+		echo $options['braftonVideoFeed']; ?>" />
+<?php 
+}
+
+//displays the option for selecting where to get the javascript used for playing videos
+function braftonVideoHeaderScript(){
+    global $options;
+    $tip = "Selecting 'Neither' will still import videojs embed code, this is just the script imports.  Turn if off for sites that already have video js script in the header.";
+    tooltip($tip);
+    ?>
+    <input type="radio" id="embed_type" name="braftonVideoHeaderScript" value="videojs" <?php checkRadioval($options['braftonVideoHeaderScript'], 'videojs'); ?> /> Video JS
+    <input type="radio" id="atlantis" name="braftonVideoHeaderScript" value="atlantisjs" <?php checkRadioval($options['braftonVideoHeaderScript'], 'atlantisjs'); ?>/> Atlantis JS
+    <input type="radio" id="neither" name="braftonVideoHeaderScript" value="off" <?php checkRadioval($options['braftonVideoHeaderScript'], 'off'); ?>/> Neither
+<?php
+}
+
+function braftonVideoCSS(){
+    global $options;
+    $tip = 'Extra CSS to fix a common issue where atlantisJS looks wonky.';
+    tooltip($tip); ?>
+<input type="radio" name="braftonVideoCSS" value="on" <?php checkRadioval($options['braftonVideoCSS'], 'on'); ?> /> On
+<input type="radio" name="braftonVideoCSS" value="off" <?php	checkRadioval($options['braftonVideoCSS'], 'off'); ?>/> Off
+<?php    
+}
+
+function braftonVideoCTAs(){
+    global $options;
+    $tip = "If using Atlantis JS for video playback you can set specific CTA's for when the Video is paused and finished";
+    tooltip($tip); ?>
+    <div class="b_v_cta">
+        <label>Paused CTA Text</label><br/><input type="text" name="braftonVideoCTA[pausedText]" value="<?php echo $options['braftonVideoCTA']['pausedText']; ?>"><br>
+        <label>Paused CTA Link</label><br/><input type="text" name="braftonVideoCTA[pausedLink]" value="<?php echo $options['braftonVideoCTA']['pausedLink']; ?>"><br>
+        <label>Ending CTA Title</label><br/><input type="text" name="braftonVideoCTA[endingTitle]" value="<?php echo $options['braftonVideoCTA']['endingTitle']; ?>"><br>
+        <label>Ending CTA Subtitle</label><br/><input type="text" name="braftonVideoCTA[endingSubtitle]" value="<?php echo $options['braftonVideoCTA']['endingSubtitle']; ?>"><br>
+        <label>Ending CTA Button Text</label><br/><input type="text" name="braftonVideoCTA[endingButtonText]" value="<?php echo $options['braftonVideoCTA']['endingButtonText']; ?>"><br>
+        <label>Ending CTA Button Link</label><br/><input type="text" name="braftonVideoCTA[endingButtonLink]" value="<?php echo $options['braftonVideoCTA']['endingButtonLink']; ?>"><br>
+    </div>
+<?php 
+}
+
+/*
+ ************************************************************************************************
+ *
+ * Marpro Setting Section
+ *
+ ************************************************************************************************
+ */
+function MarproSettingsSetup(){
+    //Marpro Tab
         register_setting(
             'brafton_marpro_options', // Option group
             'brafton_marpro' );
@@ -715,65 +828,36 @@ function braftonRegisterSettings(){
             'brafton_marpro',
             'marpro'
         );
-//Archives Tab
-        register_setting(
-            'brafton_archive_options', // Option group
-            'brafton_archive' );
-        //sets a section name for the options
-        add_settings_section(
-            'archive', // ID
-            'Upload an Article Archive', // Title
-            'print_section_info', // Callback
-            'brafton_archive' // Page
-        );
-        add_settings_field(
-            'braftonArchiveImporterStatus',
-            'Archive Importer Status',
-            'braftonArchiveImporterStatus',
-            'brafton_archive',
-            'archive'
-        );
-        add_settings_field(
-            'braftonArchiveUpload',
-            'Upload an XML File',
-            'braftonArchiveUpload',
-            'brafton_archive',
-            'archive'
-        );
-//Error Logs Tab
-        register_setting(
-            'brafton_error_options', // Option group
-            'brafton_error' );
-        //sets a section name for the options
-        add_settings_section(
-            'error', // ID
-            'Error Log', // Title
-            'print_section_info', // Callback
-            'brafton_error' // Page
-        );  
-        //each one of these adds a field with the options
-        add_settings_field(
-            'braftonDebugger', // ID
-            'Debug Mode', // Title 
-            'braftonDebugger' , // Callback
-            'brafton_error', // Page
-            'error' // Section           
-        );
-        add_settings_field(
-            'braftonClearLog', // ID
-            'Clear Error Log', // Title 
-            'braftonClearLog' , // Callback
-            'brafton_error', // Page
-            'error' // Section           
-        );
-        add_settings_field(
-            'braftonDisplayLog', // ID
-            'Error Log', // Title 
-            'braftonDisplayLog' , // Callback
-            'brafton_error', // Page
-            'error' // Section           
-        );
-//EManual Control Tab
+}
+
+//function for the marpro section
+function braftonMarproStatus(){
+    global $options;
+    $tip = 'Turning on Marpro will add our custom script to the footer allowing for connection to your Asset Gateway for your marketing resources';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonMarproStatus" value="on" <?php	checkRadioval($options['braftonMarproStatus'], 'on'); ?> /> On
+    <input type="radio" name="braftonMarproStatus" value="off" <?php checkRadioval($options['braftonMarproStatus'], 'off'); ?>/> Off
+<?php 
+}
+//function for setting the marpro id
+function braftonMarproId(){
+    global $options;
+    $tip = 'If using our Marpro Product you will need your Id.  You can obtain this information from your CMS';
+    tooltip($tip); ?>
+<input type="text" name="braftonMarproId" value="<?php
+		echo $options['braftonMarproId']; ?>"/>
+<?php 
+}
+
+/*
+ **************************************************************************************************
+ * 
+ * Manual Import Section
+ *
+ **************************************************************************************************
+ */
+function ManualSettingsSetup(){
+    //EManual Control Tab
         register_setting(
             'brafton_control_options', // Option group
             'brafton_control' );
@@ -791,6 +875,25 @@ function braftonRegisterSettings(){
             'brafton_control',
             'control'
         );
+}
+
+//Manual Import Settings
+function braftonManualImport(){?>
+    <div class="manual_buttons"><?php submit_button('Import Articles'); ?></div>
+    <div class="manual_buttons"><?php submit_button('Import Videos'); ?></div>
+    <div class="manual_buttons"><?php submit_button('Get Categories'); ?></div>
+    <?php 
+}
+function braftonRegisterSettings(){
+//Defines each settings section for General, Articles, Videos, marpro, Archives, and Error Logs.  Each section is labeled with the appropriate settings section for finding the appropriate fucntion for displaying that option.
+
+    GeneralSettingsSetup();
+    ArticleSettingsSetup();
+    VideoSettingsSetup();
+    MarproSettingsSetup();
+    ArchiveSettingSetup();
+    ErrorSettingsSetup();
+    ManualSettingsSetup();
 }
 //add_action('admin_init', 'braftonRegisterSettings');
 function admin_page(){
