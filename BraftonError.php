@@ -26,7 +26,7 @@ class BraftonErrorReport {
     /*
      *$level current brafton level of severity set by passing int variable to the set_level method
      */
-    private $level;
+    public $level;
     
     private $domain;
     //Construct our error reporting functions
