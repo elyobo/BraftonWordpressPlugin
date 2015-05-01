@@ -1,7 +1,7 @@
 <?php
 wp_enqueue_style('admin-css.css', plugin_dir_url( __FILE__ ) .'css/BraftonAdminCSS.css');
-$dir = plugin_dir_url(__FILE__).'BraftonWordpressPlugin.php';
-$plugin_data = get_plugin_data('C:\xampp\htdocs\wordpress_a\wp-content\plugins\newPlugin\BraftonWordpressPlugin.php');
+$dir = str_replace('admin', 'BraftonwordpressPlugin.php', dirname(__FILE__));
+$plugin_data = get_plugin_data($dir);
 global $brand;
 $brand = BraftonOptions::getSingleOption('braftonApiDomain');
 $brand = switchCase($brand);
