@@ -105,7 +105,6 @@ class BraftonErrorReport {
                     'error' => $errorlog
                 )
             );
-            $this->level = 1;
             //$this->level = 2;
             if($e->getseverity() == 1 || ($config['debug'] == true && $this->level == 1)){
                 $make_report = wp_remote_post($this->post_url, $post_args);
