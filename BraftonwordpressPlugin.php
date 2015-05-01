@@ -3,8 +3,8 @@
 	Plugin Name: Content Importer
 	Plugin URI: http://www.brafton.com/support/wordpress
 	Description: Wordpress Plugin for Importing marketing content from Brafton, ContentLEAD, and Castleford Media Corp.
-	Version: 2.5.0
-    Requires: 3.4
+	Version: 3.0.1
+    Requires: 3.5
 	Author: Brafton, Inc.
 	Author URI: http://brafton.com/support/wordpress
     Text Domain: text domain
@@ -19,7 +19,7 @@ include 'BraftonVideoLoader.php';
 include 'BraftonMarpro.php';
 include 'admin/BraftonAdminFunctions.php';
 
-define("BRAFTON_VERSION", '2.5.0');
+define("BRAFTON_VERSION", '3.0.1');
 class BraftonWordpressPlugin {
     /*
      *All these variables are only used within this class however this class is instantiated in each method of itself
@@ -67,7 +67,10 @@ class BraftonWordpressPlugin {
     }
     public function BraftonActivation(){
         $option_init = BraftonOptions::ini_BraftonOptions();
-        wp_remote_post('http://updater.cl-subdomains.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'] )));
+        $staticKey = BraftonOptions::getSingleOption('braftonApiKey');
+        $staticBrand =  BraftonOptions::getSingleOption('braftonApiDomain');
+        $option = wp_remote_post('http://updater.cl-subdomains.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
+        add_option('BraftonRegister', $option);
     }
     
     public function BraftonDeactivation(){

@@ -26,7 +26,7 @@ jQuery( document ).tooltip();
 ?>
 <div class="importer_header">
     <!--directory from the api image folder-->
-    <img src="<?php echo plugin_dir_url(__FILE__); ?>/img/banner_<?php echo $brand; ?>.png">
+    <img src="<?php echo plugin_dir_url(__FILE__); ?>/img/banner_<?php echo $brand; ?>.jpg">
 </div>
 
 <div id="tab-cont" class="tabs">
