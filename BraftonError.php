@@ -37,8 +37,8 @@ class BraftonErrorReport {
         $this->brand = $brand;
         $this->e_key = 'ucocfukkuineaxf2lzl3x6h9';
         $this->post_url = 'http://updater.cl-subdomains.com/errorlog/wordpress/error/'.$this->e_key;
-        $this->level = 2;
-        $this->section = 'loop';
+        $this->level = 1;
+        $this->section = 'error initialize';
         register_shutdown_function(array($this,  'check_for_fatal'));
         set_error_handler(array($this, 'log_error') );
         set_exception_handler(array($this, 'log_exception'));

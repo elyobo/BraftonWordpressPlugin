@@ -48,6 +48,7 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     }
     //Gets a list of categories for this video feed and adds them if they don't already exsist
     public function ImportCategories(){
+        $this->errors->set_section('video categories');
         $catArray = array();
         $cNum = $this->ClientCategory->ListCategoriesForFeed($this->feedId, 0,100, '','')->totalCount;
         for($i=0;$i<$cNum;$i++){
@@ -89,6 +90,7 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         return sprintf('<source src="%s" type="video/%s" data-resolution="%s" />', $src, $ext, $resolution );
     }
     public function generateEmbed($list, $splash, $brafton_id){
+        $this->errors->set_section('Build embeed code');
         $video =  "<div id='singlePostVideo'>";
         $atlantis = false;
         //define video types
@@ -153,6 +155,7 @@ EOC;
         
     }
     public function getVideoFeed(){
+        $this->errors->set_section('get video feed');
         $this->VideoClient = new AdferoVideoClient($this->VideoURL, $this->PublicKey, $this->PrivateKey);
         $this->Client = new AdferoClient($this->VideoURL, $this->PublicKey, $this->PrivateKey);
         $this->PhotoClient = new AdferoPhotoClient($this->PhotoURL);
@@ -184,6 +187,7 @@ EOC;
         $this->runLoop(); 
     }
     public function runLoop(){
+        $this->errors->set_section('video master loop');
         //Define local vars for the loop
         global $level, $wpdb, $post, $wp_rewrite;
         $scale_axis = 'y';
@@ -193,6 +197,7 @@ EOC;
             if($counter>5){ return;}
             $brafton_id = $article->id;
             if( !($post_id = $this->brafton_post_exists($brafton_id)) || $this->override ){//Begin individual video article import
+                $this->errors->set_section('individual video loop');
                 //Get the current article info in the loop
                 $thisArticle = $this->Client->Articles()->Get($brafton_id);
                 //Get the splash images for the video embed code
@@ -275,7 +280,7 @@ EOC;
                 }
                 $this->add_needed_meta($post_id, $meta_array);
 
-                
+                ++$this->errors->level;
             }//End the individual video article import
             ++$counter;
         }

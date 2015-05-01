@@ -71,6 +71,7 @@ class BraftonFeedLoader {
         return $author;
     }
     public function getPostDate($article){
+
         switch($this->publishDate){
             case 'modified':
             $pdate = $article->getLastModifiedDate();
@@ -130,6 +131,7 @@ class BraftonFeedLoader {
                         
     }
     public function add_needed_meta($post_id, $meta_array){
+        $this->errors->set_section('assign meta data');
         foreach($meta_array as $field => $value){
             update_post_meta($post_id, $field, $value);   
         }

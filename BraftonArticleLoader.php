@@ -39,6 +39,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     //TODO: Still need to create algorythm for joining the sames in a string to search for matches of parent child categories for use with the same child name as other child names.  all child categories that are in the db after the first imported one take on the parent slug as an appended variable to the child name turned into a slug.
     public function ImportCategories(){
         global $wpdb;
+        $this->errors->set_section('Importing Categories');
         $CatColl = $this->connection->getCategoryDefinitions();
         $custom_cat = explode(',',$this->options['braftonCustomCategories']);
         foreach ($CatColl as $c){
@@ -56,6 +57,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($obj){
         global $wpdb;
+        $this->errors->set_section('assign categories');
         $cats = array();
         $CatColl = $obj->getCategories();
         $custom_cat = explode(',',$this->options['braftonCustomCategories']);
@@ -79,12 +81,14 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     
     public function runLoop(){
         global $level, $wpdb, $post, $wp_rewrite;
+        $this->errors->set_section('master loop');
         $article_count = count($this->articles);
         $counter = 0;
         foreach($this->articles as $article){//start individual article loop
             if($counter == 30){ return; }
             $brafton_id = $article->getId();
             if(!($post_id = $this->brafton_post_exists($brafton_id)) || $this->override){//Start actual importing
+                $this->errors->set_section('individual article loop');
                 set_time_limit(60);
                 $post_title = $article->getHeadline();
                 $post_content = $article->getText();
@@ -154,8 +158,9 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 
                 //post meta data
                 ++$counter;
+                ++$this->errors->level;
             }//end actual importing
-            
+             
         }//end individual article loop
         return;
     }
