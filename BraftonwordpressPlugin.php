@@ -61,6 +61,8 @@ class BraftonWordpressPlugin {
         
         //Adds our needed filters
         add_filter('language_attributes', array($this, 'BraftonOpenGraphNamespace'), 100);
+        //XML RPC Support
+        //add_filter( 'xmlrpc_methods', array($this, 'BraftonXMLRPC' ));
         $init_options = new BraftonOptions();
         $this->options = $init_options->getAll();
         $this->ogStatus = $this->options['braftonOpenGraphStatus'];
@@ -119,14 +121,15 @@ EOC;
         $import = new BraftonArticleLoader();
         $import->ImportArticles();  
     }
-    //Static Video Cron job **Goes off every hour
+    //Static Video Cron job **Goes off every day
     static function BraftonCronVideo(){
-        $import = new BraftonvideoLoader();
-        $import->ImportArticles();
+        $import = new BraftonVideoLoader();
+        $import->ImportVideos();
     }
     //used to clear out brafton cron job add action for init
-    static function BraftonXMLRPC(){
-        
+    static function BraftonXMLRPC($methods){
+        $methods[ 'braftonImportRPC' ] = 'brafton_remote_import';
+        return $methods;
     }
     //used to get the url for og:url tags
     static function BraftonCurlPageURL(){
