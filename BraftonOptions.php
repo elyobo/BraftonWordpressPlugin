@@ -152,14 +152,14 @@ class BraftonOptions {
             if($old_options['braftonArticleStatus']){
                 wp_clear_scheduled_hook('braftonSetUpCron');
                 //importer is set to go off 4 minutes after it is enabled than hourly after that
-                $schedule = wp_schedule_event(time()+60, 'hourly', 'braftonSetUpCron');
+                $schedule = wp_schedule_event(time()+120, 'hourly', 'braftonSetUpCron');
             }
             else{ wp_clear_scheduled_hook('braftonSetUpCron'); }
             //checks if the video loader is on if not it will disable to the cron for videos if it has previously been enabled
             if($old_options['braftonVideoStatus']){
                 wp_clear_scheduled_hook('braftonSetUpCronvideo');
                 //importer is set to go off 4 minutes after it is enabled than hourly after that
-                $schedule = wp_schedule_event(time()+240, 'hourly', 'braftonSetUpCronVideo');
+                $schedule = wp_schedule_event(time()+120, 'daily', 'braftonSetUpCronVideo');
             }
             else{ wp_clear_scheduled_hook('braftonSetUpCronVideo'); }
         }

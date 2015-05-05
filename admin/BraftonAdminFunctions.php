@@ -99,9 +99,14 @@ function braftonWarnings(){
     //get the last importer run time for Articles 
     $status = 'updated';
     $last_run_time = wp_next_scheduled('braftonSetUpCron');
+    $last_run_time_video = wp_next_scheduled('braftonSetUpCronVideo');
     $last_run = 'N/A';
+    $last_run_video = 'N/A';
     if($last_run_time){
         $last_run = date('F d Y h:i:s', $last_run_time);
+    }
+    if($last_run_time_video){
+        $last_run_video = date('F d Y h:i:s', $last_run_time_video);
     }
     $time = time();
     $current_time = date('F d Y h:i:s', $time);
@@ -112,10 +117,15 @@ function braftonWarnings(){
         $failed_error = new BraftonErrorReport();
         trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
     }
+    if(($last_run_time_video) && $last_run_time_video < $time){
+        echo "<div class='error'>
+				<p>The Video Importer Failed to Run at its scheduled time.  Contact tech@brafton.com</p>
+				</div>";
+    }
     echo "<div class='$status'>
                 <p>Current Time: $current_time</p>
 				<p>Next Article Run: $last_run</p>
-                <p>Next Video Run:
+                <p>Next Video Run: $last_run_video</p>
 				</div>";
 }
 /*
