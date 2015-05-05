@@ -28,7 +28,7 @@ class BraftonOptions {
     static function ini_BraftonOptions(){
         $default_options = array(
             'braftonDebugger'           => 0,
-            'braftonCategories'         => 'none_cat',
+            'braftonCategories'         => 'categories',
             'braftonCustomCategories'    => '',
             'braftonTags'               => 'none_tags',
             'braftonCustomTags'         => '',
@@ -49,7 +49,7 @@ class BraftonOptions {
             'braftonVideoPublicKey'     => 'XXXXX',
             'braftonVideoPrivateKey'    => 'XXXXXXXXXXX',
             'braftonVideoFeed'          => 0,
-            'braftonVideoHeaderScript'  => 'off',
+            'braftonVideoHeaderScript'  => 'atlantisjs',
             'braftonImportJquery'       => 'off',
             'braftonVideoCSS'           => 'off',
             'braftonVideoCTA'           => array(
@@ -94,7 +94,7 @@ class BraftonOptions {
             'braftonVideoPublicKey'     => get_option("braftonxml_videoPublic"),
             'braftonVideoPrivateKey'    => get_option("braftonxml_videoSecret"),
             'braftonVideoFeed'          => 0,
-            'braftonVideoHeaderScript'  => 'off',
+            'braftonVideoHeaderScript'  => 'atlantisjs',
             'braftonImportJquery'       => 'off',
             'braftonVideoCSS'           => 'off',
             'braftonVideoCTA'           => array(
