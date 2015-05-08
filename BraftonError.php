@@ -4,7 +4,6 @@
  * rewrite for seperate function to get the erros currently logged, add new error function
  */
 //for debugging.  Displays 
-$config["debug"] = true;
 class BraftonErrorReport {
     
     /*
@@ -28,9 +27,12 @@ class BraftonErrorReport {
      */
     public $level;
     
+    public $debug;
+    
     private $domain;
     //Construct our error reporting functions
-    public function __construct($api, $brand){
+    public function __construct($api, $brand, $debug){
+        $this->debug = $debug;
         $this->url = $_SERVER['REQUEST_URI'];
         $this->domain = $_SERVER['HTTP_HOST'];
         $this->api = $api;
@@ -81,13 +83,28 @@ class BraftonErrorReport {
         }
         return $brafton;
     }
-
+    //Known minor Errors occuring from normal operation.
+    public function check_known_errors($e){
+        switch(basename($e->getFile())){
+            case 'link-template.php':
+            return false;
+            break;
+            case 'post.php':
+            return false;
+            break;
+            case 'class-wp-image-editor-imagick.php':
+            return false;
+            break;
+            default:
+            return true;
+        }
+    }
     //workhorse of the error reporting.  This function does the heavy lifting of logging the error and sending an error report
     public function log_exception( Exception $e ){
 
-        global $config;
         //if severity == 1 (script stop running error) and the error was not part of one of the below know issues for those pages runs error reporting. 
-        if ( ($e->getseverity() == 1) || (basename($e->getFile()) != 'link-template.php' && basename($e->getFile()) != 'post.php') ){
+        if ( ($e->getseverity() == 1) || ($this->debug) || ($this->check_known_errors($e))  ){
+
 
             $brafton_error = $this->b_e_log();
             $errorlog = array(
