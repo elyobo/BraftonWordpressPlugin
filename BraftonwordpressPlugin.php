@@ -87,7 +87,7 @@ class BraftonWordpressPlugin {
         add_submenu_page('BraftonArticleLoader', 'Brafton Article Loader', 'General Options', 'update_plugins', 'BraftonArticleLoader', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Article Options', 'Article Options', 'update_plugins', 'BraftonArticleLoader&tab=1', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Video Options', 'Video Options', 'update_plugins', 'BraftonArticleLoader&tab=2', 'admin_page');
-        add_submenu_page('BraftonArticleLoader', 'Marpro Options', 'Marpro Options', 'update_plugins', 'BraftonArticleLoader&tab=3', 'admin_page');
+        add_submenu_page('BraftonArticleLoader', 'Pumpkin Options', 'Pumpkin Options', 'update_plugins', 'BraftonArticleLoader&tab=3', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Archives', 'Archives', 'update_plugins', 'BraftonArticleLoader&tab=4', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'update_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'update_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
