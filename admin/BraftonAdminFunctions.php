@@ -146,7 +146,7 @@ function print_section_info($args){
             echo '<p>This section is for setting your video specific settings.  All settings on this page are independant of your article settings.';
         break;
         case 'marpro':
-            echo '<p>This section is for settings related to our MarPro Product</p>';
+            echo '<p>This section is for settings related to our Pumpkin Product, which handles lead capture and Call To Action features.</p>';
         break;
         case 'archive':
             echo '<p>This is for uploading an archive provided to you by your CMS</p>';
@@ -809,7 +809,7 @@ function braftonVideoCTAs(){
 /*
  ************************************************************************************************
  *
- * Marpro Setting Section
+ * Marpro Setting Section // Temp renamed to Pumpkin
  *
  ************************************************************************************************
  */
@@ -821,20 +821,20 @@ function MarproSettingsSetup(){
         //sets a section name for the options
         add_settings_section(
             'marpro', // ID
-            'Marpro Settings', // Title
+            'Pumpkin Settings', // Title
             'print_section_info', // Callback
             'brafton_marpro' // Page
         );
         add_settings_field(
             'braftonMarproStatus',
-            'Marpro Status',
+            'Pumpkin Status',
             'braftonMarproStatus',
             'brafton_marpro',
             'marpro'
         );
         add_settings_field(
             'braftonMarproId',
-            'Marpro Id',
+            'Pumpkin Id',
             'braftonMarproId',
             'brafton_marpro',
             'marpro'
