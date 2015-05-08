@@ -26,6 +26,7 @@ jQuery( document ).tooltip();
 ?>
 <div class="importer_header">
     <!--directory from the api image folder-->
+    <?php $brand = strtolower($brand); ?>
     <img src="<?php echo plugin_dir_url(__FILE__); ?>/img/banner_<?php echo $brand; ?>.jpg">
 </div>
 
