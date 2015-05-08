@@ -58,7 +58,6 @@ class BraftonWordpressPlugin {
         add_action('braftonSetUpCron', array($this, 'BraftonCronArticle'));
         add_action('braftonSetUpCronVideo', array($this, 'BraftonCronVideo'));
         
-        
         //Adds our needed filters
         add_filter('language_attributes', array($this, 'BraftonOpenGraphNamespace'), 100);
         //XML RPC Support
@@ -66,6 +65,9 @@ class BraftonWordpressPlugin {
         $init_options = new BraftonOptions();
         $this->options = $init_options->getAll();
         $this->ogStatus = $this->options['braftonOpenGraphStatus'];
+        if($this->options['braftonMarproStatus'] == 'on'){
+            $marpro = new BraftonMarpro();
+        }
     }
     public function BraftonActivation(){
         $option_init = BraftonOptions::ini_BraftonOptions();
