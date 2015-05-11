@@ -27,7 +27,7 @@ class BraftonFeedLoader {
     public function __construct(){
         $option_ini = new BraftonOptions();
         $this->options = $option_ini->getAll();
-        $this->errors = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain') );
+        $this->errors = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
         $this->upload_array = wp_upload_dir();
         $this->override = $this->options['braftonUpdateContent'];
         $this->publishDate = $this->options['braftonPublishDate'];

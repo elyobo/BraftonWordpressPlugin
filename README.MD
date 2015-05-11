@@ -20,3 +20,4 @@ Configuration
 
 
 Please refer any questions or issues you may have with this process by emailing techsupport at brafton dot com.
+//Known error gzinflate() data error occurs when making the call with wordpress to the error api due to undeclared length variable for return output from the wordpress class
