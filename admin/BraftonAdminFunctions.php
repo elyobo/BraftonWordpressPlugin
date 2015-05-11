@@ -100,6 +100,7 @@ function braftonWarnings(){
     $status = 'updated';
     $last_run_time = wp_next_scheduled('braftonSetUpCron');
     $last_run_time_video = wp_next_scheduled('braftonSetUpCronVideo');
+    
     $last_run = 'N/A';
     $last_run_video = 'N/A';
     if($last_run_time){

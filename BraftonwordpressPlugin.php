@@ -60,6 +60,7 @@ class BraftonWordpressPlugin {
         
         //Adds our needed filters
         add_filter('language_attributes', array($this, 'BraftonOpenGraphNamespace'), 100);
+        add_filter('cron_schedules', array($this, 'BraftonCustomCronTime'),1,1);
         //XML RPC Support
         //add_filter( 'xmlrpc_methods', array($this, 'BraftonXMLRPC' ));
         $init_options = new BraftonOptions();
@@ -81,6 +82,15 @@ class BraftonWordpressPlugin {
         wp_clear_scheduled_hook('braftonSetUpCron');
         wp_clear_scheduled_hook('braftonSetUpCronVideo');
     }
+    
+    public function BraftonCustomCronTime($schedules){
+        $schedules['threedaily'] = array(
+            'interval'  => 28800,
+            'display'   => _('Three Times Daily'),
+            );
+        return $schedules;
+    }
+    
     public function BraftonAdminMenu(){
         $brand = BraftonOptions::getSingleOption('braftonApiDomain');
         $brand = switchCase($brand);

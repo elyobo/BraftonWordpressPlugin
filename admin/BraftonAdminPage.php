@@ -110,6 +110,7 @@ jQuery( document ).tooltip();
             <td><a href="<?php echo $plugin_data['PluginURI']; ?>">Brafton.com</a></td>
         </tr>
     </table>
+    
 </div>
 <script>
 $(document).ready(function(){
