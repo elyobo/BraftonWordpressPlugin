@@ -78,7 +78,9 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     private function assignTags($obj){
         
     }
-    
+    private function cleanseString($m){
+        return "'<' . strtolower('$m')";
+    }
     public function runLoop(){
         global $level, $post, $wp_rewrite;
         $this->errors->set_section('master loop');
@@ -93,7 +95,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $post_title = $article->getHeadline();
                 $post_content = $article->getText();
                 //format the content for use with wp 
-                $post_content = preg_replace_callback('|<(/?[A-Z]+)|', function ($m){ return "'<' . strtolower('$m')"; } , $post_content);
+                $post_content = preg_replace_callback('|<(/?[A-Z]+)|', array($this, 'cleanseString'), $post_content);
                 $post_content = str_replace('<br>', '<br />', $post_content);
                 $post_content = str_replace('<hr>', '<hr />', $post_content);
                 $keywords = $article->getKeywords();
