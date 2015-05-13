@@ -1,8 +1,4 @@
 <?php
-require_once 'libs/RCClientLibrary/AdferoArticlesVideoExtensions/AdferoVideoClient.php';
-require_once 'libs/RCClientLibrary/AdferoArticles/AdferoClient.php';
-require_once 'libs/RCClientLibrary/AdferoPhotos/AdferoPhotoClient.php';
-
 class BraftonVideoLoader extends BraftonFeedLoader {
     
     public $PrivateKey;
@@ -22,6 +18,10 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     public $Sitemap;
     
     public function __construct(){
+        require_once 'libs/RCClientLibrary/AdferoArticlesVideoExtensions/AdferoVideoClient.php';
+        require_once 'libs/RCClientLibrary/AdferoArticles/AdferoClient.php';
+        require_once 'libs/RCClientLibrary/AdferoPhotos/AdferoPhotoClient.php';
+        
         parent::__construct();
         //set the url and api key for use during the entire run.
         $this->PrivateKey = $this->options['braftonVideoPrivateKey'];
@@ -62,13 +62,13 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     }
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($brafton_id){
-        global $wpdb;
+
         $catArray = array();
         $cNum = $this->ClientCategory->ListForArticle($brafton_id, 0, 100)->totalCount;
         for($i=0;$i<$cNum;$i++){
             $catId = $this->ClientCategory->ListForArticle($brafton_id,0,100)->items[$i]->id;
             $catNew = $this->ClientCategory->Get($catId);
-            $slugObj = get_category_by_slug($wpdb->escape($catNew->name));
+            $slugObj = get_category_by_slug(esc_sql($catNew->name));
                 $catArray[] = $slugObj->term_id;
         }
         return $catArray;
@@ -189,7 +189,7 @@ EOC;
     public function runLoop(){
         $this->errors->set_section('video master loop');
         //Define local vars for the loop
-        global $level, $wpdb, $post, $wp_rewrite;
+        global $level, $post, $wp_rewrite;
         $scale_axis = 'y';
         $scale = 500;
         $counter = 0;

@@ -38,12 +38,12 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     //Imports complete list of categories with child categories.  
     //TODO: Still need to create algorythm for joining the sames in a string to search for matches of parent child categories for use with the same child name as other child names.  all child categories that are in the db after the first imported one take on the parent slug as an appended variable to the child name turned into a slug.
     public function ImportCategories(){
-        global $wpdb;
+ 
         $this->errors->set_section('Importing Categories');
         $CatColl = $this->connection->getCategoryDefinitions();
         $custom_cat = explode(',',$this->options['braftonCustomCategories']);
         foreach ($CatColl as $c){
-				$category = $wpdb->escape($c->getName());
+				$category = esc_sql($c->getName());
                 $cat_id = wp_create_category($category);
             foreach($c->child as $child){
                 wp_create_category($child['name'], $cat_id);   
@@ -56,19 +56,19 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     }
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($obj){
-        global $wpdb;
+
         $this->errors->set_section('assign categories');
         $cats = array();
         $CatColl = $obj->getCategories();
         $custom_cat = explode(',',$this->options['braftonCustomCategories']);
         if($this->options['braftonCategories'] == 'categories'){
             foreach($CatColl as $cat){
-                $slugObj = get_category_by_slug($wpdb->escape($cat->getName()));
+                $slugObj = get_category_by_slug(esc_sql($cat->getName()));
                 $cats[] = $slugObj->term_id;
             }
         }
         foreach($custom_cat as $cat){
-            if($slugObj = get_category_by_slug($wpdb->escape($cat))){
+            if($slugObj = get_category_by_slug(esc_sql($cat))){
                 $cats[] = $slugObj->term_id;
             }
         }
@@ -80,7 +80,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     }
     
     public function runLoop(){
-        global $level, $wpdb, $post, $wp_rewrite;
+        global $level, $post, $wp_rewrite;
         $this->errors->set_section('master loop');
         $article_count = count($this->articles);
         $counter = 0;
