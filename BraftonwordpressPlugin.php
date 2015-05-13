@@ -21,6 +21,7 @@ include 'admin/BraftonAdminFunctions.php';
 
 define("BRAFTON_VERSION", '3.1.1');
 class BraftonWordpressPlugin {
+    
     /*
      *All these variables are only used within this class however this class is instantiated in each method of itself
      *
