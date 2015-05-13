@@ -138,7 +138,7 @@ class BraftonOptions {
         $this->options = $this->ser_options;
     }
     static function saveAllOptions(){
-        $old_options = get_option('braftonOptions');
+        $old_options = get_option('BraftonOptions');
         $old_array = $old_options;
         foreach($_POST as $key => $val){
             if(isset($old_options[$key])){

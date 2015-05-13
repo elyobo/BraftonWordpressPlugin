@@ -35,9 +35,11 @@ if(isset($_POST['submit'])){
  */
 
 //function for displaying instructions for each section.  gets passed the information from the add_settings_section() fucntion defined in the set_brafton_settings() function
-$new_options = new BraftonOptions();
-global $options;
-$options = $new_options->getAll();
+function getOptions(){
+    $option = new BraftonOptions();
+    return $option->getAll();
+}
+
 //option utility functions
 function checkRadioVal($val, $check, $return=NULL){
     if($val == $check){
@@ -71,7 +73,7 @@ function switchCase($brand){
 function for displaying errors that relate to the importer only
 */
 function braftonWarnings(){
-    global $options;
+    $options = getOptions();
     //check if importer settings are valid if they are not throw error // this function should be re-written
 	if (!$options['braftonStatus'])
 	{
@@ -201,7 +203,7 @@ function ErrorSettingsSetup(){
 
 //Displays the Option for Turning on the Debugger
 function braftonDebugger(){
-    global $options;
+    $options = getOptions();
     $tip = 'Turns on Debugging Mode.  While enabled all errors are displayed to the user';
     tooltip($tip); ?>
     <input type="radio" name="braftonDebugger" value="1" <?php checkRadioVal($options['braftonDebugger'], 1); ?>> ON
@@ -211,7 +213,7 @@ function braftonDebugger(){
 
 //Displays the option for Clearing the error Log from the database
 function braftonClearLog(){
-    global $options;
+    $options = getOptions();
     tooltip('Only set to Clear Log if errors have been corrected.  This log provides a record of errors thrown while the importer is running.');
     ?>
     <input type="radio" name="braftonClearLog" value="1" <?php checkRadioVal($options['braftonClearLog'], 1); ?>> Clear Log
@@ -353,7 +355,7 @@ function GeneralSettingsSetup(){
 //Option enables setting up override styles
 //TODO : Will be moving to s seperate section to inself for style
 function braftonRestyle(){
-    global $options;
+    $options = getOptions();
     tooltip('Sometimes with our premium content user stylesheets can cause confilicts with the styles for the content.  Enable this feature to correct for this problem.  NOTE: You must have JQuery on your site for this to work.  If you currently do not have JQuery you can add it with the option above.');
     ?>
     <input type="radio" name="braftonRestyle" value="1" <?php checkRadioVal($options['braftonRestyle'], 1); ?>> Add Style Correction
@@ -363,7 +365,7 @@ function braftonRestyle(){
 
 //Importing a copy of JQuery for use if not currently using a copy.  JQuery is required for video playback using AtlantisJS as well as Marpro and syle overrides
 function braftonImportJquery(){
-    global $options;
+    $options = getOptions();
     $tip = 'Some sites already have jquery, set this to off if additional jquery script included with atlantisjs is causing issues.';
     tooltip($tip); ?>
     <input type="radio" name="braftonImportJquery" value="on" <?php	checkRadioval($options['braftonImportJquery'], 'on'); ?> /> On
@@ -373,7 +375,7 @@ function braftonImportJquery(){
 
 //Displays the option for enabling open graph tags for single article pages
 function braftonOpenGraphStatus(){
-    global $options;
+    $options = getOptions();
     tooltip('Adds og: tags to the single.php pages.  These tags are used for social media sites.  Check if you have another SEO plugin currently generating these tags before turning them on');
     ?>
     <input type="radio" name="braftonOpenGraphStatus" value="1" <?php checkRadioVal($options['braftonOpenGraphStatus'], 1); ?>> Add Tags
@@ -383,7 +385,7 @@ function braftonOpenGraphStatus(){
 
 //Display the option for Brafton Categories
 function braftonCategories(){
-    global $options;
+    $options = getOptions();
     $tip = 'This option is for using categories set by the article when importer.  *RECOMENDATION: Set to Brafton Categories';
     tooltip($tip); ?>
 <input type="radio" name="braftonCategories" value="categories" <?php checkRadioval($options['braftonCategories'], 'categories'); ?> /> Brafton Categories                
@@ -394,7 +396,7 @@ function braftonCategories(){
 
 //Displays the option for using custom categories
 function braftonCustomCategories(){
-    global $options;
+    $options = getOptions();
     $tip = 'Each category seperated by a comma. I.E. (first,second,third)';
     tooltip($tip); ?>
 <input type="text" name="braftonCustomCategories" value="<?php
@@ -405,7 +407,7 @@ function braftonCustomCategories(){
 
 //Displays the option for support for Tags
 function braftonTags(){
-    global $options;
+    $options = getOptions();
     $tip = 'Tags are rarely used and hold no true SEO Value, however we provide you with options if you choose to use them. The Option you select must be included in your XML Feed.';
     tooltip($tip); ?>
 <input type="radio" name="braftonTags" value="tags" <?php checkRadioval($options['braftonTags'], 'tags'); ?> />Tags as tags<br />              
@@ -417,7 +419,7 @@ function braftonTags(){
 
 //Displays the option for Custom Tags
 function braftonCustomTags(){
-    global $options;
+    $options = getOptions();
     $tip = 'Each tag seperated by a comma. I.E. (first,second,third)';
     tooltip($tip); ?>
 <input type="text" name="braftonCustomTags" value="<?php
@@ -427,7 +429,7 @@ function braftonCustomTags(){
 
 //Displays the option for setting the date for an article when imported
 function braftonSetDate(){
-    global $options;
+    $options = getOptions();
     $tip = 'Specify which date from your XML Feed to use as the publish date upon import';
     tooltip($tip); ?>
 <input type="radio" name="braftonPublishDate" value="published" <?php checkRadioval($options['braftonPublishDate'], 'published'); ?> /> Published
@@ -438,7 +440,7 @@ function braftonSetDate(){
 
 //Displays the option for Default Post Status upon import
 function braftonDefaultPostStatus(){
-    global $options;
+    $options = getOptions();
     $tip = 'Sets the default Post status for articles and video imported.  Draft affords the ability to approve an article before it is made live on the blog';
     tooltip($tip); ?>
     <input type="radio" name="braftonPostStatus" value="publish" <?php checkRadioval($options['braftonPostStatus'], 'publish'); ?> /> Published
@@ -448,7 +450,7 @@ function braftonDefaultPostStatus(){
 
 //Displays the option for setting the importer user.  This option used to allow HTMl Tags needed for Premium content including but not limited to script, input, style ect.
 function braftonImporterUser(){ 
-    global $options;
+    $options = getOptions();
     $args = array(
         'role'      => 'administrator'
     );
@@ -467,7 +469,7 @@ function braftonImporterUser(){
 
 //Displays the option Turning the Importer itself OFF/ON.  
 function braftonStatus(){
-    global $options;
+    $options = getOptions();
     $tip = 'Turns the Importer ON/OFF while still maintaing your settings.';
     tooltip($tip); ?>
     <input type="radio" name="braftonStatus" value="1" <?php checkRadioval($options['braftonStatus'], 1); ?>> ON
@@ -477,7 +479,7 @@ function braftonStatus(){
 
 //Displays the Options for setting the API Domain
 function braftonApiDomain(){
-    global $options;
+    $options = getOptions();
     $tip = 'Set the domain your XML Feed originates from.  This information can be obtained from your CMS.';
     tooltip($tip); ?>
     	<select name='braftonApiDomain'>
@@ -547,7 +549,7 @@ function ArticleSettingsSetup(){
 
 //Displays the Option for setting the API Key for use with the Artile Importer
 function braftonApiKey(){ 
-    global $options;
+    $options = getOptions();
     $tip = 'Enter Your API Key for your XML Feed.  This information can be obtained from your CMS. (Example: 2de93ffd-280f-4d4b-9ace-be55db9ad4b7)'; 
     tooltip($tip); ?>
     <input type="text" name="braftonApiKey" id="brafton_api_key" value="<?php echo $options['braftonApiKey']; ?>" />
@@ -557,7 +559,7 @@ function braftonApiKey(){
 
 //Displays the option for allowing overriding of previously imported articles.
 function braftonUpdateContent(){
-    global $options;
+    $options = getOptions();
     $tip = 'Setting this to ON will override edits made to posts within the last 30 days or using an archive file';
     tooltip($tip); ?>
 <input type="radio" name="braftonUpdateContent" value="1" <?php checkRadioval($options['braftonUpdateContent'], 1); ?> /> On
@@ -567,7 +569,7 @@ function braftonUpdateContent(){
 
 //Displays the options for Using Dynamic Authors
 function braftonArticleDynamic(){
-    global $options;
+    $options = getOptions();
     $tip = "Sets Author to 'byLine' From the feed. If the Author does not exsist they will be added.
 Default auhor is returned if no author is set int he field or if new author cannot be created.";
     tooltip($tip); ?>
@@ -578,7 +580,7 @@ Default auhor is returned if no author is set int he field or if new author cann
 
 //Displays the options for selecting the default author of imported content from a list of users.
 function braftonArticleAuthorDefault(){
-    global $options;
+    $options = getOptions();
     $tip = 'Set the Default Author for Articles upon Import';
     tooltip($tip); 
     wp_dropdown_users(array(
@@ -590,7 +592,7 @@ function braftonArticleAuthorDefault(){
 
 //Displays the Options for turning the Article Importer OFF/ON
 function braftonArticleStatus(){
-    global $options;
+    $options = getOptions();
     $tip = 'Turns the Article Importer ON/OFF.';
     tooltip($tip); ?>
     <input type="radio" name="braftonArticleStatus" value="1" <?php checkRadioval($options['braftonArticleStatus'], 1); ?>> ON
@@ -600,7 +602,7 @@ function braftonArticleStatus(){
 
 //Displays the Options for turning on custom post types for brafton content_ur
 function braftonArticlePostType(){
-    global $options;
+    $options = getOptions();
     $tip = 'Turn this option on to set custom post type for '.$options['braftonApiDomain'].' Content';
     tooltip($tip); ?>
     <input type="radio" name="braftonArticlePostType" value="1" <?php checkRadioval($options['braftonArticlePostType'], 1); ?>> ON
@@ -652,7 +654,7 @@ function braftonArchiveUpload(){
 }
 //Display sthe option for turning on the archive importer.  Must be tuned ON to be able to upload an archive file.
 function braftonArchiveImporterStatus(){
-    global $options;
+    $options = getOptions();
     $tip = 'Turns the ARchive Importer ON/OFF.  If this option is turned OFF selecting a file will result in nothing being imported.  You must turn this option ON AND upload a file.';
     tooltip($tip); ?>
     <input type="radio" class="archiveStatus" name="braftonArchiveImporterStatus" value="1" <?php checkRadioval($options['braftonArchiveImporterStatus'], 1); ?>> ON
@@ -733,7 +735,7 @@ function VideoSettingsSetup(){
 
 //Displays the options to turn the Video Importer OFF/ON
 function braftonVideoStatus(){
-    global $options;
+    $options = getOptions();
     $tip = 'Turns the Video Importer ON/OFF.';
     tooltip($tip); ?>
     <input type="radio" name="braftonVideoStatus" value="1" <?php checkRadioval($options['braftonVideoStatus'], 1); ?>> ON
@@ -743,7 +745,7 @@ function braftonVideoStatus(){
 
 //Displays the option for entering Public Key for Video Feed
 function braftonVideoPublicKey(){
-    global $options;
+    $options = getOptions();
     $tip = 'Enter your Public Key provided to you from your CMS';
     tooltip($tip); ?>
 <input type="text" name="braftonVideoPublicKey" id="brafton_video_public" value="<?php
@@ -753,7 +755,7 @@ function braftonVideoPublicKey(){
 
 //displays the option for entering Private key for video feed
 function braftonVideoPrivateKey(){
-    global $options;
+    $options = getOptions();
     $tip = 'Enter your Prive Key provided to you from your CMS';
     tooltip($tip); ?>
 <input type="text" name="braftonVideoPrivateKey" id="brafton_video_secret" value="<?php
@@ -763,7 +765,7 @@ function braftonVideoPrivateKey(){
 
 //displays the option for enterign the Feed Number {ID}
 function braftonVideoFeed(){
-    global $options;
+    $options = getOptions();
     $tip = 'Enter your Feed Number. *NOTE: This is usually 0';
     tooltip($tip); ?>
 <input type="text" name="braftonVideoFeed" value="<?php
@@ -773,7 +775,7 @@ function braftonVideoFeed(){
 
 //displays the option for selecting where to get the javascript used for playing videos
 function braftonVideoHeaderScript(){
-    global $options;
+    $options = getOptions();
     $tip = "Selecting 'Neither' will still import videojs embed code, this is just the script imports.  Turn if off for sites that already have video js script in the header.";
     tooltip($tip);
     ?>
@@ -784,7 +786,7 @@ function braftonVideoHeaderScript(){
 }
 
 function braftonVideoCSS(){
-    global $options;
+    $options = getOptions();
     $tip = 'Extra CSS to fix a common issue where atlantisJS looks wonky.';
     tooltip($tip); ?>
 <input type="radio" name="braftonVideoCSS" value="on" <?php checkRadioval($options['braftonVideoCSS'], 'on'); ?> /> On
@@ -793,7 +795,7 @@ function braftonVideoCSS(){
 }
 
 function braftonVideoCTAs(){
-    global $options;
+    $options = getOptions();
     $tip = "If using Atlantis JS for video playback you can set specific CTA's for when the Video is paused and finished";
     tooltip($tip); ?>
     <div class="b_v_cta">
@@ -844,7 +846,7 @@ function MarproSettingsSetup(){
 
 //function for the marpro section
 function braftonMarproStatus(){
-    global $options;
+    $options = getOptions();
     $tip = 'Turning on Marpro will add our custom script to the footer allowing for connection to your Asset Gateway for your marketing resources';
     tooltip($tip); ?>
     <input type="radio" name="braftonMarproStatus" value="on" <?php	checkRadioval($options['braftonMarproStatus'], 'on'); ?> /> On
@@ -853,7 +855,7 @@ function braftonMarproStatus(){
 }
 //function for setting the marpro id
 function braftonMarproId(){
-    global $options;
+    $options = getOptions();
     $tip = 'If using our Marpro Product you will need your Id.  You can obtain this information from your CMS';
     tooltip($tip); ?>
 <input type="text" name="braftonMarproId" value="<?php
