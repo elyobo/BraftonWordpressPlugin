@@ -145,7 +145,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     ));
                 }
                 if(function_exists('aioseop_get_version')){
-                    $meta_array = array_merage($meta_array, array(
+                    $meta_array = array_merge($meta_array, array(
                         '_aioseop_description'  => $post_excerpt,
                         '_aioseop_keywords'     => ''
                     ));
