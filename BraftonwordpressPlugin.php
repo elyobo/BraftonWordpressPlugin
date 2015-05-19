@@ -75,7 +75,7 @@ class BraftonWordpressPlugin {
         $option_init = BraftonOptions::ini_BraftonOptions();
         $staticKey = BraftonOptions::getSingleOption('braftonApiKey');
         $staticBrand =  BraftonOptions::getSingleOption('braftonApiDomain');
-        $option = wp_remote_post('http://updater.cl-subdomains.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
+        $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
         add_option('BraftonRegister', $option);
     }
     

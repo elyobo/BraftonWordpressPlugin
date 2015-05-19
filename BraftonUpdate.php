@@ -215,7 +215,7 @@ function wptuts_activate_au(){
     $brafton_plugin_slug = $GLOBALS['brafton_plugin_slug'];
     $BraftonPluginData = $GLOBALS['BraftonPluginData'];
     $brafton_plugin_current_version = $BraftonPluginData['Version'];
-    $brafton_plugin_remote_path = 'http://updater.cl-subdomains.com/u/wordpress/update/';
+    $brafton_plugin_remote_path = 'http://updater.brafton.com/u/wordpress/update/';
     new Brafton_Update ($brafton_plugin_current_version, $brafton_plugin_remote_path, $brafton_plugin_slug, $brand);
 }
 ?>
