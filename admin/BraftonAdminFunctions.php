@@ -75,6 +75,11 @@ function for displaying errors that relate to the importer only
 function braftonWarnings(){
     $options = getOptions();
     //check if importer settings are valid if they are not throw error // this function should be re-written
+    if(isset($saved)){
+        echo '<div class="updated">
+				<p>Options Saved Successfully</p>
+				</div>';
+    }
 	if (!$options['braftonStatus'])
 	{
 		echo '<div class="error">

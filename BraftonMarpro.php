@@ -12,8 +12,8 @@ class BraftonMarpro {
         $domain = BraftonOptions::getSingleOption('braftonApiDomain');
         $domain = str_replace('api', '', $domain);
         $pumpkin =<<<EOC
-            <script>
-	(function(w,pk){var s=w.createElement('script');s.type='text/javascript';s.async=true;s.src='//pumpkin$domain/pumpkin.js';var f=w.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);if(!pk.__S){window._pk=pk;pk.__S = 1.1;}pk.host='conversion$domain';pk.clientId='$marproId';})(document,window._pk||[])
+            <script>if(typeof angular == 'undefined') {
+	(function(w,pk){var s=w.createElement('script');s.type='text/javascript';s.async=true;s.src='//pumpkin$domain/pumpkin.js';var f=w.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);if(!pk.__S){window._pk=pk;pk.__S = 1.1;}pk.host='conversion$domain';pk.clientId='$marproId';})(document,window._pk||[])}
 </script>
 EOC;
         if($static == 'on'){

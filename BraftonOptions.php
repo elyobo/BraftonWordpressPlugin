@@ -171,7 +171,7 @@ class BraftonOptions {
             wp_clear_scheduled_hook('braftonSetUpCron');
             wp_clear_scheduled_hook('braftonSetUpCronVideo');
         }
-        echo 'saved';
+        $saved = 'saved';
     }
     //Private function to destroy all brafton options
     private function destroyOptions(){
