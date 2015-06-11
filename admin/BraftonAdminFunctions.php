@@ -383,7 +383,7 @@ function braftonImportJquery(){
 //Displays the option for enabling open graph tags for single article pages
 function braftonOpenGraphStatus(){
     $options = getOptions();
-    tooltip('Adds og: tags to the single.php pages.  These tags are used for social media sites.  Check if you have another SEO plugin currently generating these tags before turning them on');
+    tooltip('Adds og: tags to the single.php pages.  These tags are used for social media sites.  Check if you have another SEO plugin currently generating these tags before turning them on. Support for Twitter Cards and Google+ in addition to Facebook.  Note: Twitter requires approval for sharing twitter cards. ');
     ?>
     <input type="radio" name="braftonOpenGraphStatus" value="1" <?php checkRadioVal($options['braftonOpenGraphStatus'], 1); ?>> Add Tags
     <input type="radio" name="braftonOpenGraphStatus" value="0" <?php checkRadioVal($options['braftonOpenGraphStatus'], 0); ?>> No Tags

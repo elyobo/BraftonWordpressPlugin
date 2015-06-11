@@ -175,8 +175,24 @@ EOC;
             'og:image' => wp_get_attachment_url(get_post_thumbnail_id($post->ID)),
             'article:published_time' => date('c', strtotime($post->post_date))
         );
-
+        $twitter = array(
+            'twitter:card'  => 'summary_large_image',
+            'twitter:title' => preg_replace('/<.*?>/', '', get_the_title()),
+            'twitter:description'   => htmlspecialchars(preg_replace('/<.*?>/', '', get_the_excerpt())),
+            'twitter:image' =>  wp_get_attachment_url(get_post_thumbnail_id($post->ID))
+        );
+        $google = array(
+            'name'  => preg_replace('/<.*?>/', '', get_the_title()),
+            'description'   => htmlspecialchars(preg_replace('/<.*?>/', '', get_the_excerpt())),
+            'image' => wp_get_attachment_url(get_post_thumbnail_id($post->ID))
+        );
+        
         $tagsHtml = '';
+        foreach($google as $tag => $content)
+            $tagsHtml .= sprintf('<meta itemprop="%s" content="%s" />', $tag, $content) . "\n";
+        foreach($twitter as $tag => $content)
+            $tagsHtml .= sprintf('<meta name="%s" content="%s" />', $tag, $content) . "\n";
+
         foreach ($tags as $tag => $content)
             $tagsHtml .= sprintf('<meta property="%s" content="%s" />', $tag, $content) . "\n";
 
