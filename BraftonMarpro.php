@@ -127,7 +127,7 @@ class CallToAction_Widget extends WP_Widget {
         if($img_support){ ?>
         <!-- Enter what happens if the image is the cta -->
         <div class="call-to-action alt">
-            <div class="call-to-action-img-cont"><a href="<?php echo $linkto; ?>" data-br-form-id="<?php echo $marpro; ?>" class="br-form-link cta-link"><img src="<?php echo $image; ?>" class="call-to-action-widget-image"></a>
+            <div class="call-to-action-img-cont"><a href="<?php echo $linkto; ?>" <?php if($marpro != ''){ ?>data-br-form-id="<?php echo $marpro; ?>"<?php } ?> class="br-form-link cta-link"><img src="<?php echo $image; ?>" class="call-to-action-widget-image"></a>
             </div>
         </div>
         <?php }
@@ -136,7 +136,7 @@ class CallToAction_Widget extends WP_Widget {
         <div class="call-to-action alt">
             <div class="call-to-action-img-cont"><img src="<?php echo $image; ?>" class="call-to-action-widget-image"></div>
             <div class="call-to-action-text-cont"><?php echo $title; ?></div>
-            <a href="<?php echo $linkto; ?>" data-br-form-id="<?php echo $marpro; ?>" class="br-form-link cta-link"><?php echo $linktext; ?></a>
+            <a href="<?php echo $linkto; ?>" <?php if($marpro != ''){ ?>data-br-form-id="<?php echo $marpro; ?>"<?php } ?> class="br-form-link cta-link"><?php echo $linktext; ?></a>
         </div>
         <?php
         }
