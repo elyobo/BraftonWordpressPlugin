@@ -123,11 +123,14 @@ class BraftonErrorReport {
                 )
             );
             //$this->level = 2;
-            if($e->getseverity() == 1 || ($config['debug'] == true && $this->level == 1)){
+            if(($e->getseverity() == 1 || ($config['debug'] == true && $this->level == 1)) && ($this->domain != 'localhost')){
                 $make_report = wp_remote_post($this->post_url, $post_args);
                 header("LOCATION:$this->url&b_error=vital");
+            }else if(($e->getseverity() == 1 || ($config['debug'] == true && $this->level == 1))){
+                header("LOCATION:$this->url&b_error=vital");
+            }else{
+                return;
             }
-            return;
         }
         else{
             return;
