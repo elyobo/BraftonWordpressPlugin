@@ -30,7 +30,7 @@ jQuery( document ).tooltip();
 </div>
 
 <div id="tab-cont" class="tabs">
-    <form method="post" action="" class="braf_options_form">
+    <form method="post" action="" class="braf_options_form" onsubmit="return settingsValidate()">
     <ul>
         <li><a href="#tab-1">General Settings</a></li>
         <li><a href="#tab-2">Articles</a></li>
@@ -113,6 +113,22 @@ jQuery( document ).tooltip();
     
 </div>
 <script>
+function settingsValidate(){
+    var validate = true;
+    if($("select[name='braftonImporterUser']").val() == ''){
+        validate = false;
+        alert('You have not set an Importer User on the General Tab');
+    }
+    if($("input[name='braftonArticleStatus']:checked").val() == 1 && $('#brafton_api_key').val() == ''){
+        validate = false;
+        alert('You have turned your Article Importer on but forgot to enter your API Key');
+    }
+    if($("input[name='braftonVideoStatus']:checked").val() == 1 && ($('#brafton_video_public').val() == '' || $('#brafton_video_secret').val() == '')){
+        validate = false;
+        alert('You have turned your Video Importer on but forgot to enter your Public or Private Key');
+    }
+    return validate;
+}
 $(document).ready(function(){
    $('.archiveStatus').click(function(){
       var stat = true;
