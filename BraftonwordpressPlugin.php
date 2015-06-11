@@ -49,6 +49,10 @@ class BraftonWordpressPlugin {
         //fires when the plugin is deactivated
         register_deactivation_hook(__FILE__, array($this, 'BraftonDeactivation'));
         
+        //enable Featured Images if it isn't already
+        if(!current_theme_supports('post-thumbnails')){
+            add_theme_support('post-thumbnails');
+        }
         //Adds our needed hooks
         add_action('wp_head', array($this, 'BraftonOpenGraph'));
         add_action('wp_head', array($this, 'BraftonVideoHead'));
