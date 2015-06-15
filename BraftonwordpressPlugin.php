@@ -8,7 +8,8 @@
 	Author: Brafton, Inc.
 	Author URI: http://brafton.com/support/wordpress
     Text Domain: text domain
-    Domain Path: domain path 
+    Domain Path: domain path
+    //@author: Deryk W. King
     
 */
 include 'BraftonError.php';

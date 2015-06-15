@@ -122,7 +122,7 @@ function braftonWarnings(){
         echo "<div class='error'>
 				<p>The Article Importer Failed to Run at its scheduled time.  Contact tech@brafton.com</p>
 				</div>";
-        $failed_error = new BraftonErrorReport();
+        $failed_error = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
         trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
     }
     if(($last_run_time_video) && $last_run_time_video < $time){
