@@ -451,7 +451,8 @@ function braftonDefaultPostStatus(){
     $tip = 'Sets the default Post status for articles and video imported.  Draft affords the ability to approve an article before it is made live on the blog';
     tooltip($tip); ?>
     <input type="radio" name="braftonPostStatus" value="publish" <?php checkRadioval($options['braftonPostStatus'], 'publish'); ?> /> Published
-				<input type="radio" name="braftonPostStatus" value="draft" <?php checkRadioval($options['braftonPostStatus'], 'draft'); ?>/> Draft
+    <input type="radio" name="braftonPostStatus" value="draft" <?php checkRadioval($options['braftonPostStatus'], 'draft'); ?>/> Draft
+    <input type="radio" name="braftonPostStatus" value="private" <?php checkRadioval($options['braftonPostStatus'], 'private'); ?>/> Private
 <?php     
 }
 
