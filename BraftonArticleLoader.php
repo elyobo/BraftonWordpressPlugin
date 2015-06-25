@@ -76,23 +76,48 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     }
     //Assigns the tags based on the option selected for the importer
     private function assignTags($obj){
-        
+        $this->errors->set_section('assign Tags');
+        $tags = array();
+        if($this->options['braftonTags'] != 'none_tags'){
+            switch($this->options['braftonTags']){
+                case 'keywords':
+                $TagColl = $obj->getKeywords();
+                break;
+                case 'cats':
+                $TagColl = $obj->getCategories();
+                break;
+                default:
+                $TagColl = $obj->getTags();
+                break;
+            }
+            $TagColl = explode(',', $TagColl);
+            foreach($TagColl as $tag){
+                $tags[] = esc_sql($tag);
+            }
+        }
+        $custom_tags = explode(',', $this->options['braftonCustomTags']);
+        foreach($custom_tags as $tag){
+            $tags[] = esc_sql($tag);
+        }
+        return $tags;
     }
     private function cleanseString($m){
         return "'<' . strtolower('$m')";
     }
     public function runLoop(){
+        $list = array();
         global $level, $post, $wp_rewrite;
         $this->errors->set_section('master loop');
         $article_count = count($this->articles);
         $counter = 0;
         foreach($this->articles as $article){//start individual article loop
-            if($counter == 30){ return; }
             $brafton_id = $article->getId();
             if(!($post_id = $this->brafton_post_exists($brafton_id)) || $this->override){//Start actual importing
+                if($counter == $this->options['braftonArticleLimit']){ return; }
                 $this->errors->set_section('individual article loop');
                 set_time_limit(60);
                 $post_title = $article->getHeadline();
+                
                 $post_content = $article->getText();
                 //format the content for use with wp 
                 $post_content = preg_replace_callback('|<(/?[A-Z]+)|', array($this, 'cleanseString'), $post_content);
@@ -157,14 +182,24 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     update_post_meta($post_id, 'pic_id', $image_id);
                 }
                 
-                
+                $list['titles'][] = array(
+                    'title' => $post_title,
+                    'link'  => "post.php?post={$post_id}&action=edit"
+                );
                 //post meta data
                 ++$counter;
                 ++$this->errors->level;
             }//end actual importing
              
         }//end individual article loop
-        return;
+        $list['counter'] = $counter;
+        echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
+            echo '<h3>'.$list['counter'].' Articles Imported</h3>';
+        foreach($list['titles'] as $item => $title){
+            echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
+        }
+        echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
+        echo '</div>';
     }
     
 }
