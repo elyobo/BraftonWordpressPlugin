@@ -82,15 +82,16 @@ class BraftonArticleLoader extends BraftonFeedLoader {
             switch($this->options['braftonTags']){
                 case 'keywords':
                 $TagColl = $obj->getKeywords();
+                $TagColl = explode(',', $TagColl);
                 break;
                 case 'cats':
                 $TagColl = $obj->getCategories();
                 break;
                 default:
                 $TagColl = $obj->getTags();
+                $TagColl = explode(',', $TagColl);
                 break;
             }
-            $TagColl = explode(',', $TagColl);
             foreach($TagColl as $tag){
                 $tags[] = esc_sql($tag);
             }
