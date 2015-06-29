@@ -553,6 +553,13 @@ function ArticleSettingsSetup(){
             'brafton_article',
             'article'
         );   
+        add_settings_field(
+            'braftonArticleLimit',
+            '# Articles to Import',
+            'braftonArticleLimit',
+            'brafton_article',
+            'article'
+        );
 }
 
 //Displays the Option for setting the API Key for use with the Artile Importer
