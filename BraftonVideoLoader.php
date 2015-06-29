@@ -193,10 +193,11 @@ EOC;
         $scale_axis = 'y';
         $scale = 500;
         $counter = 0;
+        $listImported = array();
         foreach($this->ArticleList->items as $article){
-            if($counter>5){ return;}
             $brafton_id = $article->id;
             if( !($post_id = $this->brafton_post_exists($brafton_id)) || $this->override ){//Begin individual video article import
+                if($counter == $this->options['braftonVideoLimit']){ return; }
                 $this->errors->set_section('individual video loop');
                 //Get the current article info in the loop
                 $thisArticle = $this->Client->Articles()->Get($brafton_id);
@@ -279,12 +280,26 @@ EOC;
                     ));
                 }
                 $this->add_needed_meta($post_id, $meta_array);
-
+                
+                $listImported['titles'][] = array(
+                    'title' => $post_title,
+                    'link'  => "post.php?post={$post_id}&action=edit"
+                );
+                
+                ++$counter;
                 ++$this->errors->level;
             }//End the individual video article import
-            ++$counter;
+            
         }
-        
+        $listImported['counter'] = $counter;
+        echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
+            echo '<h3>'.$listImported['counter'].' Videos Imported</h3>';
+            //echo '<pre>'; var_dump($listImported); echo '</pre>';
+        foreach($listImported['titles'] as $item => $title){
+            echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
+        }
+        echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
+        echo '</div>';
     }
 }
 ?>
