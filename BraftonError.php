@@ -125,9 +125,13 @@ class BraftonErrorReport {
             );
             //$this->level = 2;
             if(($errorLevel == 1 || ($this->debug == true && $this->level == 1)) && ($this->domain != 'localhost')){
+                //prevent possible loop on some systems
+                if($_GET['b_error'] == 'vital'){ return; }
                 $make_report = wp_remote_post($this->post_url, $post_args);
                 header("LOCATION:$this->url&b_error=vital");
             }else if(($errorLevel == 1 || ($this->debug == true && $this->level == 1))){
+                //prevent possible loop on some systems
+                if($_GET['b_error'] == 'vital'){ return; }
                 header("LOCATION:$this->url&b_error=vital");
             }else{
                 return;
