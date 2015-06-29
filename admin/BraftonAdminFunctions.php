@@ -564,7 +564,13 @@ function braftonApiKey(){
 
 <?php 
 }
-
+function braftonArticleLimit(){
+    $options = getOptions();
+    $tip = 'The higher the number here the longer the importer will take to run.  Default is 30';
+    tooltip($tip); ?>
+    <input type="number" name="braftonArticleLimit" value="<?php echo $options['braftonArticleLimit']; ?>" max="30" />
+<?php 
+}
 //Displays the option for allowing overriding of previously imported articles.
 function braftonUpdateContent(){
     $options = getOptions();
@@ -739,8 +745,21 @@ function VideoSettingsSetup(){
             'brafton_video',
             'video'
         );
+        add_settings_field(
+            'braftonVideoLimit',
+            '# Videos to Import',
+            'braftonVideoLimit',
+            'brafton_video',
+            'video'
+        );
 }
-
+function braftonVideoLimit(){
+    $options = getOptions();
+    $tip = 'The higher the number here the longer the importer will take to run.  Default is 30';
+    tooltip($tip); ?>
+    <input type="number" name="braftonVideoLimit" value="<?php echo $options['braftonVideoLimit']; ?>" max="30" />
+<?php 
+}
 //Displays the options to turn the Video Importer OFF/ON
 function braftonVideoStatus(){
     $options = getOptions();
