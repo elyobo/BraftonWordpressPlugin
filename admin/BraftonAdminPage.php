@@ -135,6 +135,9 @@ $(document).ready(function(){
        if($(this).attr('value') == 1){ stat = false; }else{stat = true;}
        $('#braftonUpload').prop('disabled', stat);
    });
+    $('#close-imported').click(function(){
+       $(.'#imported-list').toggle();
+    });
 });
 </script>
 

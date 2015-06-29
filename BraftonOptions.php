@@ -63,7 +63,9 @@ class BraftonOptions {
             'braftonMarproStatus'       => 'off',
             'braftonMarproId'           => '',
             'braftonOpenGraphStatus'    => 'off',
-            'braftonRestyle'            => 0
+            'braftonRestyle'            => 0,
+            'braftonArticleLimit'       => 30,
+            'braftonVideoLimit'         => 30
         );
         //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
         if($old_options = get_option('BraftonOptions')){
@@ -108,7 +110,9 @@ class BraftonOptions {
             'braftonMarproStatus'       => 'off',
             'braftonMarproId'           => '',
             'braftonOpenGraphStatus'    => 'off',
-            'braftonRestyle'            => 0
+            'braftonRestyle'            => 0,
+            'braftonArticleLimit'       => 30,
+            'braftonVideoLimit'         => 30
             );
             $default_options = wp_parse_args($old_options, $default_options);
             add_option('BraftonOptions', $default_options);
