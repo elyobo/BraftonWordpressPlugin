@@ -136,7 +136,7 @@ $(document).ready(function(){
        $('#braftonUpload').prop('disabled', stat);
    });
     $('#close-imported').click(function(){
-       $(.'#imported-list').toggle();
+       $('#imported-list').toggle();
     });
 });
 </script>
