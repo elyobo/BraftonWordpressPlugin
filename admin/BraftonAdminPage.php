@@ -39,7 +39,6 @@ jQuery( document ).tooltip();
         <li><a href="#tab-5">Archives</a></li>
         <li><a href="#tab-6">Error Logs</a></li>
         <li><a href="#tab-7">Manual Control</a></li>
-
     </ul>
 <?php 
     echo '<div id="tab-1" class="tab-1">';
@@ -127,6 +126,14 @@ function settingsValidate(){
         validate = false;
         alert('You have turned your Video Importer on but forgot to enter your Public or Private Key');
     }
+    if($('input[name="braftonArticlePostType"]:checked').val() == 1 && $('input[name="braftonCustomSlug"]').val() == ''){
+        validate = false;
+        alert('You have choosen to use the importers custom post type of "blog_content" but have not entered a url slug');
+    }
+    if($('#braftonArticleExistingPostType:checked').val()){
+           $('input[name="braftonArticleExistingCategory"]').val() = '';
+           $('input[name="braftonArticleExistingTag"]').val() = '';
+    }
     return validate;
 }
 $(document).ready(function(){
@@ -134,6 +141,28 @@ $(document).ready(function(){
       var stat = true;
        if($(this).attr('value') == 1){ stat = false; }else{stat = true;}
        $('#braftonUpload').prop('disabled', stat);
+   });
+    $('input[name="braftonArticlePostType"]').change(function(){
+        
+        if($('input[name="braftonArticlePostType"]:checked').val() == 1){
+            $('#braftonArticleExistingPostType').prop('disabled', true );
+            $('input[name="braftonCustomSlug"]').prop('disabled', false );
+        }else{
+            $('#braftonArticleExistingPostType').prop('disabled', false );
+            $('input[name="braftonCustomSlug"]').prop('disabled', true );
+            
+        }
+    });
+   $('#braftonArticleExistingPostType').change(function(){
+       if($('#braftonArticleExistingPostType').val()){
+           $('input[name="braftonArticleExistingCategory"]').toggle();
+           $('input[name="braftonArticleExistingTag"]').toggle();
+           return;
+       }
+       if($('input[name="braftonArticleExistingCategory"]').css('display') != 'inline-block'){
+           $('input[name="braftonArticleExistingCategory"]').toggle();
+           $('input[name="braftonArticleExistingTag"]').toggle();
+       }
    });
 });
 </script>

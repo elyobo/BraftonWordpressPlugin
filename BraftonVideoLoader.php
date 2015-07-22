@@ -177,6 +177,15 @@ EOC;
         $this->ClientCategory = $this->Client->Categories();
         
     }
+
+
+
+    static function manualImportVideos() {
+        $import = new BraftonVideoLoader();
+        $import->ImportVideos();    
+    }
+
+    
     //Actual workhorse of the import video class
     public function ImportVideos(){
         //Gets the Video Feed

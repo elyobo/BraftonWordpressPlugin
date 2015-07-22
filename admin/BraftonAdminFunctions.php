@@ -6,22 +6,26 @@ if(isset($_POST['submit'])){
         $save = BraftonOptions::saveAllOptions();
         break;
         case 'Upload Archive':
-        $archive = new BraftonArticleLoader();
-        $archive->loadXMLArchive();
+        //$archive = new BraftonArticleLoader();
+        //$archive->loadXMLArchive();
+        add_action('init', array('BraftonArticleLoader', 'manualImportArchive'));
         break;
         case 'Save Errors':
         $er = BraftonErrorReport::errorPage();
         break;
         case 'Import Articles':
-        $import = new BraftonArticleLoader();
-        $import->ImportArticles();
+        //$import = new BraftonArticleLoader();
+        //$import->ImportArticles();
+        add_action('init', array('BraftonArticleLoader', 'manualImportArticles'));
         break;
         case 'Import Videos':
-        $import = new BraftonVideoLoader();
-        $import->ImportVideos();
+        //$import = new BraftonVideoLoader();
+        //$import->ImportVideos();
+        add_action('init', array('BraftonVideoLoader', 'manualImportVideos'));
         case 'Get Categories';
-        $import = new BraftonArticleLoader();
-        $import->ImportCategories();
+        //$import = new BraftonArticleLoader();
+       // $import->ImportCategories();
+        add_action('init', array('BraftonArticleLoader', 'manualImportCategories'));
         break;
         }
 }
@@ -140,9 +144,10 @@ function braftonWarnings(){
 function for displaying the sections information
 */
 function print_section_info($args){
+    $inst = preg_replace('/admin$/', 'ImporterInstructions.pdf', dirname(__FILE__));
     switch ($args['id']){
         case 'general':
-            echo '<p>This section controls the general settings for your importer.  Features for this plugin may depend on your settings in this section.  If you need help with your settings you may contact your CMS or visit <a href="http://www.brafton.com/support" target="_blank">Our Support Page</a> for assistance.</p>';
+            echo '<p>This section controls the general settings for your importer.  Features for this plugin may depend on your settings in this section.  If you need help with your settings you may contact your CMS or visit <a href="http://www.brafton.com/support" target="_blank">Our Support Page</a> for assistance.</p><p>You may also view our pdf <a href="'.$inst.'">Instructions</a>';
         break;
         case 'error':
             echo '<p>This section provides a log of any errors that may have occured</p>';
@@ -508,6 +513,8 @@ function braftonApiDomain(){
 
 function ArticleSettingsSetup(){
 //Articles Tab
+    $options = getOptions();
+    $brand = switchCase($options['braftonApiDomain']);
         register_setting(
             'brafton_article_options', // Option group
             'brafton_article' );
@@ -548,11 +555,32 @@ function ArticleSettingsSetup(){
         );
         add_settings_field(
             'braftonArticlePostType',
-            'Set Custom Post Type',
+            $brand.' Post Type',
             'braftonArticlePostType',
             'brafton_article',
             'article'
+        ); 
+        add_settings_field(
+            'braftonArticleExistingPostType',
+            'Set as Pre-existing Custom Post Type',
+            'braftonArticleExistingPostType',
+            'brafton_article',
+            'article'
         );   
+        add_settings_field(
+            'braftonArticleExistingCategory',
+            'Choose Pre-existing Custom Category',
+            'braftonArticleExistingCategory',
+            'brafton_article',
+            'article'
+        ); 
+        add_settings_field(
+            'braftonArticleExistingTag',
+            'Choose Pre-existing Custom Tag',
+            'braftonArticleExistingTag',
+            'brafton_article',
+            'article'
+        );                                      
 }
 
 //Displays the Option for setting the API Key for use with the Artile Importer
@@ -611,13 +639,50 @@ function braftonArticleStatus(){
 //Displays the Options for turning on custom post types for brafton content_ur
 function braftonArticlePostType(){
     $options = getOptions();
-    $tip = 'Turn this option on to set custom post type for '.$options['braftonApiDomain'].' Content';
+    $tip = 'Turn this option on to set custom post type for '.switchCase($options['braftonApiDomain']).' Content.  If Using Custom Post type set a url slug to appear before in the url. Default is: content-blog';
     tooltip($tip); ?>
     <input type="radio" name="braftonArticlePostType" value="1" <?php checkRadioval($options['braftonArticlePostType'], 1); ?>> ON
-    <input type="radio" name="braftonArticlePostType" value="0" <?php checkRadioval($options['braftonArticlePostType'], 0); ?>> OFF 
+    <input type="radio" name="braftonArticlePostType" value="0" <?php checkRadioval($options['braftonArticlePostType'], 0); ?>> OFF URL Slug <input type="text" name="braftonCustomSlug" value="<?php echo $options['braftonCustomSlug']; ?>" style="width:150px;">
 <?php    
 }
 
+function braftonArticleExistingPostType(){
+    $options = getOptions();
+    $tip = "Select an option from the dropdown menu to make ".switchCase($options['braftonApiDomain'])." articles load into a custom pre-existing post type. Default option is 'None' which will leave ".switchCase($options['braftonApiDomain'])." articles loading into default 'Post' post type.";
+    tooltip($tip); 
+    $array = array('posts','post', 'page', 'attachment', 'revision', 'nav_menu_item');
+    $post_types = get_post_types(); ?>
+
+    <select name="braftonArticleExistingPostType" id="braftonArticleExistingPostType" <?php checkRadioval($options["braftonArticlePostType"], 1, 'disabled'); ?>>
+        <option value='0'>None</option>
+        <?php foreach($post_types as $post_type) { 
+        if(array_search($post_type, $array)){
+            continue;
+        } ?>
+        <option value="<?php echo $post_type; ?>" <?php checkRadioval($options["braftonArticleExistingPostType"], $post_type, 'selected'); ?>><?php echo $post_type; ?></option>
+<?php  
+        }
+    ?></select><?php 
+}
+
+
+function braftonArticleExistingCategory(){
+    $options = getOptions();
+    $tip = "To associate a pre-existing custom category type, enter the machine name of the category. Leave blank for default.";
+    tooltip($tip);
+    $hidden = ($options['braftonArticleExistingPostType'])? 'inline-block': 'none'; ?>
+    <input type="text" name="braftonArticleExistingCategory" value="<?php echo $options['braftonArticleExistingCategory']; ?>" style="width:200px;display:<?php echo $hidden; ?>;">
+<?php
+}
+
+function braftonArticleExistingTag(){
+    $options = getOptions();
+    $tip = "To associate a pre-existing custom tag type, enter the machine name of the tag. Leave blank for default.";
+    tooltip($tip);
+    $hidden = ($options['braftonArticleExistingPostType'])? 'inline-block': 'none'; ?>
+    <input type="text" name="braftonArticleExistingTag" value="<?php echo $options['braftonArticleExistingTag']; ?>" style="width:200px;display:<?php echo $hidden; ?>;">
+<?php
+}
 
 /*
  *****************************************************************************************************
@@ -927,20 +992,7 @@ function redirect(){
    // header("LOCATION:my&b_error=vital");
     echo 'right hook';
 }
-/*
-add_action('admin_menu', 'braftonxml_sched_add_admin_pages');
-function braftonxml_sched_add_admin_pages(){
-    $brand = BraftonOptions::getSingleOption('braftonApiDomain');
-    $brand = switchCase($brand);
-    //new admin menu
-	add_menu_page('Brafton Article Loader', "{$brand} Content Importer", 'update_plugins','BraftonArticleLoader', 'admin_page','dashicons-download', 81);
-    add_submenu_page('BraftonArticleLoader', 'Brafton Article Loader', 'General Options', 'update_plugins', 'BraftonArticleLoader', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Article Options', 'Article Options', 'update_plugins', 'BraftonArticleLoader&tab=1', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Video Options', 'Video Options', 'update_plugins', 'BraftonArticleLoader&tab=2', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Marpro Options', 'Marpro Options', 'update_plugins', 'BraftonArticleLoader&tab=3', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Archives', 'Archives', 'update_plugins', 'BraftonArticleLoader&tab=4', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'update_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'update_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
+function style_page(){
+    include 'BraftonStylePage.php';
 }
-*/
 ?>

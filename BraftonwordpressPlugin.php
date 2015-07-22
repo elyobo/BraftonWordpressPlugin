@@ -17,6 +17,7 @@ include 'BraftonFeedLoader.php';
 include 'BraftonArticleLoader.php';
 include 'BraftonVideoLoader.php';
 include 'BraftonMarpro.php';
+include 'BraftonCustomType.php';
 include 'admin/BraftonAdminFunctions.php';
 
 define("BRAFTON_VERSION", '3.1.8');
@@ -62,7 +63,8 @@ class BraftonWordpressPlugin {
         add_action('admin_menu', array($this, 'BraftonAdminMenu'));
         add_action('braftonSetUpCron', array($this, 'BraftonCronArticle'));
         add_action('braftonSetUpCronVideo', array($this, 'BraftonCronVideo'));
-        
+        add_action('init', array('BraftonCustomType', 'BraftonInitializeType'));
+        add_action('pre_get_posts', array('BraftonCustomType', 'BraftonIncludeContent'));
         //Adds our needed filters
         add_filter('language_attributes', array($this, 'BraftonOpenGraphNamespace'), 100);
         add_filter('cron_schedules', array($this, 'BraftonCustomCronTime'),1,1);
@@ -81,6 +83,8 @@ class BraftonWordpressPlugin {
         $staticBrand =  BraftonOptions::getSingleOption('braftonApiDomain');
         $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
         add_option('BraftonRegister', $option);
+        
+        //check for 
     }
     
     public function BraftonDeactivation(){
@@ -97,6 +101,7 @@ class BraftonWordpressPlugin {
     }
     
     public function BraftonAdminMenu(){
+        $style = BraftonOptions::getSingleOption('braftonRestyle');
         $brand = BraftonOptions::getSingleOption('braftonApiDomain');
         $brand = switchCase($brand);
         //new admin menu
@@ -108,6 +113,9 @@ class BraftonWordpressPlugin {
         add_submenu_page('BraftonArticleLoader', 'Archives', 'Archives', 'update_plugins', 'BraftonArticleLoader&tab=4', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'update_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'update_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
+        if($style){
+            add_submenu_page('BraftonArticleLoader', 'Premium Styles', 'Premium Styles', 'update_plugins', 'BraftonStylePage', 'style_page');
+        }
     }
     static function BraftonRestyle(){
     $static = BraftonOptions::getSingleOption('braftonRestyle');
@@ -228,7 +236,7 @@ EOC;
         //Define where videoJs comes from
         $videojs = '<link href="//vjs.zencdn.net/4.3/video-js.css" rel="stylesheet"><script src="//vjs.zencdn.net/4.3/video.js"></script>';
         //Define where atlatisJs comes from
-        $atlantisjs = '<link rel="stylesheet" href="http://p.ninjacdn.co.uk/atlantisjs/v0.11.7/atlantisjs.css" type="text/css" /><script src="http://p.ninjacdn.co.uk/atlantisjs/v0.11.7/atlantis.js" type="text/javascript"></script>';
+        $atlantisjs = '<link rel="stylesheet" href="//atlantisjs.brafton.com/v1/atlantisjsv1.3.css" type="text/css" /><script src="//atlantisjs.brafton.com/v1/atlantis.min.v1.3.js" type="text/javascript"></script>';
         //defines what video javascript option we are using
         $videoOption = $static['braftonVideoHeaderScript'];
         if($videoOption != 'off'){
