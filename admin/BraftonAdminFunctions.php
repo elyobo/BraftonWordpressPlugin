@@ -126,7 +126,7 @@ function braftonWarnings(){
         echo "<div class='error'>
 				<p>The Article Importer Failed to Run at its scheduled time.  Contact tech@brafton.com</p>
 				</div>";
-        $failed_error = new BraftonErrorReport();
+        $failed_error = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
         trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
     }
     if(($last_run_time_video) && $last_run_time_video < $time){
@@ -581,6 +581,13 @@ function ArticleSettingsSetup(){
             'brafton_article',
             'article'
         );                                      
+        add_settings_field(
+            'braftonArticleLimit',
+            '# Articles to Import',
+            'braftonArticleLimit',
+            'brafton_article',
+            'article'
+        );
 }
 
 //Displays the Option for setting the API Key for use with the Artile Importer
@@ -592,7 +599,13 @@ function braftonApiKey(){
 
 <?php 
 }
-
+function braftonArticleLimit(){
+    $options = getOptions();
+    $tip = 'The higher the number here the longer the importer will take to run.  Default is 30';
+    tooltip($tip); ?>
+    <input type="number" name="braftonArticleLimit" value="<?php echo $options['braftonArticleLimit']; ?>" max="30" />
+<?php 
+}
 //Displays the option for allowing overriding of previously imported articles.
 function braftonUpdateContent(){
     $options = getOptions();
@@ -804,8 +817,21 @@ function VideoSettingsSetup(){
             'brafton_video',
             'video'
         );
+        add_settings_field(
+            'braftonVideoLimit',
+            '# Videos to Import',
+            'braftonVideoLimit',
+            'brafton_video',
+            'video'
+        );
 }
-
+function braftonVideoLimit(){
+    $options = getOptions();
+    $tip = 'The higher the number here the longer the importer will take to run.  Default is 30';
+    tooltip($tip); ?>
+    <input type="number" name="braftonVideoLimit" value="<?php echo $options['braftonVideoLimit']; ?>" max="30" />
+<?php 
+}
 //Displays the options to turn the Video Importer OFF/ON
 function braftonVideoStatus(){
     $options = getOptions();
@@ -986,11 +1012,6 @@ function braftonRegisterSettings(){
 function admin_page(){
     braftonRegisterSettings();
     include 'BraftonAdminPage.php';
-}
-//add_action('option.php', 'redirect');
-function redirect(){
-   // header("LOCATION:my&b_error=vital");
-    echo 'right hook';
 }
 function style_page(){
     include 'BraftonStylePage.php';

@@ -6,7 +6,6 @@
  * @version     2.0.1
  *
  */
-include_once(ABSPATH . 'wp-includes/pluggable.php');
 include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 include_once(ABSPATH . 'wp-admin/includes/taxonomy.php');
 require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -25,6 +24,7 @@ class BraftonFeedLoader {
     public $publish_status;
     
     public function __construct(){
+        include_once(ABSPATH . 'wp-includes/pluggable.php');
         $option_ini = new BraftonOptions();
         $this->options = $option_ini->getAll();
         $this->errors = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );

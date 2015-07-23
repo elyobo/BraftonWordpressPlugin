@@ -1,14 +1,14 @@
 <?php
 wp_enqueue_style('admin-css.css', plugin_dir_url( __FILE__ ) .'css/BraftonAdminCSS.css');
-$dir = str_replace('admin', 'BraftonwordpressPlugin.php', dirname(__FILE__));
+$dir = preg_replace('/admin$/', 'BraftonwordpressPlugin.php', dirname(__FILE__));
 $plugin_data = get_plugin_data($dir);
 global $brand;
 $brand = BraftonOptions::getSingleOption('braftonApiDomain');
 $brand = switchCase($brand);
 ?>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="//code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 
 <script>
 tab = <?php if(isset($_GET['tab'])){ echo $_GET['tab'];} else{ echo 0;}?>;
@@ -164,6 +164,9 @@ $(document).ready(function(){
            $('input[name="braftonArticleExistingTag"]').toggle();
        }
    });
+    $('#close-imported').click(function(){
+       $('#imported-list').toggle();
+    });
 });
 </script>
 

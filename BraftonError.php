@@ -101,9 +101,10 @@ class BraftonErrorReport {
     }
     //workhorse of the error reporting.  This function does the heavy lifting of logging the error and sending an error report
     public function log_exception( Exception $e ){
-
-        //if severity == 1 (script stop running error) and the error was not part of one of the below know issues for those pages runs error reporting. 
-        if ( ($e->getseverity() == 1) || ($this->debug) || ($this->check_known_errors($e))  ){
+        //assigns values for missing arguments on custom exceptions from the api libarary
+        $errorLevel = method_exists($e,'getseverity')? $e->getseverity(): 2;
+        //if errorLevel == 1 (script stop running error) and the error was not part of one of the below know issues for those pages runs error reporting. 
+        if ( ($errorLevel == 1) || ($this->debug) || ($this->check_known_errors($e))  ){
 
 
             $brafton_error = $this->b_e_log();
@@ -112,7 +113,7 @@ class BraftonErrorReport {
                 'API'       => $this->api,
                 'Brand'     => $this->brand,
                 'client_sys_time'  => date(get_option('date_format')) . " " . date("H:i:s"),
-                'error'     => get_class($e).' : '.$e->getseverity().' | '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().' brafton_level '.$this->level.' in section '.$this->section
+                'error'     => get_class($e).' : '.$errorLevel.' | '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().' brafton_level '.$this->level.' in section '.$this->section
             );
             $brafton_error[] = $errorlog;
             update_option('brafton_e_log', $brafton_error);
@@ -123,10 +124,14 @@ class BraftonErrorReport {
                 )
             );
             //$this->level = 2;
-            if(($e->getseverity() == 1 || ($config['debug'] == true && $this->level == 1)) && ($this->domain != 'localhost')){
+            if(($errorLevel == 1 || ($this->debug == true && $this->level == 1)) && ($this->domain != 'localhost')){
+                //prevent possible loop on some systems
+                if($_GET['b_error'] == 'vital'){ return; }
                 $make_report = wp_remote_post($this->post_url, $post_args);
                 header("LOCATION:$this->url&b_error=vital");
-            }else if(($e->getseverity() == 1 || ($config['debug'] == true && $this->level == 1))){
+            }else if(($errorLevel == 1 || ($this->debug == true && $this->level == 1))){
+                //prevent possible loop on some systems
+                if($_GET['b_error'] == 'vital'){ return; }
                 header("LOCATION:$this->url&b_error=vital");
             }else{
                 return;
