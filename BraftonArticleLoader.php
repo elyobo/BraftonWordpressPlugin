@@ -68,28 +68,12 @@ class BraftonArticleLoader extends BraftonFeedLoader {
 
         foreach ($CatColl as $c){
                 $category = esc_sql($c->getName());
-                //$cat_id = wp_create_category($category);
-                //$cat_array = array(
-                //    'cat_name' => $category,
-                 //   'taxonomy' => 'blog-category' );
-                //$cat_id = wp_insert_category($cat_array);
                 $cat_id = wp_insert_term($category, $category_name);
             foreach($c->child as $child){
-                //wp_create_category($child['name'], $cat_id);  
-                //$cat_array = array(
-                //    'cat_name' => $child['name'],
-                //    'category_parent' => $cat_id,
-                //    'taxonomy' => 'blog-category' );
-                //wp_insert_category($cat_array);
                 wp_insert_term($child['name'], $category_name, array('parent' => $cat_id));
             }
         }
         foreach($custom_cat as $cat){
-                //wp_create_category($cat);
-                //$cat_array = array(
-                //    'cat_name' => $cat,
-                //    'taxonomy' => 'blog-category' );    
-                //wp_insert_category($cat_array);    
                 wp_insert_term($cat, $category_name);        
         }
     }
@@ -278,13 +262,13 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         }//end individual article loop
         $list['counter'] = $counter;
         if($list['counter']){
-        echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
-            echo '<h3>'.$list['counter'].' Articles Imported</h3>';
-        foreach($list['titles'] as $item => $title){
-            echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
-        }
-        echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
-        echo '</div>';
+            echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
+                echo '<h3>'.$list['counter'].' Articles Imported</h3>';
+            foreach($list['titles'] as $item => $title){
+                echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
+            }
+            echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
+            echo '</div>';
         }
     }
     
