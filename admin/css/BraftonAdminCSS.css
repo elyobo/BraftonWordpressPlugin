@@ -101,3 +101,14 @@ input[type=submit]{
 }
 .test{
 }
+p.submit{
+    padding-top:0px;
+}
+div#tab-6 p.submit {
+  width: 50%;
+  float: left;
+}
+input#submit[value="Download Error Log"] {
+  width: 150px;
+  /* float: left; */
+}

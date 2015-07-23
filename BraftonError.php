@@ -104,7 +104,7 @@ class BraftonErrorReport {
         //assigns values for missing arguments on custom exceptions from the api libarary
         $errorLevel = method_exists($e,'getseverity')? $e->getseverity(): 2;
         //if errorLevel == 1 (script stop running error) and the error was not part of one of the below know issues for those pages runs error reporting. 
-        if ( ($errorLevel == 1) || ($this->debug) || ($this->check_known_errors($e))  ){
+        if ( ($errorLevel == 1) || ($this->debug) || ($this->check_known_errors($e)) ){
 
 
             $brafton_error = $this->b_e_log();
@@ -124,14 +124,10 @@ class BraftonErrorReport {
                 )
             );
             //$this->level = 2;
-            if(($errorLevel == 1 || ($this->debug == true && $this->level == 1)) && ($this->domain != 'localhost')){
+            if( ( $errorLevel == 1 && ( $this->domain != 'localhost') ) ){
                 //prevent possible loop on some systems
                 if($_GET['b_error'] == 'vital'){ return; }
                 $make_report = wp_remote_post($this->post_url, $post_args);
-                header("LOCATION:$this->url&b_error=vital");
-            }else if(($errorLevel == 1 || ($this->debug == true && $this->level == 1))){
-                //prevent possible loop on some systems
-                if($_GET['b_error'] == 'vital'){ return; }
                 header("LOCATION:$this->url&b_error=vital");
             }else{
                 return;
@@ -140,7 +136,7 @@ class BraftonErrorReport {
         else{
             return;
         }
-        exit();
+        return;
     }
 
     //function for checking if fatal error has occured and trigger the error flow

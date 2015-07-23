@@ -277,6 +277,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
              
         }//end individual article loop
         $list['counter'] = $counter;
+        if($list['counter']){
         echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
             echo '<h3>'.$list['counter'].' Articles Imported</h3>';
         foreach($list['titles'] as $item => $title){
@@ -284,6 +285,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         }
         echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
         echo '</div>';
+        }
     }
     
 }

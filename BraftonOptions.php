@@ -208,5 +208,13 @@ class BraftonOptions {
         $array = $instance;
         return $array[$option];
     }
+    static function getErrors(){
+        $jsonErrors = get_option('brafton_e_log');
+        header("Content-type: text/plain");
+        header("Content-Disposition: attachment; filename=Brafton_Errors_".date('Y-M-d-(h.m.s)')."-".$_SERVER['HTTP_HOST'].".txt");
+        echo '<pre>';
+        var_dump($jsonErrors);
+        echo '</pre>';
+    }
 }
 ?>

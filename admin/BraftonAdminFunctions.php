@@ -2,6 +2,10 @@
 // test feed brafton high 528a432c-2f60-4dc8-80fe-4cebc1fe25ca
 if(isset($_POST['submit'])){
     switch ($_POST['submit']){
+        case 'Download Error Log':
+        $e_log = BraftonOptions::getErrors();
+        exit();
+        break;
         case 'Save Settings':
         $save = BraftonOptions::saveAllOptions();
         break;
@@ -126,13 +130,20 @@ function braftonWarnings(){
         echo "<div class='error'>
 				<p>The Article Importer Failed to Run at its scheduled time.  Contact tech@brafton.com</p>
 				</div>";
-        $failed_error = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
-        trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
+        if(!isset($_GET['b_error'])){
+            $failed_error = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
+            trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
+        }
+        
     }
     if(($last_run_time_video) && $last_run_time_video < $time){
         echo "<div class='error'>
 				<p>The Video Importer Failed to Run at its scheduled time.  Contact tech@brafton.com</p>
 				</div>";
+        if(!isset($_GET['b_error'])){
+            $failed_error = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
+            trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
+        }
     }
     echo "<div class='$status'>
                 <p>Current Time: $current_time</p>
@@ -150,7 +161,7 @@ function print_section_info($args){
             echo '<p>This section controls the general settings for your importer.  Features for this plugin may depend on your settings in this section.  If you need help with your settings you may contact your CMS or visit <a href="http://www.brafton.com/support" target="_blank">Our Support Page</a> for assistance.</p><p>You may also view our pdf <a href="'.$inst.'">Instructions</a>';
         break;
         case 'error':
-            echo '<p>This section provides a log of any errors that may have occured</p>';
+            echo '<p>Provides Error Log support.</p>';
         break;
         case 'article':
             echo '<p>This section is for setting your article specific settings.  All settings on this page are independant of your video settings.';
@@ -214,7 +225,7 @@ function ErrorSettingsSetup(){
 //Displays the Option for Turning on the Debugger
 function braftonDebugger(){
     $options = getOptions();
-    $tip = 'Turns on Debugging Mode.  While enabled all errors are displayed to the user';
+    $tip = 'Turns on Debugging Mode which will capture all errors regardless of cause or origin.';
     tooltip($tip); ?>
     <input type="radio" name="braftonDebugger" value="1" <?php checkRadioVal($options['braftonDebugger'], 1); ?>> ON
     <input type="radio" name="braftonDebugger" value="0" <?php checkRadioVal($options['braftonDebugger'], 0); ?>> OFF

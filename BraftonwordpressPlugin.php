@@ -86,7 +86,24 @@ class BraftonWordpressPlugin {
         $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
         add_option('BraftonRegister', $option);
         
-        //check for 
+        //check for options that are turned on a activate the cron accordingly
+        if(!BraftonOptions::getSingleOption('braftonStatus')){
+            return;
+        }
+        if(BraftonOptions::getSingleOption('braftonArticleStatus')){
+            if(!wp_next_scheduled('braftonSetUpCron')){
+                wp_clear_scheduled_hook('braftonSetUpCron');
+                //importer is set to go off 2 minutes after it is enabled than hourly after that
+                $schedule = wp_schedule_event(time()+120, 'hourly', 'braftonSetUpCron');
+            }
+        }
+        if(BraftonOptions::getSingleOption('braftonVideoStatus')){
+            if(!wp_next_scheduled('braftonSetUpCronVideo')){
+                wp_clear_scheduled_hook('braftonSetUpCronVideo');
+                //importer is set to go off 2 minutes after it is enabled than daily after that
+                $schedule = wp_schedule_event(time()+120, 'twicedaily', 'braftonSetUpCronVideo');
+            }
+        }
     }
     
     public function BraftonDeactivation(){

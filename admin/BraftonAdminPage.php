@@ -74,6 +74,7 @@ jQuery( document ).tooltip();
     settings_fields( 'brafton_error_options' );
     do_settings_sections( 'brafton_error' );
     submit_button('Save Errors');
+    submit_button('Download Error Log');
     echo '</form>';
     echo '</div>';
     echo '<div id="tab-7" class="tab-7">';
