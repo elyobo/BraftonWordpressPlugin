@@ -127,9 +127,27 @@ class BraftonVideoLoader extends BraftonFeedLoader {
             $end_val1 = $this->options['braftonVideoCTA']['endingButtonPositionOneValue'];
             $end_pos2 = $this->options['braftonVideoCTA']['endingButtonPositionTwo'];
             $end_val2 = $this->options['braftonVideoCTA']['endingButtonPositionTwoValue'];
+            $pause_Asset = $this->options['braftonVideoCTA']['pauseAssetGatewayId'];
+            $end_Asset = $this->options['braftonVideoCTA']['endingAssetGatewayId'];
             $cta_array = array($pause_text, $pause_link, $end_title, $end_sub, $end_link, $end_text);
             $end_button_image = '';
             $end_background = '';
+            $pause_gateway = '';
+            $end_gateway = '';
+            if($pause_Asset != '' && $pause_Asset != 0){
+                $pause_gateway =<<<EOT
+                    assetGateway: {
+                        id: "$pause_Asset"
+                    },
+EOT;
+            }
+            if($end_Asset != '' && $end_Asset != 0){
+                $end_gateway =<<<EOT
+                    assetGateway: {
+                        id: "$end_Asset"
+                    },
+EOT;
+            }
             if($this->options['braftonVideoCTA']['endingButtonImage'] != ''){
                 $end_button_image =<<<EOT
                     ,image: "$end_image",
@@ -146,11 +164,13 @@ EOT;
                 $ctas =<<<EOT
                     ,
                     pauseCallToAction: {
+                        $pause_gateway
                         link: "$pause_link",
                         text: "$pause_text"
                     },
                     endOfVideoOptions:{
                         $end_background
+                        $end_gateway
                         callToAction: {
                             title: "$end_title",
                             subtitle: "$end_sub",

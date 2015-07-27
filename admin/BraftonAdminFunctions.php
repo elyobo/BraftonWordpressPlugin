@@ -917,6 +917,7 @@ function braftonVideoCTAs(){
     <div class="b_v_cta">
         <label>Paused CTA Text</label><br/><input type="text" name="braftonVideoCTA[pausedText]" value="<?php echo $options['braftonVideoCTA']['pausedText']; ?>"><br>
         <label>Paused CTA Link</label><br/><input type="text" name="braftonVideoCTA[pausedLink]" value="<?php echo $options['braftonVideoCTA']['pausedLink']; ?>"><br>
+        <label>Pause Asset Gateway ID</label><br/><input type="text" name="braftonVideoCTA[pauseAssetGatewayId]" value="<?php echo $options['braftonVideoCTA']['pauseAssetGatewayId']; ?>" /><br>
         <label>Ending CTA Title</label><br/><input type="text" name="braftonVideoCTA[endingTitle]" value="<?php echo $options['braftonVideoCTA']['endingTitle']; ?>"><br>
         <label>Ending CTA Subtitle</label><br/><input type="text" name="braftonVideoCTA[endingSubtitle]" value="<?php echo $options['braftonVideoCTA']['endingSubtitle']; ?>"><br>
         <label>Ending CTA Button Image</label><br/><input type="text" name="braftonVideoCTA[endingButtonImage]" value="<?php echo $options['braftonVideoCTA']['endingButtonImage']; ?>"><input type="button" class="upload_image_button" value="Add Image" data-target="brafton-end-button-preview"><br/>
@@ -939,6 +940,7 @@ function braftonVideoCTAs(){
         <input type="number" name="braftonVideoCTA[endingButtonPositionTwoValue]" value="<?php echo $options['braftonVideoCTA']['endingButtonPositionTwoValue']; ?>" style="width:90px" class="braftonPositionInput"><br/> 
         <label>Ending CTA Button Text</label><br/><input type="text" name="braftonVideoCTA[endingButtonText]" value="<?php echo $options['braftonVideoCTA']['endingButtonText']; ?>"><br>
         <label>Ending CTA Button Link</label><br/><input type="text" name="braftonVideoCTA[endingButtonLink]" value="<?php echo $options['braftonVideoCTA']['endingButtonLink']; ?>"><br>
+        <label>Ending Asset Gateway ID</label><br/><input type="text" name="braftonVideoCTA[endingAssetGatewayId]" value="<?php echo $options['braftonVideoCTA']['endingAssetGatewayId']; ?>" /><br>
         <label>Ending Background Image</label><br/><input type="text" name="braftonVideoCTA[endingBackground]" value="<?php echo $options['braftonVideoCTA']['endingBackground']; ?>"><input type="button" class="upload_image_button" value="Add Image" data-target="brafton-end-background-preview"><br/>
         <div id="v_cta_preview">
             <img src="<?php echo $options['braftonVideoCTA']['endingBackground']; ?>" id="brafton-end-background-preview"><h2 id="brafton-end-title-preview"><?php echo $options['braftonVideoCTA']['endingTitle']; ?></h2><p id="brafton-end-subtitle-preview"><?php echo $options['braftonVideoCTA']['endingSubtitle']; ?></p>
