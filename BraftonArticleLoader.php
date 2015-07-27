@@ -59,7 +59,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         $custom_cat = explode(',',$this->options['braftonCustomCategories']);
 
         // Check for custom category/tag names.
-        if($this->options['braftonArticleExistingCategory'] != ''){
+        if( $this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingCategory'] != ''){
             $category_name = $this->options['braftonArticleExistingCategory'];
         } else {
             $category_name = 'category';
@@ -89,7 +89,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         $custom_cat = explode(',',$this->options['braftonCustomCategories']);
 
         // Check for custom category name.
-        if($this->options['braftonArticleExistingCategory'] != ''){
+        if($this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingCategory'] != ''){
             $category_name = $this->options['braftonArticleExistingCategory'];
         } else {
             $category_name = 'category';
@@ -192,12 +192,12 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $compacted_article = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_status', 'post_excerpt');
 
                 // Check for custom category name.
-                if($this->options['braftonArticleExistingCategory'] != ''){
+                if($this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingCategory'] != ''){
                     $category_name = $this->options['braftonArticleExistingCategory'];
                 } else {
                     $category_name = 'category';
                 }
-                if($this->options['braftonArticleExistingTag'] != ''){
+                if($this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingTag'] != ''){
                     $tag_name = $this->options['braftonArticleExistingTag'];
                 } else {
                     $tag_name = 'post_tag';
