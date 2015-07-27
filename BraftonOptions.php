@@ -59,10 +59,18 @@ class BraftonOptions {
             'braftonVideoCTA'           => array(
                     'pausedText'            => '',
                     'pausedLink'            => '',
+                    'pauseAssetGatewayId'   => '',
                     'endingTitle'           => '',
                     'endingSubtitle'        => '',
+                    'endingButtonImage'     => '',
+                    'endingButtonPositionOne'   => 'top',
+                    'endingButtonPositionOneValue'  => 0,
+                    'endingButtonPositionTwo'   => 'left',
+                    'endingButtonPositionTwoValue'  => 0,
                     'endingButtonText'      => '',
-                    'endingButtonLink'      => ''
+                    'endingButtonLink'      => '',
+                    'endingAssetGatewayId'   => '',
+                    'endingBackground'      => ''
                     ),
             'braftonMarproStatus'       => 'off',
             'braftonMarproId'           => '',
@@ -133,10 +141,18 @@ class BraftonOptions {
             'braftonVideoCTA'           => array(
                     'pausedText'            => '',
                     'pausedLink'            => '',
+                    'pauseAssetGatewayId'   => '',
                     'endingTitle'           => '',
                     'endingSubtitle'        => '',
+                    'endingButtonImage'     => '',
+                    'endingButtonPositionOne'   => 'top',
+                    'endingButtonPositionOneValue'  => 0,
+                    'endingButtonPositionTwo'   => 'left',
+                    'endingButtonPositionTwoValue'  => 0,
                     'endingButtonText'      => '',
-                    'endingButtonLink'      => ''
+                    'endingButtonLink'      => '',
+                    'endingAssetGatewayId'   => '',
+                    'endingBackground'      => ''
                     ),
             'braftonMarproStatus'       => 'off',
             'braftonMarproId'           => '',
