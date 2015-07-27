@@ -822,9 +822,9 @@ function VideoSettingsSetup(){
             'video'
         );
         add_settings_field(
-            'braftonVideoCSS',
-            'Video CSS Fix',
-            'braftonVideoCSS',
+            'braftonVideoOutput',
+            'Video Position',
+            'braftonVideoOutput',
             'brafton_video',
             'video'
         );
@@ -901,12 +901,13 @@ function braftonVideoHeaderScript(){
 <?php
 }
 
-function braftonVideoCSS(){
+function braftonVideoOutput(){
     $options = getOptions();
-    $tip = 'Extra CSS to fix a common issue where atlantisJS looks wonky.';
+    $tip = 'Output your videos before or after your article text copy.  It is recommended to modify your template file to output your video in place of the image.';
     tooltip($tip); ?>
-<input type="radio" name="braftonVideoCSS" value="on" <?php checkRadioval($options['braftonVideoCSS'], 'on'); ?> /> On
-<input type="radio" name="braftonVideoCSS" value="off" <?php	checkRadioval($options['braftonVideoCSS'], 'off'); ?>/> Off
+<input type="radio" name="braftonVideoOutput" value="0" <?php checkRadioval($options['braftonVideoOutput'], '0'); ?> /> OFF
+<input type="radio" name="braftonVideoOutput" value="before" <?php	checkRadioval($options['braftonVideoOutput'], 'before'); ?>/> Before Copy
+<input type="radio" name="braftonVideoOutput" value="after" <?php	checkRadioval($options['braftonVideoOutput'], 'after'); ?>/> After Copy
 <?php    
 }
 

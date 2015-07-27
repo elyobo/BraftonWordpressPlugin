@@ -71,6 +71,7 @@ class BraftonWordpressPlugin {
         //Adds our needed filters
         add_filter('language_attributes', array($this, 'BraftonOpenGraphNamespace'), 100);
         add_filter('cron_schedules', array($this, 'BraftonCustomCronTime'),1,1);
+        add_filter('the_content', array($this, 'BraftonContentModifyVideo'));
         //XML RPC Support
         //add_filter( 'xmlrpc_methods', array($this, 'BraftonXMLRPC' ));
         $init_options = new BraftonOptions();
@@ -127,6 +128,20 @@ class BraftonWordpressPlugin {
             echo '<a href="'.get_edit_post_link().'">'.get_the_title(); echo '</a><br/> Imported on: '; the_time('Y-d-m');
             echo '</p>';
         endwhile;endif;
+    }
+    static function BraftonContentModifyVideo($content){
+        
+        if(is_single()){
+            $ops = new BraftonOptions();
+            $static = $ops->getAll();
+            if($static['braftonVideoOutput']){
+                if($meta=get_post_meta(get_the_ID(), "brafton_video", true)){
+                    $content = $static['braftonVideoOutput'] == 'after'? $content . $meta : $meta . $content;
+                }
+            }
+        }
+        
+        return $content;
     }
     public function BraftonCustomCronTime($schedules){
         $schedules['threedaily'] = array(

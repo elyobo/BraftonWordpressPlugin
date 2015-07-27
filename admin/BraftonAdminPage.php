@@ -41,6 +41,7 @@ jQuery( document ).tooltip();
         <li><a href="#tab-1">General Settings</a></li>
         <li><a href="#tab-2">Articles</a></li>
         <li><a href="#tab-3">Videos</a></li>
+        <li id="braftonVideoCTATab" style="display:none"><a href="#tab-8">Video CTA's</a></li>
         <li><a href="#tab-4">Pumpkin</a></li>
         <li><a href="#tab-5">Archives</a></li>
         <li><a href="#tab-6">Error Logs</a></li>
@@ -60,6 +61,10 @@ jQuery( document ).tooltip();
     echo '<div id="tab-3" class="tab-3">';
     settings_fields('brafton_video_options');
     do_settings_sections('brafton_video');
+    submit_button('Save Settings');
+    echo '</div>';
+    echo '<div id="tab-8" class="tab-8">';
+    
     submit_button('Save Settings');
     echo '</div>';
     echo '<div id="tab-4" class="tab-4">';
