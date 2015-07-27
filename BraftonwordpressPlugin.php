@@ -58,8 +58,8 @@ class BraftonWordpressPlugin {
         }
         //Adds our needed hooks
         add_action('wp_head', array($this, 'BraftonOpenGraph'));
-        add_action('wp_head', array($this, 'BraftonVideoHead'));
         add_action('wp_head', array($this, 'BraftonJQuery'));
+        add_action('wp_head', array($this, 'BraftonVideoHead'));
         add_action('wp_footer', array('BraftonMarpro', 'MarproScript'));
         add_action('wp_footer', array($this, 'BraftonRestyle'));
         add_action('admin_menu', array($this, 'BraftonAdminMenu'));
