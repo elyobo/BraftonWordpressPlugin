@@ -22,7 +22,8 @@ include 'BraftonCustomType.php';
 include 'admin/BraftonAdminFunctions.php';
 
 define("BRAFTON_VERSION", '3.2.0');
-
+define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
+define("BRAFTON_PLUGIN", dirname(__FILE__).'/BraftonwordpressPlugin.php');
 class BraftonWordpressPlugin {
     
     /*

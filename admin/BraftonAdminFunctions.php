@@ -685,12 +685,12 @@ function braftonArticleExistingPostType(){
     $post_types = get_post_types(); ?>
 
     <select name="braftonArticleExistingPostType" id="braftonArticleExistingPostType" <?php checkRadioval($options["braftonArticlePostType"], 1, 'disabled'); ?>>
-        <option value='0'>None</option>
+        <option value='0' <?php checkRadioval($options["braftonArticleExistingPostType"], 0, 'selected'); ?>>None</option>
         <?php foreach($post_types as $post_type) { 
         if(array_search($post_type, $array)){
             continue;
         } ?>
-        <option value="<?php echo $post_type; ?>" <?php checkRadioval($options["braftonArticleExistingPostType"], $post_type, 'selected'); ?>><?php echo $post_type; ?></option>
+        <option value="<?php echo $post_type; ?>" <?php checkRadioval(strval($options["braftonArticleExistingPostType"]), $post_type, 'selected'); ?>><?php echo $post_type; ?></option>
 <?php  
         }
     ?></select><?php 

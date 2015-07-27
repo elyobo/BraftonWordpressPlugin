@@ -2,7 +2,7 @@
 wp_enqueue_style('admin-css.css', plugin_dir_url( __FILE__ ) .'css/BraftonAdminCSS.css');
 wp_enqueue_script('jquery');
 $dir = str_replace('admin', 'BraftonwordpressPlugin.php', dirname(__FILE__));
-$plugin_data = get_plugin_data($dir);
+$plugin_data = get_plugin_data(BRAFTON_PLUGIN);
 global $brand;
 $brand = BraftonOptions::getSingleOption('braftonApiDomain');
 $brand = switchCase($brand);
@@ -26,7 +26,7 @@ jQuery( document ).tooltip();
 ?>
 <div class="importer_header">
     <!--directory from the api image folder-->
-    <img src="<?php echo plugin_dir_url(__FILE__); ?>/img/banner_<?php echo strtolower($brand); ?>.jpg">
+    <img src="<?php echo BRAFTON_ROOT; ?>/admin/img/banner_<?php echo strtolower($brand); ?>.jpg">
 </div>
 
 <div id="tab-cont" class="tabs">
