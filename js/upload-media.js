@@ -48,8 +48,11 @@ jQuery(document).ready(function($){
             if(inputText != undefined && inputText != '')
             {
                 inputText.val(image_url);
-                //showImage.attr('src', image_url);
-                imgPreview.attr('src', image_url);
+                if(showImage.hasClass('pumpkin_widget')){
+                    showImage.attr('src', image_url);
+                }else{
+                    imgPreview.attr('src', image_url);
+                }
                 
             }
         });
