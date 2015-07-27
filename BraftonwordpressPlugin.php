@@ -157,9 +157,21 @@ class BraftonWordpressPlugin {
         $ops = new BraftonOptions();
         $static = $ops->getAll();
         $restyle = $static['braftonRestyle'];
-        if($static && is_single()){
-            $pullQuote = "'width': '20%', 'float': 'right', 'margin': '5px'";
-            $inlineImage = "'width': '20%', 'float': 'right', 'margin': '5px'";
+        if($restyle && is_single()){
+            $p_width = $static['braftonPullQuoteWidth'];
+            $p_float = $static['braftonPullQuoteFloat'];
+            $p_margin = $static['braftonPullQuoteMargin'];
+            $i_width = $static['braftonInlineImageWidth'];
+            $i_float = $static['braftonInlineImageFloat'];
+            $i_margin = $static['braftonInlineImageMargin'];
+            $pullQuote = '';
+            $inlineImage = '';
+            if($static['braftonPullQuotes']){
+                $pullQuote = "'width': '{$p_width}%', 'float': '{$p_float}', 'margin': '{$p_margin}px'";
+            }
+            if($static['braftonInlineImages']){
+                $inlineImage = "'width': '{$i_width}%', 'float': '{$i_float}', 'margin': '{$i_margin}px'";
+            }
             $restyle =<<<EOC
             <script type="text/javascript">
             (function(d){

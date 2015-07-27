@@ -40,6 +40,7 @@ jQuery( document ).tooltip();
     echo '<div id="tab-1" class="tab-1">';
     settings_fields('brafton_article_style_options');
     do_settings_sections('brafton_article_style');
+    submit_button('Save Settings');
     echo '</div>';
     echo '<div id="tab-2" class="tab-2">';
     settings_fields('brafton_atlantis_style_options');
