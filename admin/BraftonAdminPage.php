@@ -1,5 +1,11 @@
 <?php
 wp_enqueue_style('admin-css.css', plugin_dir_url( __FILE__ ) .'css/BraftonAdminCSS.css');
+wp_enqueue_script('media-upload');
+wp_enqueue_script('thickbox');
+wp_enqueue_script('jquery');
+wp_enqueue_style('thickbox');
+wp_enqueue_media();
+wp_enqueue_script('upload_media_widget', plugin_dir_url(__FILE__) . 'js/upload-media.js', array('jquery'));
 $dir = preg_replace('/admin$/', 'BraftonwordpressPlugin.php', dirname(__FILE__));
 $plugin_data = get_plugin_data($dir);
 global $brand;
@@ -7,7 +13,7 @@ $brand = BraftonOptions::getSingleOption('braftonApiDomain');
 $brand = switchCase($brand);
 ?>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>-->
 <script src="//code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 
 <script>
@@ -86,7 +92,6 @@ jQuery( document ).tooltip();
     echo '</div>';
 
 ?>
-        
 </div>
 <div id="imp-details" class="ui-widget ui-widget-content ui-corner-all">
     <h3 class="ui-widget-header"><?php echo $brand; ?>  Importer Details</h3>
@@ -114,6 +119,7 @@ jQuery( document ).tooltip();
 </div>
 <script>
 function settingsValidate(){
+    var $ = jQuery;
     var validate = true;
     if($("select[name='braftonImporterUser']").val() == ''){
         validate = false;
@@ -137,7 +143,30 @@ function settingsValidate(){
     }
     return validate;
 }
-$(document).ready(function(){
+jQuery(document).ready(function($){
+    if($('#brafton-end-button-preview')){
+        var count = $('.braftonPositionInput');
+        var cor = $('.braftonPositionInput').map(function(){
+            return $(this).val();
+        }).get();
+        $('#brafton-end-button-preview').css(cor[0], cor[1]+'px');
+        $('#brafton-end-button-preview').css(cor[2], cor[3]+'px');
+    }
+    $('input[name="braftonVideoCTA[endingTitle]"]').keyup(function(){
+        $('#brafton-end-title-preview').html($(this).val());
+    });
+    $('input[name="braftonVideoCTA[endingSubtitle]"]').keyup(function(){
+        $('#brafton-end-subtitle-preview').html($(this).val());
+    });
+    $('.braftonPositionInput').change(function(){
+        var count = $('.braftonPositionInput');
+        var cor = $('.braftonPositionInput').map(function(){
+            return $(this).val();
+        }).get();
+        $('#brafton-end-button-preview').css(cor[0], cor[1]+'px');
+        $('#brafton-end-button-preview').css(cor[2], cor[3]+'px');
+       //console.log(f_string); 
+    });
    $('.archiveStatus').click(function(){
       var stat = true;
        if($(this).attr('value') == 1){ stat = false; }else{stat = true;}

@@ -122,19 +122,42 @@ class BraftonVideoLoader extends BraftonFeedLoader {
             $end_sub = $this->options['braftonVideoCTA']['endingSubtitle'];
             $end_link = $this->options['braftonVideoCTA']['endingButtonLink'];
             $end_text = $this->options['braftonVideoCTA']['endingButtonText'];
+            $end_image = $this->options['braftonVideoCTA']['endingButtonImage'];
+            $end_pos1 = $this->options['braftonVideoCTA']['endingButtonPositionOne'];
+            $end_val1 = $this->options['braftonVideoCTA']['endingButtonPositionOneValue'];
+            $end_pos2 = $this->options['braftonVideoCTA']['endingButtonPositionTwo'];
+            $end_val2 = $this->options['braftonVideoCTA']['endingButtonPositionTwoValue'];
+            $cta_array = array($pause_text, $pause_link, $end_title, $end_sub, $end_link, $end_text);
+            $end_button_image = '';
+            $end_background = '';
+            if($this->options['braftonVideoCTA']['endingButtonImage'] != ''){
+                $end_button_image =<<<EOT
+                    ,image: "$end_image",
+                    position: [
+                        {pos: "$end_pos1", val: "{$end_val1}px"},
+                        {pos: "$end_pos2", val: "{$end_val2}px"}
+                        ]
+EOT;
+            }
+            if($this->options['braftonVideoCTA']['endingBackground'] != ''){
+                $end_background = 'background: "'.$this->options['braftonVideoCTA']['endingBackground'].'",';
+            }
             if($pause_text != ''){
                 $ctas =<<<EOT
                     ,
                     pauseCallToAction: {
-                        text: "<a href='$pause_link'>$pause_text</a>"
+                        link: "$pause_link",
+                        text: "$pause_text"
                     },
                     endOfVideoOptions:{
+                        $end_background
                         callToAction: {
                             title: "$end_title",
                             subtitle: "$end_sub",
                             button: {
                                 link: "$end_link",
                                 text: "$end_text"
+                                $end_button_image
                             }
                         }
                     }
@@ -301,14 +324,16 @@ EOC;
             
         }
         $listImported['counter'] = $counter;
-        echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
-            echo '<h3>'.$listImported['counter'].' Videos Imported</h3>';
-            //echo '<pre>'; var_dump($listImported); echo '</pre>';
-        foreach($listImported['titles'] as $item => $title){
-            echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
+        if($counter){
+            echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
+                echo '<h3>'.$listImported['counter'].' Videos Imported</h3>';
+                //echo '<pre>'; var_dump($listImported); echo '</pre>';
+            foreach($listImported['titles'] as $item => $title){
+                echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
+            }
+            echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
+            echo '</div>';
         }
-        echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
-        echo '</div>';
     }
 }
 ?>

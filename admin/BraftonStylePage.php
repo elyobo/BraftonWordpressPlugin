@@ -1,5 +1,6 @@
 <?php
 wp_enqueue_style('admin-css.css', plugin_dir_url( __FILE__ ) .'css/BraftonAdminCSS.css');
+wp_enqueue_script('jquery');
 $dir = str_replace('admin', 'BraftonwordpressPlugin.php', dirname(__FILE__));
 $plugin_data = get_plugin_data($dir);
 global $brand;
@@ -7,7 +8,6 @@ $brand = BraftonOptions::getSingleOption('braftonApiDomain');
 $brand = switchCase($brand);
 ?>
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 
 <script>
@@ -34,20 +34,17 @@ jQuery( document ).tooltip();
     <ul>
         <li><a href="#tab-1">Article Style</a></li>
         <li><a href="#tab-2">Atlantis Video Style</a></li>
-        <li><a href="#tab-3">Pumpkin Styles</a></li>
+        
     </ul>
 <?php 
     echo '<div id="tab-1" class="tab-1">';
-
+    settings_fields('brafton_article_style_options');
+    do_settings_sections('brafton_article_style');
     echo '</div>';
     echo '<div id="tab-2" class="tab-2">';
-
-    echo '</div>';
-    echo '<div id="tab-3" class="tab-3">';
-
-    echo '</div>';
-    echo '<div id="tab-4" class="tab-4">';
-
+    settings_fields('brafton_atlantis_style_options');
+    do_settings_sections('brafton_atlantis');
+    submit_button('Save Settings');
     echo '</div>';
     echo '</form>';
 ?>
@@ -81,8 +78,10 @@ jQuery( document ).tooltip();
 function settingsValidate(){
 
 }
-$(document).ready(function(){
-   
+jQuery(document).ready(function($){
+    $('.braftonColorChoose').change(function(){
+       $(this).prev().val($(this).val()); 
+    });
 });
 </script>
 

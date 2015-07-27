@@ -69,7 +69,29 @@ class BraftonOptions {
             'braftonOpenGraphStatus'    => 'off',
             'braftonRestyle'            => 0,
             'braftonArticleLimit'       => 30,
-            'braftonVideoLimit'         => 30
+            'braftonVideoLimit'         => 30,
+            'braftonPauseColor'         => '',
+            'braftonEndBackgroundcolor' => '',
+            'braftonEndTitleColor'      => '',
+            'braftonEndTitleAlign'      => 'center',
+            'braftonEndSubTitleColor'   => '',
+            'braftonEndSubTitleBackground' => '',
+            'braftonEndSubTitleAlign'   => 'left',
+            'braftonEndButtonBackgroundColor'   => '',
+            'braftonEndButtonTextColor' => '',
+            'braftonEndButtonBackgroundColorHover'  => '',
+            'braftonEndButtonTextColorHover'    => '',
+            'braftonEndTitleBackground' => '',
+            'braftonEnableCustomCSS'    => 0,
+            'braftonCustomCSS'  => BraftonOptions::getCSS(),
+            'braftonPullQuotes' => 0,
+            'braftonPullQuoteWidth' => 25,
+            'braftonPullQuoteFloat' => 'left',
+            'braftonPullQuoteMargin'    => 5,
+            'braftonInlineImages' => 0,
+            'braftonInlineImageWidth' => 25,
+            'braftonInlineImageFloat' => 'left',
+            'braftonInlineImageMargin'    => 5
         );
         //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
         if($old_options = get_option('BraftonOptions')){
@@ -91,7 +113,7 @@ class BraftonOptions {
             'braftonApiDomain'          => get_option("braftonxml_domain"),
             'braftonApiKey'             => get_option("braftonxml_sched_API_KEY"),
             'braftonUpdateContent'      => 0,
-            'braftonArticleDynamic'     => get_option("braftonxml_dynamic_author"),
+            'braftonArticleDynamic'     => get_option("braftonxml_dynamic_author", 'n'),
             'braftonArticleAuthorDefault'   => get_option("braftonxml_default_author"),
             'braftonArticleStatus'      => 0,
             'braftonArticlePostType'    => 0,
@@ -120,7 +142,29 @@ class BraftonOptions {
             'braftonOpenGraphStatus'    => 'off',
             'braftonRestyle'            => 0,
             'braftonArticleLimit'       => 30,
-            'braftonVideoLimit'         => 30
+            'braftonVideoLimit'         => 30,
+            'braftonPauseColor'         => '',
+            'braftonEndBackgroundcolor' => '',
+            'braftonEndTitleColor'      => '',
+            'braftonEndTitleAlign'      => 'center',
+            'braftonEndSubTitleColor'   => '',
+            'braftonEndSubTitleBackground' => '',
+            'braftonEndSubTitleAlign'   => 'left',
+            'braftonEndButtonBackgroundColor'   => '',
+            'braftonEndButtonTextColor' => '',
+            'braftonEndButtonBackgroundColorHover'  => '',
+            'braftonEndButtonTextColorHover'    => '',
+            'braftonEndTitleBackground' => '',
+            'braftonEnableCustomCSS'    => 0,
+            'braftonCustomCSS'  => BraftonOptions::getCSS(),
+            'braftonPullQuotes' => 0,
+            'braftonPullQuoteWidth' => 25,
+            'braftonPullQuoteFloat' => 'left',
+            'braftonPullQuoteMargin'    => 5,
+            'braftonInlineImages' => 0,
+            'braftonInlineImageWidth' => 25,
+            'braftonInlineImageFloat' => 'left',
+            'braftonInlineImageMargin'    => 5
             );
             $default_options = wp_parse_args($old_options, $default_options);
             add_option('BraftonOptions', $default_options);
@@ -145,9 +189,12 @@ class BraftonOptions {
     //sets one option and saves that option to the database resets the $options array with the new data.  Note this will not affect any external variables currently holding the associative array returned previously.
     public function saveOption($option, $value){
         $this->options[$option] = $value;
+        /*
         $this->saveAllOptions();
         $this->ser_options = get_option('BraftonOptions');
         $this->options = $this->ser_options;
+        */
+        update_option('BraftonOptions', $this->options);
     }
     static function saveAllOptions(){
         $old_options = get_option('BraftonOptions');
@@ -215,6 +262,46 @@ class BraftonOptions {
         echo '<pre>';
         var_dump($jsonErrors);
         echo '</pre>';
+    }
+    static function getCSS(){
+        $css=<<<EOT
+/* Effects the puase cta background color */
+span.video-pause-call-to-action, span.ajs-video-annotation{
+    background-color:;
+}
+/* effects the pause cta text color */
+span.video-pause-call-to-action a:link, span.video-pause-call-to-action a:visited{
+    color:;  
+    font-weight:900;
+}
+/* effects the end of video background color *Note: has no effect if a background image is selected */
+div.ajs-end-of-video-call-to-action-container{
+    background-color:;
+}
+/* effects the end of video title tag */
+div.ajs-end-of-video-call-to-action-container h2{
+    background:transparent;
+    color:;
+    text-align:center;
+}
+/* effects the end of video subtitle tags */
+div.ajs-end-of-video-call-to-action-container p{
+    background:transparent;
+    color:;
+    text-align:left;
+}
+/* effects the end of video button *Note: has no effect if button image is selected */
+a.ajs-call-to-action-button{
+     background-color:;  
+    color:#000;
+}
+/* effects the end of video button on hover and  *Note: has no effects if button image is selected */
+a.ajs-call-to-action-button:hover, a.ajs-call-to-action-button:visited{
+    background-color:;
+    color:#000;
+}
+EOT;
+        return $css;
     }
 }
 ?>
