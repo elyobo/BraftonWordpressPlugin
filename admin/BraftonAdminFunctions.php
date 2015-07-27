@@ -155,10 +155,10 @@ function braftonWarnings(){
 function for displaying the sections information
 */
 function print_section_info($args){
-    $inst = preg_replace('/admin$/', 'ImporterInstructions.pdf', dirname(__FILE__));
+    $inst = BRAFTON_ROOT.'ImporterInstructions.pdf';
     switch ($args['id']){
         case 'general':
-            echo '<p>This section controls the general settings for your importer.  Features for this plugin may depend on your settings in this section.  If you need help with your settings you may contact your CMS or visit <a href="http://www.brafton.com/support" target="_blank">Our Support Page</a> for assistance.</p><p>You may also view our pdf <a href="'.$inst.'">Instructions</a>';
+            echo '<p>This section controls the general settings for your importer.  Features for this plugin may depend on your settings in this section.  If you need help with your settings you may contact your CMS or visit <a href="http://www.brafton.com/support" target="_blank">Our Support Page</a> for assistance.</p><p>You may also view our pdf <a target="_blank" href="'.$inst.'">Instructions</a>';
         break;
         case 'error':
             echo '<p>Provides Error Log support.  Errors resulting in failure to deliver content are directly reported and turn on debug mode capturing all errors for troubleshooting purposes.</p>';
