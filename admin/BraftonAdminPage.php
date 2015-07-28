@@ -6,6 +6,7 @@ wp_enqueue_script('jquery');
 wp_enqueue_style('thickbox');
 wp_enqueue_media();
 wp_enqueue_script('upload_media_widget', BRAFTON_ROOT.'js/upload-media.js', array('jquery'));
+wp_enqueue_script('brafton_admin_js', plugin_dir_url(__FILE__) .'js/braftonAdmin.js');
 $dir = preg_replace('/admin$/', 'BraftonwordpressPlugin.php', dirname(__FILE__));
 $plugin_data = get_plugin_data(BRAFTON_PLUGIN);
 global $brand;
@@ -13,7 +14,6 @@ $brand = BraftonOptions::getSingleOption('braftonApiDomain');
 $brand = switchCase($brand);
 ?>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
-<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>-->
 <script src="//code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 
 <script>
@@ -122,90 +122,6 @@ jQuery( document ).tooltip();
     </table>
     
 </div>
-<script>
-function settingsValidate(){
-    var $ = jQuery;
-    var validate = true;
-    if($("select[name='braftonImporterUser']").val() == ''){
-        validate = false;
-        alert('You have not set an Importer User on the General Tab');
-    }
-    if($("input[name='braftonArticleStatus']:checked").val() == 1 && $('#brafton_api_key').val() == ''){
-        validate = false;
-        alert('You have turned your Article Importer on but forgot to enter your API Key');
-    }
-    if($("input[name='braftonVideoStatus']:checked").val() == 1 && ($('#brafton_video_public').val() == '' || $('#brafton_video_secret').val() == '')){
-        validate = false;
-        alert('You have turned your Video Importer on but forgot to enter your Public or Private Key');
-    }
-    if($('input[name="braftonArticlePostType"]:checked').val() == 1 && $('input[name="braftonCustomSlug"]').val() == ''){
-        validate = false;
-        alert('You have choosen to use the importers custom post type of "blog_content" but have not entered a url slug');
-    }
-    if($('#braftonArticleExistingPostType:checked').val()){
-           $('input[name="braftonArticleExistingCategory"]').val() = '';
-           $('input[name="braftonArticleExistingTag"]').val() = '';
-    }
-    return validate;
-}
-jQuery(document).ready(function($){
-    if($('#brafton-end-button-preview')){
-        var count = $('.braftonPositionInput');
-        var cor = $('.braftonPositionInput').map(function(){
-            return $(this).val();
-        }).get();
-        $('#brafton-end-button-preview').css(cor[0], cor[1]+'px');
-        $('#brafton-end-button-preview').css(cor[2], cor[3]+'px');
-    }
-    $('input[name="braftonVideoCTA[endingTitle]"]').keyup(function(){
-        $('#brafton-end-title-preview').html($(this).val());
-    });
-    $('input[name="braftonVideoCTA[endingSubtitle]"]').keyup(function(){
-        $('#brafton-end-subtitle-preview').html($(this).val());
-    });
-    $('.braftonPositionInput').change(function(){
-        var count = $('.braftonPositionInput');
-        var cor = $('.braftonPositionInput').map(function(){
-            return $(this).val();
-        }).get();
-        $('#brafton-end-button-preview').css(cor[0], cor[1]+'px');
-        $('#brafton-end-button-preview').css(cor[2], cor[3]+'px');
-       //console.log(f_string); 
-    });
-   $('.archiveStatus').click(function(){
-      var stat = true;
-       if($(this).attr('value') == 1){ stat = false; }else{stat = true;}
-       $('#braftonUpload').prop('disabled', stat);
-   });
-    $('input[name="braftonArticlePostType"]').change(function(){
-        
-        if($('input[name="braftonArticlePostType"]:checked').val() == 1){
-            $('#braftonArticleExistingPostType').prop('disabled', true );
-            $('input[name="braftonCustomSlug"]').prop('disabled', false );
-        }else{
-            $('#braftonArticleExistingPostType').prop('disabled', false );
-            $('input[name="braftonCustomSlug"]').prop('disabled', true );
-            
-        }
-    });
-   $('#braftonArticleExistingPostType').change(function(){
-       if($('#braftonArticleExistingPostType').val()){
-           $('input[name="braftonArticleExistingCategory"]').toggle();
-           $('input[name="braftonArticleExistingTag"]').toggle();
-           return;
-       }
-       if($('input[name="braftonArticleExistingCategory"]').css('display') != 'inline-block'){
-           $('input[name="braftonArticleExistingCategory"]').toggle();
-           $('input[name="braftonArticleExistingTag"]').toggle();
-       }
-   });
-    $('#close-imported').click(function(){
-       $('#imported-list').toggle();
-    });
-});
-</script>
-
-
 <?php if($_GET['page'] == 'BraftonArticleLoader'){
     add_action('admin_footer_text', 'brafton_custom_footer');
     function brafton_custom_footer(){

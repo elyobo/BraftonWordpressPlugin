@@ -905,9 +905,9 @@ function braftonVideoOutput(){
     $options = getOptions();
     $tip = 'Output your videos before or after your article text copy.  It is recommended to modify your template file to output your video in place of the image.';
     tooltip($tip); ?>
-<input type="radio" name="braftonVideoOutput" value="0" <?php checkRadioval($options['braftonVideoOutput'], '0'); ?> /> OFF
-<input type="radio" name="braftonVideoOutput" value="before" <?php	checkRadioval($options['braftonVideoOutput'], 'before'); ?>/> Before Copy
-<input type="radio" name="braftonVideoOutput" value="after" <?php	checkRadioval($options['braftonVideoOutput'], 'after'); ?>/> After Copy
+<input type="radio" name="braftonVideoOutput" value="0" <?php checkRadioval(strval($options['braftonVideoOutput']), '0'); ?> /> OFF
+<input type="radio" name="braftonVideoOutput" value="before" <?php	checkRadioval(strval($options['braftonVideoOutput']), 'before'); ?>/> Before Copy
+<input type="radio" name="braftonVideoOutput" value="after" <?php	checkRadioval(strval($options['braftonVideoOutput']), 'after'); ?>/> After Copy
 <?php    
 }
 
