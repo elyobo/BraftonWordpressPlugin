@@ -19,7 +19,7 @@ class BraftonOptions {
     
     public function __construct(){
         //registers the hook for when the plugin is activated.  This method can be instantiated on its own again if needed.
-        $this->ini_BraftonOptions();
+        //$this->ini_BraftonOptions();
         //Gets the options stored in the database and stores the associative array in the $this->options
         $this->ser_options = get_option('BraftonOptions');
         $this->options = $this->ser_options;
@@ -28,102 +28,20 @@ class BraftonOptions {
     static function ini_BraftonOptions(){
         $default_options = array(
             'braftonDebugger'           => 0,
-            'braftonCategories'         => 'categories',
-            'braftonCustomCategories'    => '',
-            'braftonTags'               => 'none_tags',
-            'braftonCustomTags'         => '',
-            'braftonPublishDate'        => 'published',
+            'braftonCategories'         => get_option("braftonxml_sched_cats", 'categories'),
+            'braftonCustomCategories'    => get_option("braftonxml_sched_cats_input", ''),
+            'braftonTags'               => get_option("braftonxml_sched_tags", 'none_tags'),
+            'braftonCustomTags'         => get_option("braftonxml_sched_tags_input", ''),
+            'braftonPublishDate'        => get_option("braftonxml_publishdate", 'published'),
             'braftonPostStatus'         => 'publish',
             'braftonImporterUser'       => '',
             'braftonStatus'             => 0,
             'braftonClearLog'           => 0,
-            'braftonApiDomain'          => 'api.brafton.com',
-            'braftonApiKey'             => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-            'braftonUpdateContent'      => 0,
-            'braftonArticleDynamic'     => 'n',
-            'braftonArticleAuthorDefault'   => '',
-            'braftonArticleStatus'      => 0,
-            'braftonArticlePostType'    => 0,
-            'braftonCustomSlug'         => '',
-            'braftonArticleExistingPostType'   => 0,
-            'braftonArticleExistingCategory'    => '',
-            'braftonArticleExistingTag'    => '',
-            'braftonArchiveImporterStatus'  => 0,
-            'braftonVideoStatus'        => 0,
-            'braftonVideoPublicKey'     => 'XXXXX',
-            'braftonVideoPrivateKey'    => 'XXXXXXXXXXX',
-            'braftonVideoFeed'          => 0,
-            'braftonVideoHeaderScript'  => 'atlantisjs',
-            'braftonImportJquery'       => 'off',
-            'braftonVideoCSS'           => 'off',
-            'braftonVideoCTA'           => array(
-                    'pausedText'            => '',
-                    'pausedLink'            => '',
-                    'pauseAssetGatewayId'   => '',
-                    'endingTitle'           => '',
-                    'endingSubtitle'        => '',
-                    'endingButtonImage'     => '',
-                    'endingButtonPositionOne'   => 'top',
-                    'endingButtonPositionOneValue'  => 0,
-                    'endingButtonPositionTwo'   => 'left',
-                    'endingButtonPositionTwoValue'  => 0,
-                    'endingButtonText'      => '',
-                    'endingButtonLink'      => '',
-                    'endingAssetGatewayId'   => '',
-                    'endingBackground'      => ''
-                    ),
-            'braftonMarproStatus'       => 'off',
-            'braftonMarproId'           => '',
-            'braftonOpenGraphStatus'    => 'off',
-            'braftonRestyle'            => 0,
-            'braftonArticleLimit'       => 30,
-            'braftonVideoLimit'         => 30,
-            'braftonPauseColor'         => '',
-            'braftonEndBackgroundcolor' => '',
-            'braftonEndTitleColor'      => '',
-            'braftonEndTitleAlign'      => 'center',
-            'braftonEndSubTitleColor'   => '',
-            'braftonEndSubTitleBackground' => '',
-            'braftonEndSubTitleAlign'   => 'left',
-            'braftonEndButtonBackgroundColor'   => '',
-            'braftonEndButtonTextColor' => '',
-            'braftonEndButtonBackgroundColorHover'  => '',
-            'braftonEndButtonTextColorHover'    => '',
-            'braftonEndTitleBackground' => '',
-            'braftonEnableCustomCSS'    => 0,
-            'braftonCustomCSS'  => BraftonOptions::getCSS(),
-            'braftonPullQuotes' => 0,
-            'braftonPullQuoteWidth' => 25,
-            'braftonPullQuoteFloat' => 'left',
-            'braftonPullQuoteMargin'    => 5,
-            'braftonInlineImages' => 0,
-            'braftonInlineImageWidth' => 25,
-            'braftonInlineImageFloat' => 'left',
-            'braftonInlineImageMargin'    => 5,
-            'braftonVideoOutput'        => 0
-        );
-        //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
-        if($old_options = get_option('BraftonOptions')){
-            $default_options = wp_parse_args($old_options, $default_options);
-            update_option('BraftonOptions', $default_options);
-        }
-        //Checks for the previously used type of options from any importer "Black Eye" or older and forms those options into an array to merge with new array.  This maintains many of the new settings from the old importer versions while maintaining integrity of the new versions
-        elseif(get_option('braftonxml_domain')){
-            $old_options = array(
-            'braftonDebugger'           => 0,
-            'braftonCategories'         => get_option("braftonxml_sched_cats"),
-            'braftonCustomCategories'    => get_option("braftonxml_sched_cats_input"),
-            'braftonTags'               => get_option("braftonxml_sched_tags"),
-            'braftonCustomTags'         => get_option("braftonxml_sched_tags_input"),
-            'braftonPublishDate'        => get_option("braftonxml_publishdate"),
-            'braftonImporterUser'       => '',
-            'braftonStatus'             => 0,
-            'braftonClearLog'           => 0,
-            'braftonApiDomain'          => get_option("braftonxml_domain"),
-            'braftonApiKey'             => get_option("braftonxml_sched_API_KEY"),
+            'braftonApiDomain'          => get_option("braftonxml_domain", 'api.brafton.com'),
+            'braftonApiKey'             => get_option("braftonxml_sched_API_KEY", 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
             'braftonUpdateContent'      => 0,
             'braftonArticleDynamic'     => get_option("braftonxml_dynamic_author", 'n'),
-            'braftonArticleAuthorDefault'   => get_option("braftonxml_default_author"),
+            'braftonArticleAuthorDefault'   => get_option("braftonxml_default_author", ''),
             'braftonArticleStatus'      => 0,
             'braftonArticlePostType'    => 0,
             'braftonCustomSlug'         => '',
@@ -132,8 +50,8 @@ class BraftonOptions {
             'braftonArticleExistingTag'    => '',
             'braftonArchiveImporterStatus'  => 0,
             'braftonVideoStatus'        => 0,
-            'braftonVideoPublicKey'     => get_option("braftonxml_videoPublic"),
-            'braftonVideoPrivateKey'    => get_option("braftonxml_videoSecret"),
+            'braftonVideoPublicKey'     => get_option("braftonxml_videoPublic", 'XXXXX'),
+            'braftonVideoPrivateKey'    => get_option("braftonxml_videoSecret", 'XXXXXXXXXXX'),
             'braftonVideoFeed'          => 0,
             'braftonVideoHeaderScript'  => 'atlantisjs',
             'braftonImportJquery'       => 'off',
@@ -184,13 +102,13 @@ class BraftonOptions {
             'braftonInlineImageMargin'    => 5,
             'braftonVideoOutput'        => 0
             );
+        //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
+        if($old_options = get_option('BraftonOptions')){
             $default_options = wp_parse_args($old_options, $default_options);
+            update_option('BraftonOptions', $default_options);
+        } else{
             add_option('BraftonOptions', $default_options);
         }
-        else{
-            add_option('BraftonOptions', $default_options);
-        }
-        
                 
     }
         
