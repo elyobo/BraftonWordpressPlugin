@@ -788,7 +788,7 @@ function VideoSettingsSetup(){
         );
         add_settings_field(
             'braftonVideoStatus',
-            'Video mporter Status',
+            'Video Importer Status',
             'braftonVideoStatus',
             'brafton_video',
             'video'
