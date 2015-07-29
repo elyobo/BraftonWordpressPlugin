@@ -3,7 +3,7 @@
 	Plugin Name: Content Importer
 	Plugin URI: http://www.brafton.com/support/wordpress
 	Description: Wordpress Plugin for Importing marketing content from Brafton, ContentLEAD, and Castleford Media Corp.  Support in line content, dynamic Authors, Updating and Error reporting. video requires php 5.3 or higher.
-	Version: 3.1.11
+	Version: 3.2.0
     Requires: 3.5
 	Author: Brafton, Inc.
 	Author URI: http://brafton.com/support/wordpress
@@ -18,10 +18,12 @@ include 'BraftonFeedLoader.php';
 include 'BraftonArticleLoader.php';
 include 'BraftonVideoLoader.php';
 include 'BraftonMarpro.php';
+include 'BraftonCustomType.php';
 include 'admin/BraftonAdminFunctions.php';
 
-define("BRAFTON_VERSION", '3.1.11');
-
+define("BRAFTON_VERSION", '3.2.0');
+define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
+define("BRAFTON_PLUGIN", dirname(__FILE__).'/BraftonwordpressPlugin.php');
 class BraftonWordpressPlugin {
     
     /*
@@ -57,17 +59,20 @@ class BraftonWordpressPlugin {
         }
         //Adds our needed hooks
         add_action('wp_head', array($this, 'BraftonOpenGraph'));
-        add_action('wp_head', array($this, 'BraftonVideoHead'));
         add_action('wp_head', array($this, 'BraftonJQuery'));
+        add_action('wp_head', array($this, 'BraftonVideoHead'));
         add_action('wp_footer', array('BraftonMarpro', 'MarproScript'));
         add_action('wp_footer', array($this, 'BraftonRestyle'));
         add_action('admin_menu', array($this, 'BraftonAdminMenu'));
         add_action('braftonSetUpCron', array($this, 'BraftonCronArticle'));
         add_action('braftonSetUpCronVideo', array($this, 'BraftonCronVideo'));
-        
+        add_action('init', array('BraftonCustomType', 'BraftonInitializeType'));
+        add_action('pre_get_posts', array('BraftonCustomType', 'BraftonIncludeContent'));
+        add_action('wp_dashboard_setup', array($this, 'BraftonDashboardWidget'));
         //Adds our needed filters
         add_filter('language_attributes', array($this, 'BraftonOpenGraphNamespace'), 100);
         add_filter('cron_schedules', array($this, 'BraftonCustomCronTime'),1,1);
+        add_filter('the_content', array($this, 'BraftonContentModifyVideo'));
         //XML RPC Support
         //add_filter( 'xmlrpc_methods', array($this, 'BraftonXMLRPC' ));
         $init_options = new BraftonOptions();
@@ -83,13 +88,62 @@ class BraftonWordpressPlugin {
         $staticBrand =  BraftonOptions::getSingleOption('braftonApiDomain');
         $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
         add_option('BraftonRegister', $option);
+        
+        //check for options that are turned on a activate the cron accordingly
+        if(!BraftonOptions::getSingleOption('braftonStatus')){
+            return;
+        }
+        if(BraftonOptions::getSingleOption('braftonArticleStatus')){
+            if(!wp_next_scheduled('braftonSetUpCron')){
+                wp_clear_scheduled_hook('braftonSetUpCron');
+                //importer is set to go off 2 minutes after it is enabled than hourly after that
+                $schedule = wp_schedule_event(time()+120, 'hourly', 'braftonSetUpCron');
+            }
+        }
+        if(BraftonOptions::getSingleOption('braftonVideoStatus')){
+            if(!wp_next_scheduled('braftonSetUpCronVideo')){
+                wp_clear_scheduled_hook('braftonSetUpCronVideo');
+                //importer is set to go off 2 minutes after it is enabled than daily after that
+                $schedule = wp_schedule_event(time()+120, 'twicedaily', 'braftonSetUpCronVideo');
+            }
+        }
     }
     
     public function BraftonDeactivation(){
         wp_clear_scheduled_hook('braftonSetUpCron');
         wp_clear_scheduled_hook('braftonSetUpCronVideo');
     }
-    
+    static function BraftonDashboardWidget(){
+        $brand = BraftonOptions::getSingleOption('braftonApiDomain');
+        $brand = switchCase($brand);
+        wp_add_dashboard_widget('BraftonDashAtAGlance', 'Recently Imported by '.$brand, array('BraftonWordpressPlugin','BraftonDisplayDashWidget'));
+    }
+    static function BraftonDisplayDashWidget(){
+        $array = array(
+            'meta_key'  => 'brafton_id',
+            'posts_per_page'    => 5            
+        );
+        $query = new WP_Query($array);
+        if ( $query->have_posts() ) : while ( $query->have_posts() ) : $query->the_post();
+            echo '<p>';
+            echo '<a href="'.get_edit_post_link().'">'.get_the_title(); echo '</a><br/> Imported on: '; the_time('Y-d-m');
+            echo '</p>';
+        endwhile;endif;
+    }
+    static function BraftonContentModifyVideo($content){
+        
+        if(is_single()){
+            $ops = new BraftonOptions();
+            $static = $ops->getAll();
+            if($static['braftonVideoOutput']){
+                if($meta=get_post_meta(get_the_ID(), "brafton_video", true)){
+                    $content = $static['braftonVideoOutput'] == 'after'? $content . $meta : $meta . $content;
+                }
+            }
+        }
+        
+        return $content;
+    }
     public function BraftonCustomCronTime($schedules){
         $schedules['threedaily'] = array(
             'interval'  => 28800,
@@ -99,6 +153,7 @@ class BraftonWordpressPlugin {
     }
     
     public function BraftonAdminMenu(){
+        $style = BraftonOptions::getSingleOption('braftonRestyle');
         $brand = BraftonOptions::getSingleOption('braftonApiDomain');
         $brand = switchCase($brand);
         //new admin menu
@@ -110,28 +165,45 @@ class BraftonWordpressPlugin {
         add_submenu_page('BraftonArticleLoader', 'Archives', 'Archives', 'activate_plugins', 'BraftonArticleLoader&tab=4', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'activate_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'activate_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
+        if(BraftonOptions::getSingleOption('braftonRestyle')){
+            add_submenu_page('BraftonArticleLoader', 'Premium Styles', 'Premium Styles', 'activate_plugins', 'BraftonPremiumStyles', 'style_page');
+        }
     }
     static function BraftonRestyle(){
-    $static = BraftonOptions::getSingleOption('braftonRestyle');
-        
-        $restyle =<<<EOC
+        $ops = new BraftonOptions();
+        $static = $ops->getAll();
+        $restyle = $static['braftonRestyle'];
+        if($restyle && is_single()){
+            $p_width = $static['braftonPullQuoteWidth'];
+            $p_float = $static['braftonPullQuoteFloat'];
+            $p_margin = $static['braftonPullQuoteMargin'];
+            $i_width = $static['braftonInlineImageWidth'];
+            $i_float = $static['braftonInlineImageFloat'];
+            $i_margin = $static['braftonInlineImageMargin'];
+            $pullQuote = '';
+            $inlineImage = '';
+            if($static['braftonPullQuotes']){
+                $pullQuote = "'width': '{$p_width}%', 'float': '{$p_float}', 'margin': '{$p_margin}px'";
+            }
+            if($static['braftonInlineImages']){
+                $inlineImage = "'width': '{$i_width}%', 'float': '{$i_float}', 'margin': '{$i_margin}px'";
+            }
+            $restyle =<<<EOC
             <script type="text/javascript">
             (function(d){
 	//SELT NEW STYLE
-	var pullQuote_style = 'float:right;color:blue;';
-	var inlineimage_style ='width:100%;height:auto;float:right;';
 	//LOOP THROUGH EACH ELEMENT AND ADD THAT STYLE
-	$('.pullQuote').each(function(){
-		$(this).replaceWith('<div style="'+pullQuote_style+'">'+$(this).html()+'</div>');
+	jQuery('.pullQuoteWrapper').each(function(){
+        jQuery(this).css({{$pullQuote}});
 	});
 	//INLINE IMAGE WRAPPER
-	$('.inlineImageWrapper').each(function(){
-		$(this).replaceWith('<div style="'+inlineimage_style+'">'+$(this).html()+'</div>');
+	jQuery('.inlineImageWrapper').each(function(){
+        jQuery(this).css({{$inlineImage}});
 	});
+    //INLINE VIDEO WRAPPER
 }(document));
         </script>
 EOC;
-        if($static && is_single()){
             echo $restyle;
         }
     }
@@ -230,48 +302,71 @@ EOC;
         //Define where videoJs comes from
         $videojs = '<link href="//vjs.zencdn.net/4.3/video-js.css" rel="stylesheet"><script src="//vjs.zencdn.net/4.3/video.js"></script>';
         //Define where atlatisJs comes from
-        $atlantisjs = '<link rel="stylesheet" href="http://p.ninjacdn.co.uk/atlantisjs/v0.11.7/atlantisjs.css" type="text/css" /><script src="http://p.ninjacdn.co.uk/atlantisjs/v0.11.7/atlantis.js" type="text/javascript"></script>';
+        $atlantisjs = '<link rel="stylesheet" href="//atlantisjs.brafton.com/v1/atlantisjsv1.3.css" type="text/css" /><script src="//atlantisjs.brafton.com/v1/atlantis.min.v1.3.js" type="text/javascript"></script>';
         //defines what video javascript option we are using
         $videoOption = $static['braftonVideoHeaderScript'];
         if($videoOption != 'off'){
             echo $$videoOption;
         }
+        $braftonCustomCSS = $static['braftonCustomCSS'];
         //does we need the css fix for the atlantis video player
-        if($static['braftonVideoCSS'] == 'on'){
+        if(!$static['braftonEnableCustomCSS'] && $static['braftonRestyle']){
+            $braftonPauseColor = $static['braftonPauseColor'];
+            $braftonEndBackgroundcolor = $static['braftonEndBackgroundcolor'];
+            $braftonEndTitleColor = $static['braftonEndTitleColor'];
+            $braftonEndTitleAlign = $static['braftonEndTitleAlign'];
+            $braftonEndSubTitleColor = $static['braftonEndSubTitleColor'];
+            $braftonEndSubTitleBackground = $static['braftonEndSubTitleBackground'];
+            $braftonEndSubTitleAlign = $static['braftonEndSubTitleAlign'];
+            $braftonEndButtonBackgroundColor = $static['braftonEndButtonBackgroundColor'];
+            $braftonEndButtonTextColor = $static['braftonEndButtonTextColor'];
+            $braftonEndButtonBackgroundColorHover = $static['braftonEndButtonBackgroundColorHover'];
+            $braftonEndButtonTextColorHover = $static['braftonEndButtonTextColorHover'];
+            $braftonEndTitleBackground = $static['braftonEndTitleBackground'];
         $css=<<<EOT
 		<style type="text/css">
-		.vjs-menu{
-		width:10em!important;
-		left:-4em!important;
-		}
+        /* Effects the puase cta background color */
+        span.video-pause-call-to-action, span.ajs-video-annotation{
+            background-color:;
+        }
+        /* effects the pause cta text color */
+        span.video-pause-call-to-action a:link, span.video-pause-call-to-action a:visited{
+            color:$braftonPauseColor;  
+        }
+        /* effects the end of video background color *Note: has no effect if a background image is selected */
+        div.ajs-end-of-video-call-to-action-container{
+            background-color:$braftonEndBackgroundcolor;
+        }
+        /* effects the end of video title tag */
+        div.ajs-end-of-video-call-to-action-container h2{
+            background:$braftonEndTitleBackground;
+            color:$braftonEndTitleColor;
+            text-align:$braftonEndTitleAlign;
+        }
+        /* effects the end of video subtitle tags */
+        div.ajs-end-of-video-call-to-action-container p{
+            background:$braftonEndSubTitleBackground;
+            color:$braftonEndSubTitleColor;
+            text-align:$braftonEndSubTitleAlign;
+        }
+        /* effects the end of video button *Note: has no effect if button image is selected */
+        a.ajs-call-to-action-button{
+             background-color:$braftonEndButtonBackgroundColor;  
+            color:$braftonEndButtonTextColor;
+        }
+        /* effects the end of video button on hover and  *Note: has no effects if button image is selected */
+        a.ajs-call-to-action-button:hover, a.ajs-call-to-action-button:visited{
+            background-color:$braftonEndButtonBackgroundColorHover;
+            color:$braftonEndButtonTextColorHover;
+        }
 
-		.ajs-default-skin div.vjs-big-play-button span{
-		top:70%!important;
-		}
-
-		.ajs-default-skin{
-		-moz-box-shadow: 2px 2px 4px 3px #ccc;
-		-webkit-box-shadow: 2px 2px 4px 3px #ccc;
-		box-shadow: 2px 2px 4px 3px #ccc;
-		}
-
-		.ajs-call-to-action-button{
-		width:200px!important;
-		color: #58795B!important;
-		margin-left:0px!important;
-		}
-
-		.ajs-call-to-action-button a{
-		color:darkslateblue!important;
-		}
-
-		.ajs-call-to-action-button a:visited{
-		color:darkslateblue!important;
-		}
 		</style>
 EOT;
         
 		echo $css;
+        }
+        else if($static['braftonEnableCustomCSS'] && $static['braftonRestyle']){
+            echo $braftonCustomCSS;
         }
     }
 }

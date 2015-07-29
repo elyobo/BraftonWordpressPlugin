@@ -1,27 +1,35 @@
 <?php
-// test feed brafton high 528a432c-2f60-4dc8-80fe-4cebc1fe25ca
+// test feed brafton high 528a432c-2f60-4dc8-80fe-4cebc1fe25ca 
 if(isset($_POST['submit'])){
     switch ($_POST['submit']){
+        case 'Download Error Log':
+        $e_log = BraftonOptions::getErrors();
+        exit();
+        break;
         case 'Save Settings':
         $save = BraftonOptions::saveAllOptions();
         break;
         case 'Upload Archive':
-        $archive = new BraftonArticleLoader();
-        $archive->loadXMLArchive();
+        //$archive = new BraftonArticleLoader();
+        //$archive->loadXMLArchive();
+        add_action('init', array('BraftonArticleLoader', 'manualImportArchive'));
         break;
         case 'Save Errors':
         $er = BraftonErrorReport::errorPage();
         break;
         case 'Import Articles':
-        $import = new BraftonArticleLoader();
-        $import->ImportArticles();
+        //$import = new BraftonArticleLoader();
+        //$import->ImportArticles();
+        add_action('init', array('BraftonArticleLoader', 'manualImportArticles'));
         break;
         case 'Import Videos':
-        $import = new BraftonVideoLoader();
-        $import->ImportVideos();
+        //$import = new BraftonVideoLoader();
+        //$import->ImportVideos();
+        add_action('init', array('BraftonVideoLoader', 'manualImportVideos'));
         case 'Get Categories';
-        $import = new BraftonArticleLoader();
-        $import->ImportCategories();
+        //$import = new BraftonArticleLoader();
+       // $import->ImportCategories();
+        add_action('init', array('BraftonArticleLoader', 'manualImportCategories'));
         break;
         }
 }
@@ -122,13 +130,20 @@ function braftonWarnings(){
         echo "<div class='error'>
 				<p>The Article Importer Failed to Run at its scheduled time.  Contact tech@brafton.com</p>
 				</div>";
-        $failed_error = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
-        trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
+        if(!isset($_GET['b_error'])){
+            $failed_error = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
+            trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
+        }
+        
     }
     if(($last_run_time_video) && $last_run_time_video < $time){
         echo "<div class='error'>
 				<p>The Video Importer Failed to Run at its scheduled time.  Contact tech@brafton.com</p>
 				</div>";
+        if(!isset($_GET['b_error'])){
+            $failed_error = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
+            trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
+        }
     }
     echo "<div class='$status'>
                 <p>Current Time: $current_time</p>
@@ -140,12 +155,13 @@ function braftonWarnings(){
 function for displaying the sections information
 */
 function print_section_info($args){
+    $inst = BRAFTON_ROOT.'ImporterInstructions.pdf';
     switch ($args['id']){
         case 'general':
-            echo '<p>This section controls the general settings for your importer.  Features for this plugin may depend on your settings in this section.  If you need help with your settings you may contact your CMS or visit <a href="http://www.brafton.com/support" target="_blank">Our Support Page</a> for assistance.</p>';
+            echo '<p>This section controls the general settings for your importer.  Features for this plugin may depend on your settings in this section.  If you need help with your settings you may contact your CMS or visit <a href="http://www.brafton.com/support" target="_blank">Our Support Page</a> for assistance.</p><p>You may also view our pdf <a target="_blank" href="'.$inst.'">Instructions</a>';
         break;
         case 'error':
-            echo '<p>This section provides a log of any errors that may have occured</p>';
+            echo '<p>Provides Error Log support.  Errors resulting in failure to deliver content are directly reported and turn on debug mode capturing all errors for troubleshooting purposes.</p>';
         break;
         case 'article':
             echo '<p>This section is for setting your article specific settings.  All settings on this page are independant of your video settings.';
@@ -161,6 +177,13 @@ function print_section_info($args){
         break;
         case 'control':
             echo '<p>You can manually run the importer at any point by selecting which importer you would like to run.  If you are receiving both Vidoes, and Articles you will have to run the importer for each one seperately.  The importer does run each hour for both automatically provided it is turned on.</p>';
+        break;
+        case 'atlantis':
+            echo '<p>This is for Styling the Atlantis Video Player.  You may use the selection options below or choose to write your own CSS below.</p>';
+        break;
+        case 'article_style':
+            echo '<p>This section can manually adjust the styles for Premium content should they conflict or be overridden by your sites stylesheets.</p>';
+        break;
     }
 }
 /*
@@ -209,7 +232,7 @@ function ErrorSettingsSetup(){
 //Displays the Option for Turning on the Debugger
 function braftonDebugger(){
     $options = getOptions();
-    $tip = 'Turns on Debugging Mode.  While enabled all errors are displayed to the user';
+    $tip = 'Turns on Debugging Mode which will capture all errors regardless of cause or origin.';
     tooltip($tip); ?>
     <input type="radio" name="braftonDebugger" value="1" <?php checkRadioVal($options['braftonDebugger'], 1); ?>> ON
     <input type="radio" name="braftonDebugger" value="0" <?php checkRadioVal($options['braftonDebugger'], 0); ?>> OFF
@@ -508,6 +531,8 @@ function braftonApiDomain(){
 
 function ArticleSettingsSetup(){
 //Articles Tab
+    $options = getOptions();
+    $brand = switchCase($options['braftonApiDomain']);
         register_setting(
             'brafton_article_options', // Option group
             'brafton_article' );
@@ -548,11 +573,32 @@ function ArticleSettingsSetup(){
         );
         add_settings_field(
             'braftonArticlePostType',
-            'Set Custom Post Type',
+            $brand.' Post Type',
             'braftonArticlePostType',
             'brafton_article',
             'article'
+        ); 
+        add_settings_field(
+            'braftonArticleExistingPostType',
+            'Set as Pre-existing Custom Post Type',
+            'braftonArticleExistingPostType',
+            'brafton_article',
+            'article'
         );   
+        add_settings_field(
+            'braftonArticleExistingCategory',
+            'Choose Pre-existing Custom Category',
+            'braftonArticleExistingCategory',
+            'brafton_article',
+            'article'
+        ); 
+        add_settings_field(
+            'braftonArticleExistingTag',
+            'Choose Pre-existing Custom Tag',
+            'braftonArticleExistingTag',
+            'brafton_article',
+            'article'
+        );                                      
         add_settings_field(
             'braftonArticleLimit',
             '# Articles to Import',
@@ -624,13 +670,50 @@ function braftonArticleStatus(){
 //Displays the Options for turning on custom post types for brafton content_ur
 function braftonArticlePostType(){
     $options = getOptions();
-    $tip = 'Turn this option on to set custom post type for '.$options['braftonApiDomain'].' Content';
+    $tip = 'Turn this option on to set custom post type for '.switchCase($options['braftonApiDomain']).' Content.  If Using Custom Post type set a url slug to appear before in the url. Default is: content-blog';
     tooltip($tip); ?>
     <input type="radio" name="braftonArticlePostType" value="1" <?php checkRadioval($options['braftonArticlePostType'], 1); ?>> ON
-    <input type="radio" name="braftonArticlePostType" value="0" <?php checkRadioval($options['braftonArticlePostType'], 0); ?>> OFF 
+    <input type="radio" name="braftonArticlePostType" value="0" <?php checkRadioval($options['braftonArticlePostType'], 0); ?>> OFF URL Slug <input type="text" name="braftonCustomSlug" value="<?php echo $options['braftonCustomSlug']; ?>" style="width:150px;">
 <?php    
 }
 
+function braftonArticleExistingPostType(){
+    $options = getOptions();
+    $tip = "Select an option from the dropdown menu to make ".switchCase($options['braftonApiDomain'])." articles load into a custom pre-existing post type. Default option is 'None' which will leave ".switchCase($options['braftonApiDomain'])." articles loading into default 'Post' post type.";
+    tooltip($tip); 
+    $array = array('posts','post', 'page', 'attachment', 'revision', 'nav_menu_item');
+    $post_types = get_post_types(); ?>
+
+    <select name="braftonArticleExistingPostType" id="braftonArticleExistingPostType" <?php checkRadioval($options["braftonArticlePostType"], 1, 'disabled'); ?>>
+        <option value='0' <?php checkRadioval($options["braftonArticleExistingPostType"], 0, 'selected'); ?>>None</option>
+        <?php foreach($post_types as $post_type) { 
+        if(array_search($post_type, $array)){
+            continue;
+        } ?>
+        <option value="<?php echo $post_type; ?>" <?php checkRadioval(strval($options["braftonArticleExistingPostType"]), $post_type, 'selected'); ?>><?php echo $post_type; ?></option>
+<?php  
+        }
+    ?></select><?php 
+}
+
+
+function braftonArticleExistingCategory(){
+    $options = getOptions();
+    $tip = "To associate a pre-existing custom category type, enter the machine name of the category. Leave blank for default.";
+    tooltip($tip);
+    $hidden = ($options['braftonArticleExistingPostType'])? 'inline-block': 'none'; ?>
+    <input type="text" name="braftonArticleExistingCategory" value="<?php echo $options['braftonArticleExistingCategory']; ?>" style="width:200px;display:<?php echo $hidden; ?>;">
+<?php
+}
+
+function braftonArticleExistingTag(){
+    $options = getOptions();
+    $tip = "To associate a pre-existing custom tag type, enter the machine name of the tag. Leave blank for default.";
+    tooltip($tip);
+    $hidden = ($options['braftonArticleExistingPostType'])? 'inline-block': 'none'; ?>
+    <input type="text" name="braftonArticleExistingTag" value="<?php echo $options['braftonArticleExistingTag']; ?>" style="width:200px;display:<?php echo $hidden; ?>;">
+<?php
+}
 
 /*
  *****************************************************************************************************
@@ -739,16 +822,9 @@ function VideoSettingsSetup(){
             'video'
         );
         add_settings_field(
-            'braftonVideoCSS',
-            'Video CSS Fix',
-            'braftonVideoCSS',
-            'brafton_video',
-            'video'
-        );
-        add_settings_field(
-            'braftonVideoCTAs',
-            "AtlantisJS CTA's",
-            'braftonVideoCTAs',
+            'braftonVideoOutput',
+            'Video Position',
+            'braftonVideoOutput',
             'brafton_video',
             'video'
         );
@@ -756,6 +832,13 @@ function VideoSettingsSetup(){
             'braftonVideoLimit',
             '# Videos to Import',
             'braftonVideoLimit',
+            'brafton_video',
+            'video'
+        );
+        add_settings_field(
+            'braftonVideoCTAs',
+            "AtlantisJS CTA's",
+            'braftonVideoCTAs',
             'brafton_video',
             'video'
         );
@@ -810,21 +893,21 @@ function braftonVideoFeed(){
 //displays the option for selecting where to get the javascript used for playing videos
 function braftonVideoHeaderScript(){
     $options = getOptions();
-    $tip = "Selecting 'Neither' will still import videojs embed code, this is just the script imports.  Turn if off for sites that already have video js script in the header.";
+    $tip = "Select the type of Video Player to use.  Video JS is a barebones html5 Player. Atlantis JS is a HTMl5 Video player that uses Jquery and provides support for Call To Action events.";
     tooltip($tip);
     ?>
     <input type="radio" id="embed_type" name="braftonVideoHeaderScript" value="videojs" <?php checkRadioval($options['braftonVideoHeaderScript'], 'videojs'); ?> /> Video JS
     <input type="radio" id="atlantis" name="braftonVideoHeaderScript" value="atlantisjs" <?php checkRadioval($options['braftonVideoHeaderScript'], 'atlantisjs'); ?>/> Atlantis JS
-    <input type="radio" id="neither" name="braftonVideoHeaderScript" value="off" <?php checkRadioval($options['braftonVideoHeaderScript'], 'off'); ?>/> Neither
 <?php
 }
 
-function braftonVideoCSS(){
+function braftonVideoOutput(){
     $options = getOptions();
-    $tip = 'Extra CSS to fix a common issue where atlantisJS looks wonky.';
+    $tip = 'Output your videos before or after your article text copy.  It is recommended to modify your template file to output your video in place of the image.';
     tooltip($tip); ?>
-<input type="radio" name="braftonVideoCSS" value="on" <?php checkRadioval($options['braftonVideoCSS'], 'on'); ?> /> On
-<input type="radio" name="braftonVideoCSS" value="off" <?php	checkRadioval($options['braftonVideoCSS'], 'off'); ?>/> Off
+<input type="radio" name="braftonVideoOutput" value="0" <?php checkRadioval(strval($options['braftonVideoOutput']), '0'); ?> /> OFF
+<input type="radio" name="braftonVideoOutput" value="before" <?php	checkRadioval(strval($options['braftonVideoOutput']), 'before'); ?>/> Before Copy
+<input type="radio" name="braftonVideoOutput" value="after" <?php	checkRadioval(strval($options['braftonVideoOutput']), 'after'); ?>/> After Copy
 <?php    
 }
 
@@ -835,10 +918,38 @@ function braftonVideoCTAs(){
     <div class="b_v_cta">
         <label>Paused CTA Text</label><br/><input type="text" name="braftonVideoCTA[pausedText]" value="<?php echo $options['braftonVideoCTA']['pausedText']; ?>"><br>
         <label>Paused CTA Link</label><br/><input type="text" name="braftonVideoCTA[pausedLink]" value="<?php echo $options['braftonVideoCTA']['pausedLink']; ?>"><br>
+        <label>Pause Asset Gateway ID</label><br/><input type="text" name="braftonVideoCTA[pauseAssetGatewayId]" value="<?php echo $options['braftonVideoCTA']['pauseAssetGatewayId']; ?>" /><br>
         <label>Ending CTA Title</label><br/><input type="text" name="braftonVideoCTA[endingTitle]" value="<?php echo $options['braftonVideoCTA']['endingTitle']; ?>"><br>
         <label>Ending CTA Subtitle</label><br/><input type="text" name="braftonVideoCTA[endingSubtitle]" value="<?php echo $options['braftonVideoCTA']['endingSubtitle']; ?>"><br>
+        <label>Ending CTA Button Image</label><br/><input type="text" name="braftonVideoCTA[endingButtonImage]" value="<?php echo $options['braftonVideoCTA']['endingButtonImage']; ?>"><input type="button" class="upload_image_button" value="Add Image" data-target="brafton-end-button-preview"><br/>
+        <label>Button Position Require 2 coordinates</label><br/>
+        <select name="braftonVideoCTA[endingButtonPositionOne]" style="width:90px" class="braftonPositionInput">
+            <option value="0"></option>
+            <option value="top" <?php checkRadioVal($options['braftonVideoCTA']['endingButtonPositionOne'], 'top', 'selected'); ?>>Top</option>
+            <option value="right" <?php checkRadioVal($options['braftonVideoCTA']['endingButtonPositionOne'], 'right', 'selected'); ?> >Right</option>
+            <option value="bottom" <?php checkRadioVal($options['braftonVideoCTA']['endingButtonPositionOne'], 'bottom', 'selected'); ?> >Bottom</option>
+            <option value="left" <?php checkRadioVal($options['braftonVideoCTA']['endingButtonPositionOne'], 'left', 'selected'); ?> >Left</option>
+        </select>
+        <input type="number" name="braftonVideoCTA[endingButtonPositionOneValue]" value="<?php echo $options['braftonVideoCTA']['endingButtonPositionOneValue']; ?>" style="width:90px" class="braftonPositionInput"><br/>
+        <select name="braftonVideoCTA[endingButtonPositionTwo]" style="width:90px" class="braftonPositionInput">
+            <option value="0"></option>
+            <option value="top" <?php checkRadioVal($options['braftonVideoCTA']['endingButtonPositionTwo'], 'top', 'selected'); ?>>Top</option>
+            <option value="right" <?php checkRadioVal($options['braftonVideoCTA']['endingButtonPositionTwo'], 'right', 'selected'); ?> >Right</option>
+            <option value="bottom" <?php checkRadioVal($options['braftonVideoCTA']['endingButtonPositionTwo'], 'bottom', 'selected'); ?> >Bottom</option>
+            <option value="left" <?php checkRadioVal($options['braftonVideoCTA']['endingButtonPositionTwo'], 'left', 'selected'); ?> >Left</option>
+        </select>
+        <input type="number" name="braftonVideoCTA[endingButtonPositionTwoValue]" value="<?php echo $options['braftonVideoCTA']['endingButtonPositionTwoValue']; ?>" style="width:90px" class="braftonPositionInput"><br/> 
         <label>Ending CTA Button Text</label><br/><input type="text" name="braftonVideoCTA[endingButtonText]" value="<?php echo $options['braftonVideoCTA']['endingButtonText']; ?>"><br>
         <label>Ending CTA Button Link</label><br/><input type="text" name="braftonVideoCTA[endingButtonLink]" value="<?php echo $options['braftonVideoCTA']['endingButtonLink']; ?>"><br>
+        <label>Ending Asset Gateway ID</label><br/><input type="text" name="braftonVideoCTA[endingAssetGatewayId]" value="<?php echo $options['braftonVideoCTA']['endingAssetGatewayId']; ?>" /><br>
+        <label>Ending Background Image</label><br/><input type="text" name="braftonVideoCTA[endingBackground]" value="<?php echo $options['braftonVideoCTA']['endingBackground']; ?>"><input type="button" class="upload_image_button" value="Add Image" data-target="brafton-end-background-preview"><br/>
+        <div id="v_cta_preview">
+            <img src="<?php echo $options['braftonVideoCTA']['endingBackground']; ?>" id="brafton-end-background-preview"><h2 id="brafton-end-title-preview"><?php echo $options['braftonVideoCTA']['endingTitle']; ?></h2><p id="brafton-end-subtitle-preview"><?php echo $options['braftonVideoCTA']['endingSubtitle']; ?></p>
+            <?php if($options['braftonVideoCTA']['endingButtonImage'] != ''){ ?>
+            <img style="" src="<?php echo $options['braftonVideoCTA']['endingButtonImage']; ?>" id="brafton-end-button-preview"><?php } else{ ?>
+                <a class="ajs-call-to-action-button" href="#"><?php echo $options['braftonVideoCTA']['endingButtonText']; ?></a>
+            <?php } ?>
+        </div>
     </div>
 <?php 
 }
@@ -877,7 +988,6 @@ function MarproSettingsSetup(){
             'marpro'
         );
 }
-
 //function for the marpro section
 function braftonMarproStatus(){
     $options = getOptions();
@@ -932,6 +1042,361 @@ function braftonManualImport(){?>
     <div class="manual_buttons"><?php submit_button('Get Categories'); ?></div>
     <?php 
 }
+function PremiumStylesAtlantisVideoSetup(){
+    register_setting(
+        'brafton_atlantis_style_options',
+        'brafton_atlantis'
+    );
+    add_settings_section(
+        'atlantis',
+        'Atlantis Video Player',
+        'print_section_info',
+        'brafton_atlantis'
+    );
+    add_settings_field(
+        'braftonPauseColor',
+        'Pause Text Color',
+        'braftonPauseColor',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndBackgroundcolor',
+        'Ending Background Color',
+        'braftonEndBackgroundcolor',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndTitleColor',
+        'Ending Title Color',
+        'braftonEndTitleColor',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndTitleBackground',
+        'Ending Title Background Color',
+        'braftonEndTitleBackground',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndTitleAlign',
+        'Ending Title Alignment',
+        'braftonEndTitleAlign',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndSubTitleColor',
+        'Ending SubTitle Color',
+        'braftonEndSubTitleColor',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndSubTitleBackground',
+        'Ending SubTitle Background Color',
+        'braftonEndSubTitleBackground',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndSubTitleAlign',
+        'Ending SubTitle Alignment',
+        'braftonEndSubTitleAlign',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndButtonBackgroundColor',
+        'Ending Button Color',
+        'braftonEndButtonBackgroundColor',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndButtonTextColor',
+        'Ending Text Button Color',
+        'braftonEndButtonTextColor',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndButtonBackgroundColorHover',
+        'Ending Button Color Hover',
+        'braftonEndButtonBackgroundColorHover',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEndButtonTextColorHover',
+        'Ending Text Button Color Hover',
+        'braftonEndButtonTextColorHover',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonEnableCustomCSS',
+        'Enable Custom CSS Below',
+        'braftonEnableCustomCSS',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonCustomCSS',
+        'Custom CSS to Use INSTEAD of selection options above',
+        'braftonCustomCSS',
+        'brafton_atlantis',
+        'atlantis'
+    );
+}
+function braftonEnableCustomCSS(){
+    $options = getOptions();
+    $tip = 'When this is on the CSS entered below will be used instead of the options choosen above';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonEnableCustomCSS" value="1" <?php	checkRadioval($options['braftonEnableCustomCSS'], 1); ?> /> On
+    <input type="radio" name="braftonEnableCustomCSS" value="0" <?php checkRadioval($options['braftonEnableCustomCSS'], 0); ?>/> Off
+<?php 
+}
+function braftonEndTitleBackground(){
+    $options = getOptions();
+    $tip = "Choose the color for the End of Video Title Background.  You may enter a hex code or use the color picker. Enter &ldquo;transparent &ldquo; for no background color";
+    tooltip($tip); ?>
+    <input type="text" name="braftonEndTitleBackground" style="width:150px" value="<?php echo $options['braftonEndTitleBackground']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonEndTitleBackground']; ?>">
+<?php
+}
+function braftonCustomCSS(){
+    $options = getOptions();
+    $tip = "Use CSS to style the Video Player.  Any CSS here will override any presets as well as any options selected above";
+    tooltip($tip); ?>
+    <textarea name="braftonCustomCSS" class="braftonCustomCSS" style="width:100%;height:500px"><?php echo $options['braftonCustomCSS']; ?></textarea>
+<?php
+}
+function braftonEndButtonTextColorHover(){
+    $options = getOptions();
+    $tip = "Choose the color for the End of Video button Text on Hover.  You may enter a hex code or use the color picker.";
+    tooltip($tip); ?>
+    <input type="text" name="braftonEndButtonTextColorHover" style="width:150px" value="<?php echo $options['braftonEndButtonTextColorHover']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonEndButtonTextColorHover']; ?>">
+<?php
+}
+function braftonEndButtonBackgroundColorHover(){
+    $options = getOptions();
+    $tip = "Choose the color for the End of Video button Background on Hover.  You may enter a hex code or use the color picker. Enter &ldquo;transparent &ldquo; for no background color";
+    tooltip($tip); ?>
+    <input type="text" name="braftonEndButtonBackgroundColorHover" style="width:150px" value="<?php echo $options['braftonEndButtonBackgroundColorHover']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonEndButtonBackgroundColorHover']; ?>">
+<?php
+}
+function braftonEndButtonTextColor(){
+    $options = getOptions();
+    $tip = "Choose the color for the End of Video button Text.  You may enter a hex code or use the color picker.";
+    tooltip($tip); ?>
+    <input type="text" name="braftonEndButtonTextColor" style="width:150px" value="<?php echo $options['braftonEndButtonTextColor']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonEndButtonTextColor']; ?>">
+<?php
+}
+function braftonEndButtonBackgroundColor(){
+    $options = getOptions();
+    $tip = "Choose the color for the End of Video button Background.  You may enter a hex code or use the color picker. Enter &ldquo;transparent &ldquo; for no background color";
+    tooltip($tip); ?>
+    <input type="text" name="braftonEndButtonBackgroundColor" style="width:150px" value="<?php echo $options['braftonEndButtonBackgroundColor']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonEndButtonBackgroundColor']; ?>">
+<?php
+}
+function braftonEndSubTitleAlign(){
+     $options = getOptions();
+    $tip = "Choose the Title Text Alignment";
+    tooltip($tip); ?>
+        <select name="braftonEndSubTitleAlign" style="width:90px" class="braftonEndTitleAlign">
+            <option value="0"></option>
+            <option value="left" <?php checkRadioVal($options['braftonEndSubTitleAlign'], 'left', 'selected'); ?>>Left</option>
+            <option value="center" <?php checkRadioVal($options['braftonEndSubTitleAlign'], 'center', 'selected'); ?> >Center</option>
+            <option value="right" <?php checkRadioVal($options['braftonEndSubTitleAlign'], 'right', 'selected'); ?> >Right</option>
+        </select>
+<?php
+}
+function braftonEndSubTitleBackground(){
+    $options = getOptions();
+    $tip = "Choose the color for the End of Video Subtitle Background.  You may enter a hex code or use the color picker. Enter &ldquo;transparent &ldquo; for no background color";
+    tooltip($tip); ?>
+    <input type="text" name="braftonEndSubTitleBackground" style="width:150px" value="<?php echo $options['braftonEndSubTitleBackground']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonEndSubTitleBackground']; ?>">
+<?php
+}
+function braftonEndSubTitleColor(){
+    $options = getOptions();
+    $tip = "Choose the color for the End of Video Subtitle Text.  You may enter a hex code or use the color picker.";
+    tooltip($tip); ?>
+    <input type="text" name="braftonEndSubTitleColor" style="width:150px" value="<?php echo $options['braftonEndSubTitleColor']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonEndSubTitleColor']; ?>">
+<?php
+}
+function braftonEndTitleAlign(){
+    $options = getOptions();
+    $tip = "Choose the Title Text Alignment";
+    tooltip($tip); ?>
+        <select name="braftonEndTitleAlign" style="width:90px" class="braftonEndTitleAlign">
+            <option value="0"></option>
+            <option value="left" <?php checkRadioVal($options['braftonEndTitleAlign'], 'left', 'selected'); ?>>Left</option>
+            <option value="center" <?php checkRadioVal($options['braftonEndTitleAlign'], 'center', 'selected'); ?> >Center</option>
+            <option value="right" <?php checkRadioVal($options['braftonEndTitleAlign'], 'right', 'selected'); ?> >Right</option>
+        </select>
+<?php
+}
+function braftonEndTitleColor(){
+    $options = getOptions();
+    $tip = "Choose the color for the End of Video Title Text.  You may enter a hex code or use the color picker.";
+    tooltip($tip); ?>
+    <input type="text" name="braftonEndTitleColor" style="width:150px" value="<?php echo $options['braftonEndTitleColor']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonEndTitleColor']; ?>">
+<?php
+}
+function braftonEndBackgroundcolor(){
+     $options = getOptions();
+    $tip = "Choose the color for the End of Video Background.  You may enter a hex code or use the color picker. Enter &ldquo;transparent &ldquo; for no background color";
+    tooltip($tip); ?>
+    <input type="text" name="braftonEndBackgroundcolor" style="width:150px" value="<?php echo $options['braftonEndBackgroundcolor']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonEndBackgroundcolor']; ?>">
+<?php
+}
+function braftonPauseColor(){
+    $options = getOptions();
+    $tip = "Choose the color for the Pause CTA.  You may enter a hex code or use the color picker. Enter &ldquo;transparent &ldquo; for no background color";
+    tooltip($tip); ?>
+    <input type="text" name="braftonPauseColor" style="width:150px" value="<?php echo $options['braftonPauseColor']; ?>" > <input type="color" class="braftonColorChoose" title="ColorPicker" value="<?php echo $options['braftonPauseColor']; ?>">
+<?php
+}
+function PremiumStylesArticleSetup(){
+    register_setting(
+        'brafton_article_style_options',
+        'brafton_article_style'
+    );
+    add_settings_section(
+        'article_style',
+        'Premium Content Styles',
+        'print_section_info',
+        'brafton_article_style'
+    );
+    add_settings_field(
+        'braftonPullQuotes',
+        'Enable PullQuote Styles',
+        'braftonPullQuotes',
+        'brafton_article_style',
+        'article_style'
+    );
+    add_settings_field(
+        'braftonPullQuoteWidth',
+        'Width of PullQuotes',
+        'braftonPullQuoteWidth',
+        'brafton_article_style',
+        'article_style'
+    );
+    add_settings_field(
+        'braftonPullQuoteFloat',
+        'Pull Quote Float',
+        'braftonPullQuoteFloat',
+        'brafton_article_style',
+        'article_style'
+    );
+    add_settings_field(
+        'braftonPullQuoteMargin',
+        'Pull Quote Margins',
+        'braftonPullQuoteMargin',
+        'brafton_article_style',
+        'article_style'
+    );
+    add_settings_field(
+        'braftonInlineImages',
+        'Enable InlineImage Styles',
+        'braftonInlineImages',
+        'brafton_article_style',
+        'article_style'
+    );
+    add_settings_field(
+        'braftonInlineImageWidth',
+        'Width of InlineImages',
+        'braftonInlineImageWidth',
+        'brafton_article_style',
+        'article_style'
+    );
+    add_settings_field(
+        'braftonInlineImageFloat',
+        'Inline Images Float',
+        'braftonInlineImageFloat',
+        'brafton_article_style',
+        'article_style'
+    );
+    add_settings_field(
+        'braftonInlineImageMargin',
+        'Inline Image Margins',
+        'braftonInlineImageMargin',
+        'brafton_article_style',
+        'article_style'
+    );
+}
+function braftonInlineImageMargin(){
+    $options = getOptions();
+    $tip = "Changes the margin of the Inline Images seperating it from the surronding content in pixels.  NOTE: this number should remain low.";
+    tooltip($tip); ?>
+        <input type="number" name="braftonInlineImageMargin" value="<?php echo $options['braftonInlineImageMargin']; ?>" />
+<?php
+}
+function braftonInlineImageFloat(){
+    $options = getOptions();
+    $tip = "Float the pullquote to either side";
+    tooltip($tip); ?>
+    <select name="braftonInlineImageFloat" style="width:90px" class="braftonInlineImageFloat">
+            <option value="0"></option>
+            <option value="left" <?php checkRadioVal($options['braftonInlineImageFloat'], 'left', 'selected'); ?>>Left</option>
+            <option value="right" <?php checkRadioVal($options['braftonInlineImageFloat'], 'right', 'selected'); ?> >Right</option>
+            <option value="none" <?php checkRadioVal($options['braftonInlineImageFloat'], 'none', 'selected'); ?> >None</option>
+        </select>
+<?php 
+}
+function braftonInlineImageWidth(){
+    $options = getOptions();
+    $tip = "Changes the width of the Inline Images in relation to the container in percentage";
+    tooltip($tip); ?>
+        <input type="number" name="braftonInlineImageWidth" value="<?php echo $options['braftonInlineImageWidth']; ?>" />
+<?php
+}
+function braftonInlineImages(){
+    $options = getOptions();
+    $tip = 'Enables the correction of Inline Image Styles in your blog posts.  This will affect ALL Brafton Imline Images including CTAs';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonInlineImages" value="1" <?php	checkRadioval($options['braftonInlineImages'], 1); ?> /> On
+    <input type="radio" name="braftonInlineImages" value="0" <?php checkRadioval($options['braftonInlineImages'], 0); ?>/> Off
+<?php 
+}
+function braftonPullQuoteMargin(){
+    $options = getOptions();
+    $tip = "Changes the margin of the pullquote seperating it from the surronding content in pixels.  NOTE: this number should remain low.";
+    tooltip($tip); ?>
+        <input type="number" name="braftonPullQuoteMargin" value="<?php echo $options['braftonPullQuoteMargin']; ?>" />
+<?php
+}
+function braftonPullQuoteFloat(){
+    $options = getOptions();
+    $tip = "Float the pullquote to either side";
+    tooltip($tip); ?>
+    <select name="braftonPullQuoteFloat" style="width:90px" class="braftonPullQuoteFloat">
+            <option value="0"></option>
+            <option value="left" <?php checkRadioVal($options['braftonPullQuoteFloat'], 'left', 'selected'); ?>>Left</option>
+            <option value="right" <?php checkRadioVal($options['braftonPullQuoteFloat'], 'right', 'selected'); ?> >Right</option>
+            <option value="none" <?php checkRadioVal($options['braftonPullQuoteFloat'], 'none', 'selected'); ?> >None</option>
+        </select>
+<?php 
+}
+function braftonPullQuotes(){
+    $options = getOptions();
+    $tip = 'Enables the correction of PullQuotes Styles in your blog posts';
+    tooltip($tip); ?>
+    <input type="radio" name="braftonPullQuotes" value="1" <?php	checkRadioval($options['braftonPullQuotes'], 1); ?> /> On
+    <input type="radio" name="braftonPullQuotes" value="0" <?php checkRadioval($options['braftonPullQuotes'], 0); ?>/> Off
+<?php 
+}
+function braftonPullQuoteWidth(){
+    $options = getOptions();
+    $tip = "Changes the width of the pullquote in relation to the container in percentage";
+    tooltip($tip); ?>
+        <input type="number" name="braftonPullQuoteWidth" value="<?php echo $options['braftonPullQuoteWidth']; ?>" />
+<?php
+}
 function braftonRegisterSettings(){
 //Defines each settings section for General, Articles, Videos, marpro, Archives, and Error Logs.  Each section is labeled with the appropriate settings section for finding the appropriate fucntion for displaying that option.
 
@@ -942,31 +1407,16 @@ function braftonRegisterSettings(){
     ArchiveSettingSetup();
     ErrorSettingsSetup();
     ManualSettingsSetup();
+    PremiumStylesAtlantisVideoSetup();
+    PremiumStylesArticleSetup();
 }
 //add_action('admin_init', 'braftonRegisterSettings');
 function admin_page(){
     braftonRegisterSettings();
     include 'BraftonAdminPage.php';
 }
-//add_action('option.php', 'redirect');
-function redirect(){
-   // header("LOCATION:my&b_error=vital");
-    echo 'right hook';
+function style_page(){
+    braftonRegisterSettings();
+    include 'BraftonStylePage.php';
 }
-/*
-add_action('admin_menu', 'braftonxml_sched_add_admin_pages');
-function braftonxml_sched_add_admin_pages(){
-    $brand = BraftonOptions::getSingleOption('braftonApiDomain');
-    $brand = switchCase($brand);
-    //new admin menu
-	add_menu_page('Brafton Article Loader', "{$brand} Content Importer", 'update_plugins','BraftonArticleLoader', 'admin_page','dashicons-download', 81);
-    add_submenu_page('BraftonArticleLoader', 'Brafton Article Loader', 'General Options', 'update_plugins', 'BraftonArticleLoader', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Article Options', 'Article Options', 'update_plugins', 'BraftonArticleLoader&tab=1', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Video Options', 'Video Options', 'update_plugins', 'BraftonArticleLoader&tab=2', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Marpro Options', 'Marpro Options', 'update_plugins', 'BraftonArticleLoader&tab=3', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Archives', 'Archives', 'update_plugins', 'BraftonArticleLoader&tab=4', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'update_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
-    add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'update_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
-}
-*/
 ?>

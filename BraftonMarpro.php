@@ -35,6 +35,7 @@ class CallToAction_Widget extends WP_Widget {
         wp_enqueue_script('thickbox');
         wp_enqueue_script('upload_media_widget', plugin_dir_url(__FILE__) . 'js/upload-media.js', array('jquery'));
         wp_enqueue_style('thickbox');
+        wp_enqueue_media();
 
     }
     
@@ -78,7 +79,7 @@ class CallToAction_Widget extends WP_Widget {
         </p> 
         <p>
             <label for="<?php echo $this->get_field_id('image'); ?>"><?php _e('Call To Action Image', 'cta_widget_plugin'); ?></label>
-            <input class="widefat" id="<?php echo $this->get_field_id('image'); ?>" name="<?php echo $this->get_field_name('image'); ?>" type="text" value="<?php echo $image; ?>" style="margin-bottom:5px;"/><input type="button" class="upload_image_button" value="Add Image"><img src="<?php echo $image; ?>" style="width:75%;height:auto"><br>
+            <input class="widefat" id="<?php echo $this->get_field_id('image'); ?>" name="<?php echo $this->get_field_name('image'); ?>" type="text" value="<?php echo $image; ?>" style="margin-bottom:5px;"/><input type="button" class="upload_image_button" value="Add Image"><img src="<?php echo $image; ?>" style="width:75%;height:auto" class="pumpkin_widget"><br>
             <br/><label for="<?php echo $this->get_field_id('img_support'); ?>"><?php _e('', 'cta_widget_plugin'); ?>Check this box to turn the image into the CTA</label><br/>
             Image Link <input class="widefat" id="<?php echo $this->get_field_id('img_support'); ?>" name="<?php echo $this->get_field_name('img_support'); ?>" type="checkbox" value="1" <?php if($img_support){ echo 'checked'; } ?>/>
         </p>

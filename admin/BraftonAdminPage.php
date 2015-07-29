@@ -1,13 +1,19 @@
 <?php
 wp_enqueue_style('admin-css.css', plugin_dir_url( __FILE__ ) .'css/BraftonAdminCSS.css');
+wp_enqueue_script('media-upload');
+wp_enqueue_script('thickbox');
+wp_enqueue_script('jquery');
+wp_enqueue_style('thickbox');
+wp_enqueue_media();
+wp_enqueue_script('upload_media_widget', BRAFTON_ROOT.'js/upload-media.js', array('jquery'));
+wp_enqueue_script('brafton_admin_js', plugin_dir_url(__FILE__) .'js/braftonAdmin.js');
 $dir = preg_replace('/admin$/', 'BraftonwordpressPlugin.php', dirname(__FILE__));
-$plugin_data = get_plugin_data($dir);
+$plugin_data = get_plugin_data(BRAFTON_PLUGIN);
 global $brand;
 $brand = BraftonOptions::getSingleOption('braftonApiDomain');
 $brand = switchCase($brand);
 ?>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="//code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 
 <script>
@@ -39,7 +45,6 @@ jQuery( document ).tooltip();
         <li><a href="#tab-5">Archives</a></li>
         <li><a href="#tab-6">Error Logs</a></li>
         <li><a href="#tab-7">Manual Control</a></li>
-
     </ul>
 <?php 
     echo '<div id="tab-1" class="tab-1">';
@@ -55,6 +60,10 @@ jQuery( document ).tooltip();
     echo '<div id="tab-3" class="tab-3">';
     settings_fields('brafton_video_options');
     do_settings_sections('brafton_video');
+    submit_button('Save Settings');
+    echo '</div>';
+    echo '<div id="tab-8" class="tab-8">';
+    
     submit_button('Save Settings');
     echo '</div>';
     echo '<div id="tab-4" class="tab-4">';
@@ -75,6 +84,7 @@ jQuery( document ).tooltip();
     settings_fields( 'brafton_error_options' );
     do_settings_sections( 'brafton_error' );
     submit_button('Save Errors');
+    submit_button('Download Error Log');
     echo '</form>';
     echo '</div>';
     echo '<div id="tab-7" class="tab-7">';
@@ -86,7 +96,6 @@ jQuery( document ).tooltip();
     echo '</div>';
 
 ?>
-        
 </div>
 <div id="imp-details" class="ui-widget ui-widget-content ui-corner-all">
     <h3 class="ui-widget-header"><?php echo $brand; ?>  Importer Details</h3>
@@ -112,36 +121,6 @@ jQuery( document ).tooltip();
     </table>
     
 </div>
-<script>
-function settingsValidate(){
-    var validate = true;
-    if($("select[name='braftonImporterUser']").val() == ''){
-        validate = false;
-        alert('You have not set an Importer User on the General Tab');
-    }
-    if($("input[name='braftonArticleStatus']:checked").val() == 1 && $('#brafton_api_key').val() == ''){
-        validate = false;
-        alert('You have turned your Article Importer on but forgot to enter your API Key');
-    }
-    if($("input[name='braftonVideoStatus']:checked").val() == 1 && ($('#brafton_video_public').val() == '' || $('#brafton_video_secret').val() == '')){
-        validate = false;
-        alert('You have turned your Video Importer on but forgot to enter your Public or Private Key');
-    }
-    return validate;
-}
-$(document).ready(function(){
-   $('.archiveStatus').click(function(){
-      var stat = true;
-       if($(this).attr('value') == 1){ stat = false; }else{stat = true;}
-       $('#braftonUpload').prop('disabled', stat);
-   });
-    $('#close-imported').click(function(){
-       $('#imported-list').toggle();
-    });
-});
-</script>
-
-
 <?php if($_GET['page'] == 'BraftonArticleLoader'){
     add_action('admin_footer_text', 'brafton_custom_footer');
     function brafton_custom_footer(){
