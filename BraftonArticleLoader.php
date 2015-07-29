@@ -31,6 +31,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     public function loadXMLArchive(){
         echo "Archive Option Selected<br/>";
 		$this->articles = NewsItem::getNewsList($_FILES['archive']['tmp_name'], "html");
+        $this->ImportCategories();
         $this->runLoop();
     }
     public function getArticleFeed(){

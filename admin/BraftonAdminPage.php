@@ -62,10 +62,6 @@ jQuery( document ).tooltip();
     do_settings_sections('brafton_video');
     submit_button('Save Settings');
     echo '</div>';
-    echo '<div id="tab-8" class="tab-8">';
-    
-    submit_button('Save Settings');
-    echo '</div>';
     echo '<div id="tab-4" class="tab-4">';
     settings_fields('brafton_marpro_options');
     do_settings_sections('brafton_marpro');
