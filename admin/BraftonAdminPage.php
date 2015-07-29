@@ -41,7 +41,6 @@ jQuery( document ).tooltip();
         <li><a href="#tab-1">General Settings</a></li>
         <li><a href="#tab-2">Articles</a></li>
         <li><a href="#tab-3">Videos</a></li>
-        <li id="braftonVideoCTATab" style="display:none"><a href="#tab-8">Video CTA's</a></li>
         <li><a href="#tab-4">Pumpkin</a></li>
         <li><a href="#tab-5">Archives</a></li>
         <li><a href="#tab-6">Error Logs</a></li>
