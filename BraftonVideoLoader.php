@@ -337,6 +337,9 @@ EOC;
                     'title' => $post_title,
                     'link'  => "post.php?post={$post_id}&action=edit"
                 );
+
+                // Hook for custom plugins passing in WP $post_id and XML $article
+                do_action('brafton_video_after_save_hook', $post_id, $article);
                 
                 ++$counter;
                 ++$this->errors->level;

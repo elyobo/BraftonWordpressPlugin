@@ -257,7 +257,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 );
 
                 // Hook for custom plugins passing in WP $post_id and XML $article
-                do_action('brafton_hook', $post_id, $article);
+                do_action('brafton_article_after_save_hook', $post_id, $article);
 
                 //post meta data
                 ++$counter;
