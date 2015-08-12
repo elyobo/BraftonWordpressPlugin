@@ -24,7 +24,7 @@ define("LAST_MODIFIED_DATE", "lastModifiedDate");
 define("EXTRACT", "extract");
 define("TEXT", "text");
 define("BY_LINE", "byline");
-define("TWEET_TEXT", "tweetText");
+define("TWEET_TEXT", "tweettext");
 define("SOURCE", "source");
 define("STATE", "state");
 define("CLIENT_QUOTE", "clientQuote");

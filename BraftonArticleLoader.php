@@ -255,6 +255,10 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     'title' => $post_title,
                     'link'  => "post.php?post={$post_id}&action=edit"
                 );
+
+                // Hook for custom plugins passing in WP $post_id and XML $article
+                do_action('brafton_article_after_save_hook', $post_id, $article);
+
                 //post meta data
                 ++$counter;
                 ++$this->errors->level;
