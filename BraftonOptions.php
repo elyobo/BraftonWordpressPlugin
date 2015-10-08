@@ -24,12 +24,15 @@ class BraftonOptions {
         $this->ser_options = get_option('BraftonOptions');
         $this->options = $this->ser_options;
     }
+
     //This method checks for the existance of Brafton options.  If there are no Brafton Options it will initialize them all to start. If they already exsist return false. This method is only called when the plugin is activated with the the register_activation_hook().  It is the Second class to be called after BraftonErrors().
     static function ini_BraftonOptions(){
+
+
         $default_options = array(
             'braftonDebugger'           => 0,
             'braftonCategories'         => get_option("braftonxml_sched_cats", 'categories'),
-            'braftonCustomArticleCategories'    => get_option("braftonxml_sched_cats_input", ''),
+            'braftonCustomArticleCategories'    => BraftonOptions::article_category_options(),
             'braftonCustomVideoCategories'    => '',
             'braftonTags'               => get_option("braftonxml_sched_tags", 'none_tags'),
             'braftonCustomTags'         => get_option("braftonxml_sched_tags_input", ''),
@@ -111,6 +114,19 @@ class BraftonOptions {
             add_option('BraftonOptions', $default_options);
         }
 
+    }
+
+    static function article_category_options() {
+        $old_options = get_option('BraftonOptions', '');
+        $old_cats = $old_cats['braftonCustomCategories'];
+        $older_cats = get_option("braftonxml_sched_cats_input", '');
+        $combined_cats = $old_cats . ', ' . $older_cats;
+        $cat_array = explode(',', $combined_cats);
+        //remove empty spaces
+        $trimmedArray = array_map('trim', $cat_array);
+        $filtered_array = array_filter($trimmedArray);
+        $combined_cats_string = implode(", ", $cat_array);
+        return $combined_cats_string;
     }
 
     //Gets all the options for use in an external variable outside the class.  Returns an associative array $options
