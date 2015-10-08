@@ -117,14 +117,15 @@ class BraftonOptions {
     }
 
     static function article_category_options() {
-        $old_options = get_option('BraftonOptions', '');
-        $old_cats = $old_cats['braftonCustomCategories'];
+        $old_options = get_option('BraftonOptions');
+        $old_cats = $old_options['braftonCustomCategories'];
         $older_cats = get_option("braftonxml_sched_cats_input", '');
         $combined_cats = $old_cats . ', ' . $older_cats;
         $cat_array = explode(',', $combined_cats);
-        //remove empty spaces
-        $trimmedArray = array_map('trim', $cat_array);
-        $filtered_array = array_filter($trimmedArray);
+        $cat_array = array_unique($cat_array);
+        //remove empty spaces and extra commas
+        $cat_array = array_map('trim', $cat_array);
+        $cat_array = array_filter($cat_array);
         $combined_cats_string = implode(", ", $cat_array);
         return $combined_cats_string;
     }
