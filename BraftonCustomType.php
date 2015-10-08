@@ -48,7 +48,7 @@ class BraftonCustomType {
             break;
         }
     }
-    function BraftonIncludeContent( $query ) {
+    static function BraftonIncludeContent( $query ) {
         if(BraftonOptions::getSingleOption('braftonArticlePostType')){
             if ( !is_admin() && $query->is_main_query() && ($query->is_home() || $query->is_category() || $query->is_archive() )) {
                 $query->set( 'post_type', array( 'post', 'blog_content' ) );
