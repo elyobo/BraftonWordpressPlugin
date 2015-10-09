@@ -118,16 +118,12 @@ class BraftonOptions {
 
     static function article_category_options() {
         $old_options = get_option('BraftonOptions');
-        $old_cats = $old_options['braftonCustomCategories'];
-        $older_cats = get_option("braftonxml_sched_cats_input", '');
-        $combined_cats = $old_cats . ', ' . $older_cats;
+        $combined_cats = $old_options['braftonCustomCategories'] . ',' . get_option("braftonxml_sched_cats_input", '');;
         $cat_array = explode(',', $combined_cats);
-        $cat_array = array_unique($cat_array);
-        //remove empty spaces and extra commas
         $cat_array = array_map('trim', $cat_array);
-        $cat_array = array_filter($cat_array);
-        $combined_cats_string = implode(", ", $cat_array);
-        return $combined_cats_string;
+        $cat_array = array_filter(array_unique($cat_array, SORT_STRING));        
+        return implode(", ", $cat_array);
+        
     }
 
     //Gets all the options for use in an external variable outside the class.  Returns an associative array $options
