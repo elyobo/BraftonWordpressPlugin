@@ -118,7 +118,7 @@ class BraftonOptions {
 
     static function article_category_options() {
         $old_options = get_option('BraftonOptions');
-        $combined_cats = $old_options['braftonCustomCategories'] . ',' . get_option("braftonxml_sched_cats_input", '');;
+        $combined_cats = $old_options['braftonCustomCategories'] . ',' . get_option("braftonxml_sched_cats_input", '');
         $cat_array = explode(',', $combined_cats);
         $cat_array = array_map('trim', $cat_array);
         $cat_array = array_filter(array_unique($cat_array, SORT_STRING));        
