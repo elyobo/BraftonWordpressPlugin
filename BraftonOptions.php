@@ -2,12 +2,12 @@
 /*
  * Class for controling all the BraftonOptions
  *
- * Options are stored in a serialized options BraftonOptions in the wp_options Table. 
+ * Options are stored in a serialized options BraftonOptions in the wp_options Table.
  * Named BraftonOptions as to not conflict with already installed plugins from the Black Eye Series
  *
  */
 class BraftonOptions {
-    
+
     /*
      * Array of all the options for BraftonOptions
      */
@@ -16,7 +16,7 @@ class BraftonOptions {
      * Stores the serialized options from the db
      */
     private $ser_options;
-    
+
     public function __construct(){
         //registers the hook for when the plugin is activated.  This method can be instantiated on its own again if needed.
         //$this->ini_BraftonOptions();
@@ -24,12 +24,16 @@ class BraftonOptions {
         $this->ser_options = get_option('BraftonOptions');
         $this->options = $this->ser_options;
     }
+
     //This method checks for the existance of Brafton options.  If there are no Brafton Options it will initialize them all to start. If they already exsist return false. This method is only called when the plugin is activated with the the register_activation_hook().  It is the Second class to be called after BraftonErrors().
     static function ini_BraftonOptions(){
+
+
         $default_options = array(
             'braftonDebugger'           => 0,
             'braftonCategories'         => get_option("braftonxml_sched_cats", 'categories'),
-            'braftonCustomCategories'    => get_option("braftonxml_sched_cats_input", ''),
+            'braftonCustomArticleCategories'    => BraftonOptions::article_category_options(),
+            'braftonCustomVideoCategories'    => '',
             'braftonTags'               => get_option("braftonxml_sched_tags", 'none_tags'),
             'braftonCustomTags'         => get_option("braftonxml_sched_tags_input", ''),
             'braftonPublishDate'        => get_option("braftonxml_publishdate", 'published'),
@@ -109,9 +113,19 @@ class BraftonOptions {
         } else{
             add_option('BraftonOptions', $default_options);
         }
-                
+
     }
+
+    static function article_category_options() {
+        $old_options = get_option('BraftonOptions');
+        $combined_cats = $old_options['braftonCustomCategories'] . ',' . get_option("braftonxml_sched_cats_input", '');
+        $cat_array = explode(',', $combined_cats);
+        $cat_array = array_map('trim', $cat_array);
+        $cat_array = array_filter(array_unique($cat_array, SORT_STRING));        
+        return implode(", ", $cat_array);
         
+    }
+
     //Gets all the options for use in an external variable outside the class.  Returns an associative array $options
     public function getAll(){
         return $this->options;
@@ -176,7 +190,7 @@ class BraftonOptions {
     public function resetOptions(){
         $this->destroyOptions();
         $this->ini_BraftonOptions();
-        
+
     }
     //Gets an instance of a specific variable name ($option, $new=false) $option = Option name, $new = boolean (true returns fresh instance from database, false returns current option value held in the $this->options array
     public function getOptions($option, $new=false){
@@ -207,7 +221,7 @@ span.video-pause-call-to-action, span.ajs-video-annotation{
 }
 /* effects the pause cta text color */
 span.video-pause-call-to-action a:link, span.video-pause-call-to-action a:visited{
-    color:;  
+    color:;
     font-weight:900;
 }
 /* effects the end of video background color *Note: has no effect if a background image is selected */
@@ -228,7 +242,7 @@ div.ajs-end-of-video-call-to-action-container p{
 }
 /* effects the end of video button *Note: has no effect if button image is selected */
 a.ajs-call-to-action-button{
-     background-color:;  
+     background-color:;
     color:#000;
 }
 /* effects the end of video button on hover and  *Note: has no effects if button image is selected */
