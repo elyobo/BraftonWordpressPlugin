@@ -71,7 +71,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $category = esc_sql($c->getName());
                 $cat_id = wp_insert_term($category, $category_name);
             foreach($c->child as $child){
-                wp_insert_term($child['name'], $category_name, array('parent' => $cat_id));
+                wp_insert_term($child['name'], $category_name, array('parent' => $cat_id['term_id']));
             }
         }
         foreach($custom_cat as $cat){
