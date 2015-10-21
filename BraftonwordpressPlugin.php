@@ -12,6 +12,14 @@
     //@author: Deryk W. King
     
 */
+
+if( class_exists( 'XMLHandler' ) ){
+        echo '<div class="error">
+				<p>CONTENT IMPORTER: '.$url.'You may have another Brafton, ContentLEAD, or Castleford Content Importer Installed.  Please Disable your previous version before activating your new one.<br/><blockquote>XMLHandler and XMLException Classes already declared indicating a previous version is installed.</blockquote></p>
+				</div>';
+    exit();
+}
+
 include 'BraftonError.php';
 include 'BraftonOptions.php';
 include 'BraftonFeedLoader.php';
@@ -69,10 +77,16 @@ class BraftonWordpressPlugin {
         add_action('init', array('BraftonCustomType', 'BraftonInitializeType'));
         add_action('pre_get_posts', array('BraftonCustomType', 'BraftonIncludeContent'));
         add_action('wp_dashboard_setup', array($this, 'BraftonDashboardWidget'));
+        if(!function_exists('curl_init') || !class_exists('DOMDocument') || !ini_get('allow_url_fopen') ){
+            add_action('admin_init', array($this, 'BraftonAutoDeactivate'));
+        }
         //Adds our needed filters
         add_filter('language_attributes', array($this, 'BraftonOpenGraphNamespace'), 100);
         add_filter('cron_schedules', array($this, 'BraftonCustomCronTime'),1,1);
         add_filter('the_content', array($this, 'BraftonContentModifyVideo'));
+        //@todo add a filter for options in plugin menu plugin_row_meta which takes 2 args links[] is returned and $file to check which file use if($file == plugin_basename(__FILE__)) to check if this is the plugin 
+        //@todo add a action for plugin action next to active plugin_action_links_ uses the arg links[] must be returned
+        
         //XML RPC Support
         //add_filter( 'xmlrpc_methods', array($this, 'BraftonXMLRPC' ));
         $init_options = new BraftonOptions();
@@ -81,6 +95,22 @@ class BraftonWordpressPlugin {
         if($this->options['braftonMarproStatus'] == 'on'){
             $marpro = new BraftonMarpro();
         }
+    }
+    static function BraftonAutoDeactivate(){
+        //Deactivate the plugin due to missing dependancies.
+        deactivate_plugins(plugin_basename(__FILE__));
+        $list[] = function_exists('curl_init')? '' : 'function curl_init()';
+        $list[] = function_exists('fopen') && ini_get('allow_url_fopen') ? '' : 'function fopen() with allow_url_fopen set to on or 1';
+        $list[] = class_exists('DOMDocument')? '' : 'Class DOMDocument';
+        
+        //strinify list of dependancies missing filtering out any empty values indicating the dependancy does exist.
+        $list = array_diff($list, array(''));
+        $missing = implode(', ', $list);
+        
+        echo '<div class="error">
+				<p>Your Content Importer for Brafton, ContentLEAD, and Castleford Content has been disabled due to the missing dependancies.Ensure '.$missing.' are enabled on your server.</p>
+				</div>';
+        
     }
     public function BraftonActivation(){
         $option_init = BraftonOptions::ini_BraftonOptions();
