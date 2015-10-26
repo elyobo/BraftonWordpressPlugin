@@ -53,7 +53,8 @@ class BraftonOptions {
             'braftonVideoPublicKey'     => get_option("braftonxml_videoPublic", 'XXXXX'),
             'braftonVideoPrivateKey'    => get_option("braftonxml_videoSecret", 'XXXXXXXXXXX'),
             'braftonVideoFeed'          => 0,
-            'braftonVideoHeaderScript'  => 'atlantisjs',
+            'braftonVideoHeaderScript'  => 1,
+            'braftonVideoPlayer'        => BraftonOptions::determine_video(),
             'braftonImportJquery'       => 'off',
             'braftonVideoCSS'           => 'off',
             'braftonVideoCTA'           => array(
@@ -100,7 +101,9 @@ class BraftonOptions {
             'braftonInlineImageWidth' => 25,
             'braftonInlineImageFloat' => 'left',
             'braftonInlineImageMargin'    => 5,
-            'braftonVideoOutput'        => 0
+            'braftonVideoOutput'        => 0,
+            'braftonRemoteOperation'    => 0,
+            'braftonRemoteTime'         => ''
             );
         //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
         if($old_options = get_option('BraftonOptions')){
@@ -109,6 +112,7 @@ class BraftonOptions {
         } else{
             add_option('BraftonOptions', $default_options);
         }
+        update_option('BraftonVersion', BRAFTON_VERSION);
                 
     }
         
@@ -238,6 +242,15 @@ a.ajs-call-to-action-button:hover, a.ajs-call-to-action-button:visited{
 }
 EOT;
         return $css;
+    }
+    
+    static function determine_video(){
+        $old_options = get_option('BraftonOptions');
+        if(!$old_options){
+            return 'atlantisjs';
+        }
+        return isset($old_options['braftonVideoPlayer']) ? $old_options['braftonVideoPlayer'] : $old_options['braftonVideoHeaderScript'];
+       
     }
 }
 ?>
