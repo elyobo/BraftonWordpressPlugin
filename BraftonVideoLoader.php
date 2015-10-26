@@ -37,18 +37,10 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         $this->PhotoURL = 'http://'.str_replace('api', 'pictures',$this->options['braftonApiDomain']).'/v2/';
         
     }
-    public function buildEmbedCode(){
-        
-    }
-    public function generateSourceTag($src, $resolution){
-        $tag = ''; 
-        $ext = pathinfo($src, PATHINFO_EXTENSION); 
-
-        return sprintf('<source src="%s" type="video/%s" data-resolution="%s" />', $src, $ext, $resolution );
-    }
     //Gets a list of categories for this video feed and adds them if they don't already exsist
     public function ImportCategories(){
         $this->errors->set_section('video categories');
+        $this->errors->debug_trace(array('message' => 'Importing Video Categories', 'file' => __FILE__, 'line' => __LINE__));
         $catArray = array();
         $cNum = $this->ClientCategory->ListCategoriesForFeed($this->feedId, 0,100, '','')->totalCount;
         for($i=0;$i<$cNum;$i++){
@@ -62,7 +54,8 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     }
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($brafton_id){
-
+        $this->errors->set_section('assign video categories');
+        $this->errors->debug_trace(array('message' => 'Assigning Video Categories', 'file' => __FILE__, 'line' => __LINE__));
         $catArray = array();
         $cNum = $this->ClientCategory->ListForArticle($brafton_id, 0, 100)->totalCount;
         for($i=0;$i<$cNum;$i++){
@@ -83,14 +76,15 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         return $date_array;
            
     }
+    
     function generate_source_tag($src, $resolution){
-        $tag = ''; 
         $ext = pathinfo($src, PATHINFO_EXTENSION); 
-
         return sprintf('<source src="%s" type="video/%s" data-resolution="%s" />', $src, $ext, $resolution );
     }
+    
     public function generateEmbed($list, $splash, $brafton_id){
         $this->errors->set_section('Build embeed code');
+        $this->errors->debug_trace(array('message' => 'Building Video Embeed Code', 'file' => __FILE__, 'line' => __LINE__));
         $video =  "<div id='singlePostVideo'>";
         $atlantis = false;
         //define video types
@@ -115,6 +109,7 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         }
         //build cta
         if($atlantis){
+            $this->errors->debug_trace(array('message' => 'Using AtlantisJS video player', 'file' => __FILE__, 'line' => __LINE__));
             $ctas = '';
             $pause_text = $this->options['braftonVideoCTA']['pausedText'];
             $pause_link = $this->options['braftonVideoCTA']['pausedLink'];
@@ -199,13 +194,13 @@ EOC;
     }
     public function getVideoFeed(){
         $this->errors->set_section('get video feed');
+        $this->errors->debug_trace(array('message' => 'Getting Video Feed', 'file' => __FILE__, 'line' => __LINE__));
         $this->VideoClient = new AdferoVideoClient($this->VideoURL, $this->PublicKey, $this->PrivateKey);
         $this->Client = new AdferoClient($this->VideoURL, $this->PublicKey, $this->PrivateKey);
         $this->PhotoClient = new AdferoPhotoClient($this->PhotoURL);
         
         $this->VideoClientOutputs = $this->VideoClient->videoOutputs();
         
-        //$photos var from old importer
         $this->ArticlePhotos = $this->Client->ArticlePhotos();
         
         $feeds = $this->Client->Feeds();
@@ -273,12 +268,14 @@ EOC;
                 
                 $compacted_article = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_status', 'post_excerpt');
                 $compacted_article['post_category'] = $this->assignCategories($brafton_id);
-
+                $this->errors->set_section('individual video loop');
                 if($post_id){//If the post existed but we are overriding values
+                    $this->errors->debug_trace(array('message' => 'Updating video article ' . $post_id, 'file' => __FILE__, 'line' => __LINE__));
                     $compacted_article['ID'] = $post_id;
                     $post_id = wp_update_post($compacted_article);
                 }
                 else{//if the post doesn't exists we add it to the database
+                    $this->errors->debug_trace(array('message' => 'Inserting new Video Article', 'file' => __FILE__, 'line' => __LINE__));
                     $post_id = wp_insert_post($compacted_article);
                 }
                 if(is_wp_error($post_id)){
@@ -301,9 +298,11 @@ EOC;
                 $videoList = $this->VideoClientOutputs->ListForArticle($brafton_id,0,10);
                 $list = $videoList->items;
                 $embed_code = $this->generateEmbed($list, $postSplash, $brafton_id);
+                $this->errors->set_section('individual video loop');
                 //get the photo
                 $thisPhoto = $this->ArticlePhotos->ListForArticle($brafton_id,0,100);
                 if(isset($thisPhoto->items[0]->id)){
+                    $this->errors->debug_trace(array('message' => 'Video has image', 'file' => __FILE__, 'line' => __LINE__));
                     $photoId = $this->ArticlePhotos->Get($thisPhoto->items[0]->id)->sourcePhotoId;
                     $photoURL = $this->PhotoClient->Photos()->GetScaleLocationUrl($photoId, $scale_axis, $scale)->locationUri;
                     $post_image = strtok($photoURL, '?');
@@ -312,6 +311,7 @@ EOC;
                     
                     $image_id = $thisPhoto->items[0]->id;
                     $temp_name = $this->image_download($post_image, $post_id, $image_id, $image_alt, $post_image_caption);
+                    $this->errors->set_section('individual video loop');
                     update_post_meta($post_id, 'pic_id', $image_id);
                 }
                 $meta_array = array(
@@ -332,7 +332,7 @@ EOC;
                     ));
                 }
                 $this->add_needed_meta($post_id, $meta_array);
-                
+                $this->errors->set_section('individual video loop');
                 $listImported['titles'][] = array(
                     'title' => $post_title,
                     'link'  => "post.php?post={$post_id}&action=edit"
@@ -347,16 +347,17 @@ EOC;
             
         }
         $listImported['counter'] = $counter;
-        if($counter){
             echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
                 echo '<h3>'.$listImported['counter'].' Videos Imported</h3>';
-                //echo '<pre>'; var_dump($listImported); echo '</pre>';
+        if($listImported['counter']){
+                
             foreach($listImported['titles'] as $item => $title){
                 echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
             }
+        }
             echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
             echo '</div>';
-        }
+        
     }
 }
 ?>

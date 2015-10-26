@@ -95,6 +95,9 @@ class BraftonErrorReport {
             case 'class-wp-image-editor-imagick.php':
             return false;
             break;
+            case 'translation-management.class.php':
+            return false;
+            break;
             default:
             return true;
         }
@@ -107,34 +110,15 @@ class BraftonErrorReport {
         //if errorLevel == 1 (script stop running error) and the error was not part of one of the below know issues for those pages runs error reporting. 
         if ( ($errorLevel == 1) || ($this->debug) && ($this->check_known_errors($e)) ){
 
-
-            $brafton_error = $this->b_e_log();
-            $errorlog = array(
-                'Domain'    => $this->domain,
-                'API'       => $this->api,
-                'Brand'     => $this->brand,
-                'client_sys_time'  => date(get_option('date_format')) . " " . date("H:i:s"),
-                'error'     => get_class($e).' : '.$errorLevel.' | '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().' brafton_level '.$this->level.' in section '.$this->section
-            );
-            $brafton_error[] = $errorlog;
-            update_option('brafton_e_log', $brafton_error);
-            $errorlog = json_encode($errorlog);
-            $post_args = array(
-                'body' => array(
-                    'error' => $errorlog
-                )
-            );
-            //$this->level = 2;
-            if( ( $errorLevel == 1 && ( $this->domain != 'localhost') ) ){
+            $errorlog = $this->make_local_report($e, $errorLevel);
+            
+            if($errorLevel == 1){ 
                 $turn_on_debug = new BraftonOptions();
                 $turn_on_debug->saveOption('braftonDebugger', 1);
-                //prevent possible loop on some systems
                 if($_GET['b_error'] == 'vital'){ return; }
-                $make_report = wp_remote_post($this->post_url, $post_args);
-                header("LOCATION:$this->url&b_error=vital");
-            }else if( ( $errorLevel == 1 && ( $this->domain == 'localhost') ) ){
-                $turn_on_debug = new BraftonOptions();
-                $turn_on_debug->saveOption('braftonDebugger', 1);
+                if($this->domain != 'localhost'){
+                    $this->send_remote_report($errorlog);
+                }
                 header("LOCATION:$this->url&b_error=vital");
             }else {
                 return;
@@ -151,6 +135,43 @@ class BraftonErrorReport {
         $error = error_get_last();
         if ( $error["type"] == E_ERROR )
             $this->log_error( $error["type"], $error["message"], $error["file"], $error["line"] );
+    }
+    
+    public function debug_trace($msg){
+        if(!$this->debug){
+            return;
+        }
+        if($this->level > 1){ return; }
+        $brafton_error = $this->b_e_log();
+        $debug_trace = array(
+                'client_sys_time'  => date(get_option('date_format')) . " " . date("H:i:s"),
+                'error' => 'Debug Tace : '. $this->level . ' | '.$msg['message'].' in '. $msg['file'] . ' on line '. $msg['line'] . ' in section '
+                );
+        $brafton_error[] = $debug_trace;
+        update_option('brafton_e_log', $brafton_error);        
+    }
+    
+    public function make_local_report($e, $errorLevel){
+        $brafton_error = $this->b_e_log();
+            $errorlog = array(
+                'Domain'    => $this->domain,
+                'API'       => $this->api,
+                'Brand'     => $this->brand,
+                'client_sys_time'  => date(get_option('date_format')) . " " . date("H:i:s"),
+                'error'     => get_class($e).' : '.$errorLevel.' | '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().' brafton_level '.$this->level.' in section '.$this->section
+            );
+            $brafton_error[] = $errorlog;
+            update_option('brafton_e_log', $brafton_error);
+            return $errorlog;
+    }
+    
+    public function send_remote_report($errorlog){
+        $post_args = array(
+            'body' => array(
+                'error' => json_encode($errorlog)
+            )
+        );
+        wp_remote_post($this->post_url, $post_args);
     }
 
 }
