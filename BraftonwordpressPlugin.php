@@ -338,7 +338,12 @@ EOC;
         //Define where videoJs comes from
         $videojs = '<link href="//vjs.zencdn.net/4.3/video-js.css" rel="stylesheet"><script src="//vjs.zencdn.net/4.3/video.js"></script>';
         //Define where atlatisJs comes from
-        $atlantisjs = '<link rel="stylesheet" href="//atlantisjs.brafton.com/v1/atlantisjsv1.3.css" type="text/css" /><script src="//atlantisjs.brafton.com/v1/atlantis.min.v1.3.js" type="text/javascript"></script>';
+        $atlantisjs_src = 'https://d1z1nkr1lc6xgd.cloudfront.net';
+        if (!empty($_SERVER['HTTPS']) && strtolower($_SERVER["HTTPS"]) == "on"){
+            $atlantisjs_src = '//atlantisjs.brafton.com';
+        }
+        $atlantisjs = '<link rel="stylesheet" href="'.$atlantisjs_src.'/v1/atlantisjsv1.4.css" type="text/css" /><script src="'.$atlantisjs_src.'/v1/atlantis.min.v1.3.js" type="text/javascript"></script>';
+        
         //defines what video javascript option we are using
         $videoOption = $static['braftonVideoHeaderScript'];
         if($videoOption){
