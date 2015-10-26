@@ -28,18 +28,19 @@ function settingsValidate(){
     return validate;
 }
 jQuery(document).ready(function($){
+    
     $('#show_hide').toggle(function(e){
-        $(this).html('(Hide)');
+        $(this).html('(Hide Log)');
        $('.b_e_display').show();
     },function(e){
-        $(this).html('(Show)');
+        $(this).html('(Show Log)');
         $('.b_e_display').hide();
     });
     $('#show_hide_cta').toggle(function(e){
-       $(this).html('(Hide)');
+       $(this).html('(Hide Settings)');
         $('.b_v_cta').show();
     }, function(e){
-        $(this).html('(Show)');
+        $(this).html('(Show Settings)');
         $('.b_v_cta').hide();
     });
     if($('#brafton-end-button-preview')){

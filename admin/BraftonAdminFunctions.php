@@ -222,7 +222,7 @@ function ErrorSettingsSetup(){
         );
         add_settings_field(
             'braftonDisplayLog', // ID
-            'Brafton Log <span id="show_hide">(Show)</span>', // Title 
+            'Brafton Log <span id="show_hide">(Show Log)</span>', // Title 
             'braftonDisplayLog' , // Callback
             'brafton_error', // Page
             'error' // Section           
@@ -271,6 +271,7 @@ function braftonDisplayLog(){
         </pre>
     </div>
 <?php 
+    submit_button('Download Error Log');
 }
 /********************************************************************************************
  *
@@ -636,9 +637,9 @@ function braftonApiKey(){
 }
 function braftonArticleLimit(){
     $options = getOptions();
-    $tip = 'The higher the number here the longer the importer will take to run.  Default is 30';
+    $tip = 'The higher the number here the longer the importer will take to run.  Default is 15';
     tooltip($tip); ?>
-    <input type="number" name="braftonArticleLimit" value="<?php echo $options['braftonArticleLimit']; ?>" max="30" />
+    <input type="number" name="braftonArticleLimit" value="<?php echo $options['braftonArticleLimit']; ?>" />
 <?php 
 }
 //Displays the option for allowing overriding of previously imported articles.
@@ -861,7 +862,7 @@ function VideoSettingsSetup(){
         );
         add_settings_field(
             'braftonVideoCTAs',
-            "AtlantisJS CTA's<br/><span id='show_hide_cta'>(Show)</span>",
+            "AtlantisJS CTA's<br/><span id='show_hide_cta'>(Show Settings)</span>",
             'braftonVideoCTAs',
             'brafton_video',
             'video'
@@ -869,9 +870,9 @@ function VideoSettingsSetup(){
 }
 function braftonVideoLimit(){
     $options = getOptions();
-    $tip = 'The higher the number here the longer the importer will take to run.  Default is 30';
+    $tip = 'The higher the number here the longer the importer will take to run.  Default is 5';
     tooltip($tip); ?>
-    <input type="number" name="braftonVideoLimit" value="<?php echo $options['braftonVideoLimit']; ?>" max="30" />
+    <input type="number" name="braftonVideoLimit" value="<?php echo $options['braftonVideoLimit']; ?>" />
 <?php 
 }
 //Displays the options to turn the Video Importer OFF/ON
