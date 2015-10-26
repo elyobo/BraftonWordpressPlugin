@@ -161,7 +161,7 @@ function print_section_info($args){
             echo '<p>This section controls the general settings for your importer.  Features for this plugin may depend on your settings in this section.  If you need help with your settings you may contact your CMS or visit <a href="http://www.brafton.com/support" target="_blank">Our Support Page</a> for assistance.</p><p>You may also view our pdf <a target="_blank" href="'.$inst.'">Instructions</a>';
         break;
         case 'error':
-            echo '<p>Provides Error Log support.  Errors resulting in failure to deliver content are directly reported and turn on debug mode capturing all errors for troubleshooting purposes.</p>';
+            echo '<p>Provides Error Log support.  Errors resulting in failure to deliver content are directly reported and turn on debug mode capturing all errors for troubleshooting purposes.  Debug Mode has a build in &quot;Tracker&quot; which logs the progress of the importer during operation.</p>';
         break;
         case 'article':
             echo '<p>This section is for setting your article specific settings.  All settings on this page are independant of your video settings.';
@@ -170,7 +170,7 @@ function print_section_info($args){
             echo '<p>This section is for setting your video specific settings.  All settings on this page are independant of your article settings.';
         break;
         case 'marpro':
-            echo '<p>This section is for settings related to our Pumpkin Product, which handles lead capture and Call To Action features.</p>';
+            echo '<p>This section is for settings related to our Arch Product, which handles lead capture and Call To Action features.</p>';
         break;
         case 'archive':
             echo '<p>This is for uploading an archive provided to you by your CMS</p>';
@@ -222,7 +222,7 @@ function ErrorSettingsSetup(){
         );
         add_settings_field(
             'braftonDisplayLog', // ID
-            'Error Log', // Title 
+            'Brafton Log <span id="show_hide">(Show)</span>', // Title 
             'braftonDisplayLog' , // Callback
             'brafton_error', // Page
             'error' // Section           
@@ -232,7 +232,7 @@ function ErrorSettingsSetup(){
 //Displays the Option for Turning on the Debugger
 function braftonDebugger(){
     $options = getOptions();
-    $tip = 'Turns on Debugging Mode which will capture all errors regardless of cause or origin.';
+    $tip = 'Turns on Debugging Mode which will capture all errors and initiate Debug Trace which tracks the progress of the importer.';
     tooltip($tip); ?>
     <input type="radio" name="braftonDebugger" value="1" <?php checkRadioVal($options['braftonDebugger'], 1); ?>> ON
     <input type="radio" name="braftonDebugger" value="0" <?php checkRadioVal($options['braftonDebugger'], 0); ?>> OFF
@@ -255,6 +255,7 @@ function braftonDisplayLog(){
     tooltip($tip); ?>
     <div class="b_e_display">
         <pre>
+        
         <?php $errors = get_option('brafton_e_log');
         if(!$errors){ echo 'Everythin is fine. You have no errors'; }
         //convert obj to array
@@ -266,6 +267,7 @@ function braftonDisplayLog(){
             echo $errors[$i]['client_sys_time'].':<br/>----'.$errors[$i]['error'].'<br>';
         }
         ?>
+        
         </pre>
     </div>
 <?php 
@@ -292,7 +294,7 @@ function GeneralSettingsSetup(){
         //each one of these adds a field with the options
         add_settings_field(
             'braftonImporterOnOff', // ID
-            'Master Importer Status', // Title 
+            'Automatic Import', // Title 
             'braftonStatus' , // Callback
             'brafton_general', // Page
             'general' // Section           
@@ -380,7 +382,22 @@ function GeneralSettingsSetup(){
             'braftonUpdateContent',
             'brafton_general',
             'general'
-        );   
+        );
+        add_settings_field(
+            'braftonRemoteOperation',
+            '<span style="color:red;">Remote Import</span>',
+            'braftonRemoteOperation',
+            'brafton_general',
+            'general'
+        );
+}
+function braftonRemoteOperation(){
+    $options = getOptions();
+    tooltip('Some systems can experience a problem with Wordpress Cron.  If your Importer does not trigger automatically you can request &quot;Remote Operation&quot; which causes a request to Brafton servers to trigger an importer run. NOTE: This option should only be used if Automatic Importing does not work.');
+    ?>
+    <input type="radio" name="braftonRemoteOperation" value="1" <?php checkRadioVal($options['braftonRemoteOperation'], 1); ?>> ON
+    <input type="radio" name="braftonRemoteOperation" value="0" <?php checkRadioVal($options['braftonRemoteOperation'], 0); ?>> OFF <input type="hidden" name="braftonRemoteTime" value="<?php echo $options['braftonRemoteTime']; ?>">
+<?php
 }
 //Option enables setting up override styles
 //TODO : Will be moving to s seperate section to inself for style
@@ -501,7 +518,7 @@ function braftonImporterUser(){
 //Displays the option Turning the Importer itself OFF/ON.  
 function braftonStatus(){
     $options = getOptions();
-    $tip = 'Turns the Importer ON/OFF while still maintaing your settings.';
+    $tip = 'Turns the Automatic Importer ON/OFF.  Automatic Import utilizes the Wordpress Cron. Articles trigger hourly while videos trigger every 12 hours.';
     tooltip($tip); ?>
     <input type="radio" name="braftonStatus" value="1" <?php checkRadioval($options['braftonStatus'], 1); ?>> ON
     <input type="radio" name="braftonStatus" value="0" <?php checkRadioval($options['braftonStatus'], 0); ?>> OFF 
@@ -816,8 +833,15 @@ function VideoSettingsSetup(){
         );
         add_settings_field(
             'braftonVideoHeaderScript',
-            'Video Script',
+            'Include Player on Pages',
             'braftonVideoHeaderScript',
+            'brafton_video',
+            'video'
+        );
+        add_settings_field(
+            'braftonVideoPlayer',
+            'Video Player',
+            'braftonVideoPlayer',
             'brafton_video',
             'video'
         );
@@ -837,7 +861,7 @@ function VideoSettingsSetup(){
         );
         add_settings_field(
             'braftonVideoCTAs',
-            "AtlantisJS CTA's",
+            "AtlantisJS CTA's<br/><span id='show_hide_cta'>(Show)</span>",
             'braftonVideoCTAs',
             'brafton_video',
             'video'
@@ -893,14 +917,23 @@ function braftonVideoFeed(){
 //displays the option for selecting where to get the javascript used for playing videos
 function braftonVideoHeaderScript(){
     $options = getOptions();
+    $tip = "Enable or disable the addition of the video scripts to the head of your page.  NOTE: This is required for your videos to play.";
+    tooltip($tip);
+    ?>
+    <input type="radio" id="embed_type" name="braftonVideoHeaderScript" value="0" <?php checkRadioval($options['braftonVideoHeaderScript'], 0); ?> /> OFF
+    <input type="radio" id="atlantis" name="braftonVideoHeaderScript" value="1" <?php checkRadioval($options['braftonVideoHeaderScript'], 1); ?>/> ON
+<?php
+}
+function braftonVideoPlayer(){
+    $options = getOptions();
     $tip = "Select the type of Video Player to use.  Video JS is a barebones html5 Player. Atlantis JS is a HTMl5 Video player that uses Jquery and provides support for Call To Action events.";
     tooltip($tip);
     ?>
-    <input type="radio" id="embed_type" name="braftonVideoHeaderScript" value="videojs" <?php checkRadioval($options['braftonVideoHeaderScript'], 'videojs'); ?> /> Video JS
-    <input type="radio" id="atlantis" name="braftonVideoHeaderScript" value="atlantisjs" <?php checkRadioval($options['braftonVideoHeaderScript'], 'atlantisjs'); ?>/> Atlantis JS
+    <input type="radio" id="embed_type" name="braftonVideoPlayer" value="videojs" <?php checkRadioval($options['braftonVideoPlayer'], 'videojs'); ?> /> Video JS
+    <input type="radio" id="atlantis" name="braftonVideoPlayer" value="atlantisjs" <?php checkRadioval($options['braftonVideoPlayer'], 'atlantisjs'); ?>/> Atlantis JS
 <?php
+    
 }
-
 function braftonVideoOutput(){
     $options = getOptions();
     $tip = 'Output your videos before or after your article text copy.  It is recommended to modify your template file to output your video in place of the image.';
@@ -957,7 +990,7 @@ function braftonVideoCTAs(){
 /*
  ************************************************************************************************
  *
- * Marpro Setting Section // Temp renamed to Pumpkin
+ * Marpro Setting Section // Temp renamed to Pumpkin // Final product name ARCH
  *
  ************************************************************************************************
  */
@@ -969,20 +1002,20 @@ function MarproSettingsSetup(){
         //sets a section name for the options
         add_settings_section(
             'marpro', // ID
-            'Pumpkin Settings', // Title
+            'Arch Settings', // Title
             'print_section_info', // Callback
             'brafton_marpro' // Page
         );
         add_settings_field(
             'braftonMarproStatus',
-            'Pumpkin Status',
+            'Arch Status',
             'braftonMarproStatus',
             'brafton_marpro',
             'marpro'
         );
         add_settings_field(
             'braftonMarproId',
-            'Pumpkin Id',
+            'Arch Id',
             'braftonMarproId',
             'brafton_marpro',
             'marpro'
@@ -991,7 +1024,7 @@ function MarproSettingsSetup(){
 //function for the marpro section
 function braftonMarproStatus(){
     $options = getOptions();
-    $tip = 'Turning on Marpro will add our custom script to the footer allowing for connection to your Asset Gateway for your marketing resources';
+    $tip = 'Turning on Arch will add our custom script to the footer allowing for connection to your Asset Gateway for your marketing resources';
     tooltip($tip); ?>
     <input type="radio" name="braftonMarproStatus" value="on" <?php	checkRadioval($options['braftonMarproStatus'], 'on'); ?> /> On
     <input type="radio" name="braftonMarproStatus" value="off" <?php checkRadioval($options['braftonMarproStatus'], 'off'); ?>/> Off
@@ -1000,7 +1033,7 @@ function braftonMarproStatus(){
 //function for setting the marpro id
 function braftonMarproId(){
     $options = getOptions();
-    $tip = 'If using our Marpro Product you will need your Id.  You can obtain this information from your CMS';
+    $tip = 'If using our Arch Product you will need your Id.  You can obtain this information from your CMS';
     tooltip($tip); ?>
 <input type="text" name="braftonMarproId" value="<?php
 		echo $options['braftonMarproId']; ?>"/>

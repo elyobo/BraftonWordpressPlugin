@@ -17,6 +17,10 @@ function settingsValidate(){
         validate = false;
         alert('You have choosen to use the importers custom post type of "blog_content" but have not entered a url slug');
     }
+    if($('input[name="braftonStatus"]:checked').val() == 1 && $('input[name="braftonRemoteOperation"]:checked').val() == 1){
+        validate = false;
+        alert('You have turned on Remote Operation however have not turned off Automatic Import.  Please turn Off one of these options before saving');
+    }
     if($('#braftonArticleExistingPostType:checked').val()){
            $('input[name="braftonArticleExistingCategory"]').val() = '';
            $('input[name="braftonArticleExistingTag"]').val() = '';
@@ -24,6 +28,20 @@ function settingsValidate(){
     return validate;
 }
 jQuery(document).ready(function($){
+    $('#show_hide').toggle(function(e){
+        $(this).html('(Hide)');
+       $('.b_e_display').show();
+    },function(e){
+        $(this).html('(Show)');
+        $('.b_e_display').hide();
+    });
+    $('#show_hide_cta').toggle(function(e){
+       $(this).html('(Hide)');
+        $('.b_v_cta').show();
+    }, function(e){
+        $(this).html('(Show)');
+        $('.b_v_cta').hide();
+    });
     if($('#brafton-end-button-preview')){
         var count = $('.braftonPositionInput');
         var cor = $('.braftonPositionInput').map(function(){
