@@ -31,6 +31,7 @@ include 'admin/BraftonAdminFunctions.php';
 include 'BraftonXML.php';
 
 define("BRAFTON_VERSION", '3.2.5');
+
 define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
 define("BRAFTON_PLUGIN", dirname(__FILE__).'/BraftonwordpressPlugin.php');
 define("BRAFTON_BASENAME", plugin_basename(__FILE__));
@@ -83,7 +84,6 @@ class BraftonWordpressPlugin {
         add_action('braftonSetUpCron', array($this, 'BraftonCronArticle'));
         add_action('braftonSetUpCronVideo', array($this, 'BraftonCronVideo'));
         add_action('init', array('BraftonCustomType', 'BraftonInitializeType'));
-        add_action('pre_get_posts', array('BraftonCustomType', 'BraftonIncludeContent'));
         add_action('wp_dashboard_setup', array($this, 'BraftonDashboardWidget'));
         if($this->options['braftonRemoteOperation']){
             add_action('wp_head', array($this, 'RemoteOperation'));
@@ -101,6 +101,9 @@ class BraftonWordpressPlugin {
         $this->ogStatus = $this->options['braftonOpenGraphStatus'];
         if($this->options['braftonMarproStatus'] == 'on'){
             $marpro = new BraftonMarpro();
+        }
+        if($this->options['braftonArticlePostType']){
+            add_action('pre_get_posts', array('BraftonCustomType', 'BraftonIncludeContent'));
         }
     }
     static function BraftonAutoDeactivate(){

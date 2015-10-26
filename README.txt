@@ -1,6 +1,6 @@
 Installation: for Version 3.1+
 	Wordpress Plugin for importing Brafton/ContentLEAD/Castleford Content.  
-	Latest Version Version 3.1 
+	Latest Version Version 3.2.3
 Requirements:
 	PHP Version 5.3+ with the following Libraries:
 •	DOMDocument
@@ -44,7 +44,7 @@ General:
 	Custom Tags: Allows you to add your own tags to the imported content.  Be sure to separate your tags by a ‘,’.
 	Publish Date:  Your XML feed supplies 3 dates you can use as the date for your content, Published, Last Modified, and Created.  We recommend setting this to published as it will be the most recent date.
 	Add OG Tags:  OG Tags are what social media site (particularly Facebook) use to identify pieces of your content for use in sharing your content.  Many SEO plugins already provide support for these however if you are not using one or prefer to use ours (which also supports twittercards and google+ items) Select the “Add Tags” Option
-	Update Existing Content: This option will allow you to override your article content within the last 30 days or all of your video content with updated copies from your xml feed.  We recommend keeping this option off.
+	Update Existing Content: This option will allow you to override your article content within the last 30 days or all of your video content with updated copies from your xml feed.  We recommend keeping this option off.  _NOTE: Will download a fresh copy of the image each time the importer is run_
 
 Articles:
 	Article Importer Status: Enable the import of Article content from your XML feed.
