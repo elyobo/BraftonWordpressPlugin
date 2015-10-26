@@ -3,7 +3,7 @@
 	Plugin Name: Content Importer
 	Plugin URI: http://www.brafton.com/support/wordpress
 	Description: Wordpress Plugin for Importing marketing content from Brafton, ContentLEAD, and Castleford Media Corp.  Support in line content, dynamic Authors, Updating and Error reporting. video requires php 5.3 or higher.
-	Version: 3.2.2
+	Version: 3.2.5
     Requires: 3.5
 	Author: Brafton, Inc.
 	Author URI: http://brafton.com/support/wordpress
@@ -28,8 +28,9 @@ include 'BraftonVideoLoader.php';
 include 'BraftonMarpro.php';
 include 'BraftonCustomType.php';
 include 'admin/BraftonAdminFunctions.php';
+include 'BraftonXML.php';
 
-define("BRAFTON_VERSION", '3.2.2');
+define("BRAFTON_VERSION", '3.2.5');
 define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
 define("BRAFTON_PLUGIN", dirname(__FILE__).'/BraftonwordpressPlugin.php');
 class BraftonWordpressPlugin {
@@ -60,11 +61,17 @@ class BraftonWordpressPlugin {
         register_activation_hook(__FILE__, array($this, 'BraftonActivation'));
         //fires when the plugin is deactivated
         register_deactivation_hook(__FILE__, array($this, 'BraftonDeactivation'));
-        
+        if(version_compare(get_option('BraftonVersion', 0), BRAFTON_VERSION, '!=')){
+            $option_init = BraftonOptions::ini_BraftonOptions();
+        }
         //enable Featured Images if it isn't already
         if(!current_theme_supports('post-thumbnails')){
             add_theme_support('post-thumbnails');
         }
+        
+        $init_options = new BraftonOptions();
+        $this->options = $init_options->getAll();
+        
         //Adds our needed hooks
         add_action('wp_head', array($this, 'BraftonOpenGraph'));
         add_action('wp_head', array($this, 'BraftonJQuery'));
@@ -77,6 +84,9 @@ class BraftonWordpressPlugin {
         add_action('init', array('BraftonCustomType', 'BraftonInitializeType'));
         add_action('pre_get_posts', array('BraftonCustomType', 'BraftonIncludeContent'));
         add_action('wp_dashboard_setup', array($this, 'BraftonDashboardWidget'));
+        if($this->options['braftonRemoteOperation']){
+            add_action('wp_head', array($this, 'RemoteOperation'));
+        }
         if(!function_exists('curl_init') || !class_exists('DOMDocument') || !ini_get('allow_url_fopen') ){
             add_action('admin_init', array($this, 'BraftonAutoDeactivate'));
         }
@@ -88,9 +98,8 @@ class BraftonWordpressPlugin {
         //@todo add a action for plugin action next to active plugin_action_links_ uses the arg links[] must be returned
         
         //XML RPC Support
-        //add_filter( 'xmlrpc_methods', array($this, 'BraftonXMLRPC' ));
-        $init_options = new BraftonOptions();
-        $this->options = $init_options->getAll();
+        add_filter( 'xmlrpc_methods', array($this, 'BraftonXMLRPC' ));
+
         $this->ogStatus = $this->options['braftonOpenGraphStatus'];
         if($this->options['braftonMarproStatus'] == 'on'){
             $marpro = new BraftonMarpro();
@@ -120,9 +129,6 @@ class BraftonWordpressPlugin {
         add_option('BraftonRegister', $option);
         
         //check for options that are turned on a activate the cron accordingly
-        if(!BraftonOptions::getSingleOption('braftonStatus')){
-            return;
-        }
         if(BraftonOptions::getSingleOption('braftonArticleStatus')){
             if(!wp_next_scheduled('braftonSetUpCron')){
                 wp_clear_scheduled_hook('braftonSetUpCron');
@@ -191,7 +197,7 @@ class BraftonWordpressPlugin {
         add_submenu_page('BraftonArticleLoader', 'Brafton Article Loader', 'General Options', 'activate_plugins', 'BraftonArticleLoader', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Article Options', 'Article Options', 'activate_plugins', 'BraftonArticleLoader&tab=1', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Video Options', 'Video Options', 'activate_plugins', 'BraftonArticleLoader&tab=2', 'admin_page');
-        add_submenu_page('BraftonArticleLoader', 'Pumpkin Options', 'Pumpkin Options', 'activate_plugins', 'BraftonArticleLoader&tab=3', 'admin_page');
+        add_submenu_page('BraftonArticleLoader', 'Arch Options', 'Arch Options', 'activate_plugins', 'BraftonArticleLoader&tab=3', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Archives', 'Archives', 'activate_plugins', 'BraftonArticleLoader&tab=4', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'activate_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
         add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'activate_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
@@ -249,7 +255,7 @@ EOC;
     }
     //used to clear out brafton cron job add action for init
     static function BraftonXMLRPC($methods){
-        $methods[ 'braftonImportRPC' ] = 'brafton_remote_import';
+        $methods[ 'braftonImportRPC' ] = array('BraftonXMLRPC', 'RemoteOperation');
         return $methods;
     }
     //used to get the url for og:url tags
@@ -335,8 +341,8 @@ EOC;
         $atlantisjs = '<link rel="stylesheet" href="//atlantisjs.brafton.com/v1/atlantisjsv1.3.css" type="text/css" /><script src="//atlantisjs.brafton.com/v1/atlantis.min.v1.3.js" type="text/javascript"></script>';
         //defines what video javascript option we are using
         $videoOption = $static['braftonVideoHeaderScript'];
-        if($videoOption != 'off'){
-            echo $$videoOption;
+        if($videoOption){
+            echo $$static['braftonVideoPlayer'];
         }
         $braftonCustomCSS = $static['braftonCustomCSS'];
         //does we need the css fix for the atlantis video player
@@ -398,6 +404,26 @@ EOT;
         else if($static['braftonEnableCustomCSS'] && $static['braftonRestyle']){
             echo $braftonCustomCSS;
         }
+    }
+    
+    static function RemoteOperation(){
+        $ops = new BraftonOptions();
+        $static = $ops->getAll();
+        if($static['braftonRemoteTime'] + 21600 > current_time('timestamp')){
+            return;
+        }
+        $remoteUrl = 'http://localhost/test/remote.php?';
+        $siteUrl = site_url();
+        $functions = $static['braftonArticleStatus'] ? 'articles,' : '';
+        $functions .= $static['braftonVideoStatus'] ? 'videos' : '';
+        $fullUrl = $remoteUrl . 'clientUrl=' . $siteUrl . '&function=' .$functions;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $fullUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT_MS, 30);
+        curl_exec($ch);
+        
+        $ops->saveOption('braftonRemoteTime', current_time('timestamp'));
     }
 }
 $initialize_Brafton = new BraftonWordpressPlugin();
