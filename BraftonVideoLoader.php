@@ -90,7 +90,7 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         //define video types
         $atlatisjs = sprintf( "<video id='video-%s' class=\"ajs-default-skin atlantis-js\" controls preload=\"auto\" width='512' height='288' poster='%s' >", $brafton_id, $splash['preSplash'] ); 
         $videojs = sprintf( "<video id='video-%s' class='video-js vjs-default-skin' controls preload='auto' width='512' height='288' poster='%s' data-setup src='' >", $brafton_id, $splash['preSplash']); 
-        switch($this->options['braftonVideoHeaderScript']){
+        switch($this->options['braftonVideoPlayer']){
             case 'atlantisjs':
             $video .= $atlatisjs;
             $atlantis = true;

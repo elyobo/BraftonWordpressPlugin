@@ -33,6 +33,7 @@ include 'BraftonXML.php';
 define("BRAFTON_VERSION", '3.2.5');
 define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
 define("BRAFTON_PLUGIN", dirname(__FILE__).'/BraftonwordpressPlugin.php');
+define("BRAFTON_BASENAME", plugin_basename(__FILE__));
 class BraftonWordpressPlugin {
     
     /*
@@ -92,12 +93,9 @@ class BraftonWordpressPlugin {
         }
         //Adds our needed filters
         add_filter('language_attributes', array($this, 'BraftonOpenGraphNamespace'), 100);
-        add_filter('cron_schedules', array($this, 'BraftonCustomCronTime'),1,1);
         add_filter('the_content', array($this, 'BraftonContentModifyVideo'));
-        //@todo add a filter for options in plugin menu plugin_row_meta which takes 2 args links[] is returned and $file to check which file use if($file == plugin_basename(__FILE__)) to check if this is the plugin 
-        //@todo add a action for plugin action next to active plugin_action_links_ uses the arg links[] must be returned
-        
-        //XML RPC Support
+        add_filter('plugin_row_meta', array($this, 'BraftonPluginMeta'), 10, 2);
+        add_filter('plugin_action_links_'.BRAFTON_BASENAME, array($this, 'BraftonPluginLinks'));
         add_filter( 'xmlrpc_methods', array($this, 'BraftonXMLRPC' ));
 
         $this->ogStatus = $this->options['braftonOpenGraphStatus'];
@@ -149,6 +147,17 @@ class BraftonWordpressPlugin {
         wp_clear_scheduled_hook('braftonSetUpCron');
         wp_clear_scheduled_hook('braftonSetUpCronVideo');
     }
+    static function BraftonPluginMeta($links, $file){
+        if($file == plugin_basename(__FILE__)){
+            $admin = admin_url('/', 'admin');
+            $links[] = '<a href="'.$admin.'admin.php?page=BraftonArticleLoader">Settings</a>';
+        }
+        return $links;
+    }
+    static function BraftonPluginLinks($links){
+        $links[] = '<a href="'.$admin.'admin.php?page=BraftonArticleLoader">Settings</a>';
+        return $links;
+    }
     static function BraftonDashboardWidget(){
         $brand = BraftonOptions::getSingleOption('braftonApiDomain');
         $brand = switchCase($brand);
@@ -179,13 +188,6 @@ class BraftonWordpressPlugin {
         }
         
         return $content;
-    }
-    public function BraftonCustomCronTime($schedules){
-        $schedules['threedaily'] = array(
-            'interval'  => 28800,
-            'display'   => _('Three Times Daily'),
-            );
-        return $schedules;
     }
     
     public function BraftonAdminMenu(){
@@ -335,12 +337,13 @@ EOC;
     static function BraftonVideoHead(){
         $ops = new BraftonOptions();
         $static = $ops->getAll();
-        //Define where videoJs comes from
+        
         $videojs = '<link href="//vjs.zencdn.net/4.3/video-js.css" rel="stylesheet"><script src="//vjs.zencdn.net/4.3/video.js"></script>';
-        //Define where atlatisJs comes from
-        $atlantisjs_src = 'https://d1z1nkr1lc6xgd.cloudfront.net';
+        
+        $atlantisjs_src = '//atlantisjs.brafton.com';
+    
         if (!empty($_SERVER['HTTPS']) && strtolower($_SERVER["HTTPS"]) == "on"){
-            $atlantisjs_src = '//atlantisjs.brafton.com';
+            $atlantisjs_src = 'https://d1z1nkr1lc6xgd.cloudfront.net';
         }
         $atlantisjs = '<link rel="stylesheet" href="'.$atlantisjs_src.'/v1/atlantisjsv1.4.css" type="text/css" /><script src="'.$atlantisjs_src.'/v1/atlantis.min.v1.3.js" type="text/javascript"></script>';
         
@@ -351,7 +354,7 @@ EOC;
         }
         $braftonCustomCSS = $static['braftonCustomCSS'];
         //does we need the css fix for the atlantis video player
-        if(!$static['braftonEnableCustomCSS'] && $static['braftonRestyle']){
+        if($static['braftonEnableCustomCSS'] && $static['braftonRestyle']){
             $braftonPauseColor = $static['braftonPauseColor'];
             $braftonEndBackgroundcolor = $static['braftonEndBackgroundcolor'];
             $braftonEndTitleColor = $static['braftonEndTitleColor'];

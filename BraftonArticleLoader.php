@@ -212,9 +212,9 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 //$compacted_article['post_category'] = $this->assignCategories($article);
                 //$compacted_article['tags_input'] = $this->assignTags($article);
                 $the_categories = $this->assignCategories($article);
-                $this->set_section('Main article loop');
+                $this->errors->set_section('Main article loop');
                 $the_tags = $this->assignTags($article);
-                $this->set_section('Main article loop');
+                $this->errors->set_section('Main article loop');
                 if($this->options['braftonArticlePostType']){
                     $compacted_article['post_type'] = 'blog_content';
                     
@@ -233,8 +233,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     $post_id = wp_update_post($compacted_article);
                 }
                 else{//if the post doesn't exists we add it to the database
-                    $this->set_section('Inserting New Article');
-                    $this->errors->debug_trace(array('message' => 'Inserting New Article' . implode(',', $compacted_article), 'file' => __FILE__, 'line' => __LINE__));
+                    $this->errors->set_section('Inserting New Article');
                     $post_id = wp_insert_post($compacted_article);
                     // Extra work to set custom tags.
                     wp_set_object_terms($post_id, $the_tags, $tag_name);
@@ -256,12 +255,12 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     ));
                 }
                 $this->add_needed_meta($post_id, $meta_array);
-                $this->set_section('Main article loop');
+                $this->errors->set_section('Main article loop');
                 //update_post_meta($post_id, 'brafton_id', $brafton_id);
                 if($post_image != 'NULL' && $post_image != NULL){
                     $temp_name = $this->image_download($post_image, $post_id, $image_id, $image_alt, $post_image_caption);
                     update_post_meta($post_id, 'pic_id', $image_id);
-                    $this->set_section('Main article loop');
+                    $this->errors->set_section('Main article loop');
                 }
                 
                 $list['titles'][] = array(
