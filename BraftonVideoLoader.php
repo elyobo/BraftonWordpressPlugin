@@ -45,7 +45,6 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         $catArray = array();
         $cNum = $this->ClientCategory->ListCategoriesForFeed($this->feedId, 0,100, '','')->totalCount;
         $custom_cat = explode(',',$this->options['braftonCustomVideoCategories']);
-
         for($i=0;$i<$cNum;$i++){
             $catId = $this->ClientCategory->ListCategoriesForFeed($this->feedId,0,100,'','')->items[$i]->id;
             $catNew = $this->ClientCategory->Get($catId);
@@ -57,6 +56,7 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         foreach($custom_cat as $c){
             wp_create_category($c);
         }
+        exit();
 
     }
     //Assigns the categories listed for the post to the post including any custom categories.
