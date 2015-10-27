@@ -1,6 +1,6 @@
 <?php
 require 'libs/APIClientLibrary/ApiHandler.php';
-//
+// 45b8688e-c6bd-4335-8633-0cbf497b71af
 class BraftonArticleLoader extends BraftonFeedLoader {
     //set as costants instead
     private $API_Domain;
@@ -68,12 +68,17 @@ class BraftonArticleLoader extends BraftonFeedLoader {
             $category_name = 'category';
         }
 
-
         foreach ($CatColl as $c){
-                $category = esc_sql($c->getName());
+            $category = esc_sql($c->getName());
+            if($cat_id = get_term_by('name', $category, $category_name)){
+                $parent = $cat_id->term_id;
+            }else{
                 $cat_id = wp_insert_term($category, $category_name);
+                $parent = $cat_id['term_id'];
+            }          
             foreach($c->child as $child){
-                wp_insert_term($child['name'], $category_name, array('parent' => $cat_id['term_id']));
+                $childName = $child['name'];
+                $c_id = wp_insert_term($child['name'], $category_name, array('parent' => $parent));
             }
         }
         foreach($custom_cat as $cat){
@@ -82,7 +87,17 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     }
 
 
-
+    private function category_search($name, $taxonomy){
+        $CatColl = $this->connection->getCategoryDefinitions();
+        foreach($CatColl as $cat){
+            if($slugObj = get_term_by('slug', $name.'-'.$cat->getName(), $taxonomy)){
+                   return $slugObj->term_id;
+            }
+        }
+        $slugObj = get_term_by('slug', $name, $taxonomy);
+        return $slugObj->term_id;
+    }
+    
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($obj){
 
@@ -102,8 +117,9 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         if($this->options['braftonCategories'] == 'categories'){
             foreach($CatColl as $cat){
                 //$slugObj = get_category_by_slug(esc_sql($cat->getName()));
-                $slugObj = get_term_by('slug', esc_sql($cat->getName()), $category_name);
-                $cats[] = $slugObj->term_id;
+                //$slugObj = get_term_by('slug', esc_sql($cat->getName()), $category_name);
+                //$cats[] = $slugObj->term_id;
+                $cats[] = $this->category_search(esc_sql($cat->getName()), $category_name);
             }
         }
         foreach($custom_cat as $cat){
