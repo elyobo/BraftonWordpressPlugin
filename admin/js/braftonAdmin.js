@@ -54,7 +54,9 @@ function premium(e){
     }
 }
 jQuery(document).ready(function($){
-    premium(null);
+        if($('input[name="braftonEnableCustomCSS"]').length != 0){
+            premium(null);
+        }
         $('input[name="braftonEnableCustomCSS"]').map(function(e){
             $(this).change(function(e){
                 premium(e);
