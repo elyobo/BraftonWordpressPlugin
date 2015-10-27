@@ -1,6 +1,7 @@
 <?php
 wp_enqueue_style('admin-css.css', plugin_dir_url( __FILE__ ) .'css/BraftonAdminCSS.css');
 wp_enqueue_script('jquery');
+wp_enqueue_script('brafton_admin_js', plugin_dir_url(__FILE__) .'js/braftonAdmin.js');
 $dir = str_replace('admin', 'BraftonwordpressPlugin.php', dirname(__FILE__));
 $plugin_data = get_plugin_data(BRAFTON_PLUGIN);
 global $brand;

@@ -27,7 +27,39 @@ function settingsValidate(){
     }
     return validate;
 }
+
+function premium(e){
+    var $ = jQuery;
+    if($('input[name="braftonEnableCustomCSS"]:checked').val() == 1){
+        $('.braftonCustomCSS').css({display: 'block'});
+        $('#tab-2 table.form-table tr').each(function(e){
+            if(e > 1){
+                $(this).css({display: 'none'});
+            }
+        });
+    }else if($('input[name="braftonEnableCustomCSS"]:checked').val() == 2){
+        $('.braftonCustomCSS').css({display: 'none'}); 
+        $('#tab-2 table.form-table tr').each(function(e){
+            if(e > 1){
+                $(this).css({display: 'table-row'});
+            }
+        });
+    }else{
+        $('#tab-2 table.form-table tr').each(function(e){
+            if(e > 1){
+                $(this).css({display: 'none'});
+            }
+        });
+        $('.braftonCustomCSS').css({display: 'none'}); 
+    }
+}
 jQuery(document).ready(function($){
+    premium(null);
+        $('input[name="braftonEnableCustomCSS"]').map(function(e){
+            $(this).change(function(e){
+                premium(e);
+            });
+        });
     
     $('#show_hide').toggle(function(e){
         $(this).html('(Hide Log)');

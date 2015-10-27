@@ -1109,6 +1109,20 @@ function PremiumStylesAtlantisVideoSetup(){
         'brafton_atlantis'
     );
     add_settings_field(
+        'braftonEnableCustomCSS',
+        'Enable Custom CSS Below',
+        'braftonEnableCustomCSS',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
+        'braftonCustomCSS',
+        'Custom CSS rules',
+        'braftonCustomCSS',
+        'brafton_atlantis',
+        'atlantis'
+    );
+    add_settings_field(
         'braftonPauseColor',
         'Pause Text Color',
         'braftonPauseColor',
@@ -1192,27 +1206,14 @@ function PremiumStylesAtlantisVideoSetup(){
         'brafton_atlantis',
         'atlantis'
     );
-    add_settings_field(
-        'braftonEnableCustomCSS',
-        'Enable Custom CSS Below',
-        'braftonEnableCustomCSS',
-        'brafton_atlantis',
-        'atlantis'
-    );
-    add_settings_field(
-        'braftonCustomCSS',
-        'Custom CSS to Use INSTEAD of selection options above',
-        'braftonCustomCSS',
-        'brafton_atlantis',
-        'atlantis'
-    );
 }
 function braftonEnableCustomCSS(){
     $options = getOptions();
     $tip = 'When this is on the CSS entered below will be used instead of the options choosen above';
     tooltip($tip); ?>
-    <input type="radio" name="braftonEnableCustomCSS" value="1" <?php	checkRadioval($options['braftonEnableCustomCSS'], 1); ?> /> On
-    <input type="radio" name="braftonEnableCustomCSS" value="0" <?php checkRadioval($options['braftonEnableCustomCSS'], 0); ?>/> Off
+    <input type="radio" name="braftonEnableCustomCSS" value="1" <?php checkRadioval($options['braftonEnableCustomCSS'], 1); ?> /> Custom CSS Sheet Below
+    <input type="radio" name="braftonEnableCustomCSS" value="0" <?php checkRadioval($options['braftonEnableCustomCSS'], 0); ?>/> None
+    <input type="radio" name="braftonEnableCustomCSS" value="2" <?php checkRadioval($options['braftonEnableCustomCSS'], 2); ?>/> Use Selections Below
 <?php
 }
 function braftonEndTitleBackground(){
@@ -1226,7 +1227,7 @@ function braftonCustomCSS(){
     $options = getOptions();
     $tip = "Use CSS to style the Video Player.  Any CSS here will override any presets as well as any options selected above";
     tooltip($tip); ?>
-    <textarea name="braftonCustomCSS" class="braftonCustomCSS" style="width:100%;height:500px"><?php echo $options['braftonCustomCSS']; ?></textarea>
+    <textarea name="braftonCustomCSS" class="braftonCustomCSS" style="width:100%;height:500px;display:none"><?php echo $options['braftonCustomCSS']; ?></textarea>
 <?php
 }
 function braftonEndButtonTextColorHover(){
