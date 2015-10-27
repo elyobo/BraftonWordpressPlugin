@@ -357,7 +357,7 @@ EOC;
         }
         $braftonCustomCSS = $static['braftonCustomCSS'];
         //does we need the css fix for the atlantis video player
-        if($static['braftonEnableCustomCSS'] && $static['braftonRestyle']){
+        if((int)$static['braftonEnableCustomCSS'] == 2 && $static['braftonRestyle']){
             $braftonPauseColor = $static['braftonPauseColor'];
             $braftonEndBackgroundcolor = $static['braftonEndBackgroundcolor'];
             $braftonEndTitleColor = $static['braftonEndTitleColor'];
@@ -412,7 +412,7 @@ EOT;
         
 		echo $css;
         }
-        else if($static['braftonEnableCustomCSS'] && $static['braftonRestyle']){
+        else if((int)$static['braftonEnableCustomCSS'] == 1 && $static['braftonRestyle']){
             echo $braftonCustomCSS;
         }
     }
