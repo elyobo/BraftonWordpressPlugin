@@ -102,7 +102,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($obj){
-
+        $loop = $this->errors->get_section();
         $this->errors->set_section('assign categories');
         
         $cats = array();
@@ -130,13 +130,12 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $cats[] = $slugObj->term_id;
             }
         }
-
-
-
+        $this->errors->set_section($loop);
         return $cats;
     }
     //Assigns the tags based on the option selected for the importer
     private function assignTags($obj){
+        $loop = $this->errors->get_section();
         $this->errors->set_section('assign Tags');
         
         $tags = array();
@@ -162,23 +161,24 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         foreach($custom_tags as $tag){
             $tags[] = esc_sql($tag);
         }
+        $this->errors->set_section($loop);
         return $tags;
     }
     private function cleanseString($m){
         return "'<' . strtolower('$m')";
     }
     public function runLoop(){
+        $this->errors->set_section('Master Article loop');
         $this->errors->debug_trace(array('message' => 'Starting Import of Articles', 'file' => __FILE__, 'line' => __LINE__));
         $list = array();
         global $level, $post, $wp_rewrite;
-        $this->errors->set_section('master loop');
         $article_count = count($this->articles);
         $counter = 0;
         foreach($this->articles as $article){//start individual article loop
             $brafton_id = $article->getId();
             if(!($post_id = $this->brafton_post_exists($brafton_id)) || $this->override){//Start actual importing
                 if($counter == $this->options['braftonArticleLimit']){ return; }
-                $this->errors->set_section('individual article loop');
+                $this->errors->set_section('Individual article loop. run: '.$counter);
                 set_time_limit(60);
                 $post_title = $article->getHeadline();
 
@@ -196,12 +196,13 @@ class BraftonArticleLoader extends BraftonFeedLoader {
 		        $post_image_caption = NULL;
                 if (!empty($photos))
                 {
-                    $this->errors->debug_trace(array('message' => 'Photo for Article exists', 'file' => __FILE__, 'line' => __LINE__));
+                    $this->errors->debug_trace(array('message' => 'Photos for Article exists', 'file' => __FILE__, 'line' => __LINE__));
                     if ($photo_option == 'large') //Large photo
                         $image = $photos[0]->getLarge();
 
                     if (!empty($image))
                     {
+                        $this->errors->debug_trace(array('message' => 'Found individual Large Photo', 'file' => __FILE__, 'line' => __LINE__));
                         $post_image = $image->getUrl();
                         $post_image_caption = $photos[0]->getCaption();
                         $image_id = $photos[0]->getId();
@@ -246,8 +247,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $compacted_article['tax_input'] = array($category_name => $the_categories, $tag_name => $the_tags);
 
                 if($post_id){//If the post existed but we are overriding values
-                    $this->set_section('Updating Article');
-                    $this->errors->debug_trace(array('message' => 'Updating Article '. $post_id . implode(',', $compacted_article), 'file' => __FILE__, 'line' => __LINE__));
+                    $this->set_section('Updating Article with ID: '.$post_id);
                     $compacted_article['ID'] = $post_id;
                     $post_id = wp_update_post($compacted_article);
                 }
@@ -274,12 +274,11 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     ));
                 }
                 $this->add_needed_meta($post_id, $meta_array);
-                $this->errors->set_section('Main article loop');
+
                 //update_post_meta($post_id, 'brafton_id', $brafton_id);
                 if($post_image != 'NULL' && $post_image != NULL){
                     $temp_name = $this->image_download($post_image, $post_id, $image_id, $image_alt, $post_image_caption);
                     update_post_meta($post_id, 'pic_id', $image_id);
-                    $this->errors->set_section('Main article loop');
                 }
 
                 $list['titles'][] = array(

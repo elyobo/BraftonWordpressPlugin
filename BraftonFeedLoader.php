@@ -6,7 +6,7 @@
  * @version     2.0.1
  *
  */
-require_once(ABSPATH.'wp-includes/rewrite.php');
+require_once(ABSPATH . 'wp-includes/rewrite.php');
 include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 include_once(ABSPATH . 'wp-admin/includes/taxonomy.php');
 require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -48,22 +48,25 @@ class BraftonFeedLoader {
     }
     //checks if the article exsists already. Return null if it doesn't return the post id if it does.
     public function  brafton_post_exists($brafton_id){
-        $this->errors->debug_trace(array('message' => 'Checking article Brafton ID: '. $brafton_id, 'file' => __FILE__, 'line' => __LINE__));
+        $loop = $this->errors->get_section();
+        $this->errors->set_section('checking for existing Brafton ID '.$brafton_id);
         global $wpdb;
-        //var_dump($args);
+        
         $post_id = null;
         $results = $wpdb->get_results( "select post_id, meta_key from $wpdb->postmeta where meta_key = 'brafton_id' AND meta_value = $brafton_id", ARRAY_A );
         
         if($results){
             $post_id = $results[0]['post_id'];
-            $this->errors->debug_trace(array('message' => 'Post found with ID: '. $post_id, 'file' => __FILE__, 'line' => __LINE__));
+            
         }
+        $this->errors->set_section($loop);
         return $post_id;
     }
     
     //dynamic Author Check
     public function checkAuthor($author, $byLine){
-        $this->errors->debug_trace(array('message' => 'Checking for Author Information', 'file' => __FILE__, 'line' => __LINE__));
+        $loop = $this->errors->get_section();
+        $this->errors->set_section("Checking for $byLine as author");
         if($author == 'n' ){
             $author = $this->options['braftonArticleAuthorDefault'];
         }
@@ -79,6 +82,7 @@ class BraftonFeedLoader {
                 $author = $user->ID;
             }
         }
+        $this->errors->set_section($loop);
         return $author;
     }
     public function getPostDate($article){
@@ -103,8 +107,8 @@ class BraftonFeedLoader {
     }
     public function image_download($post_image, $post_id, $image_id, $image_alt, $image_caption){
         //Set the section for error reporting
-        $this->errors->set_section('image_download');
-        $this->errors->debug_trace(array('message' => 'Downloading Image from XML to Wordpress dir', 'file' => __FILE__, 'line' => __LINE__));
+        $loop = $this->errors->get_section();
+        $this->errors->set_section('Downloading Image');
         //Download the image to the temp folder for preperation as a fake $_FILE
         $temp_file = download_url($post_image);
         $wp_filetype = wp_check_filetype(basename($post_image), NULL);
@@ -140,13 +144,15 @@ class BraftonFeedLoader {
         $attach_data = wp_generate_attachment_metadata($attach_id, $up_dir);
         wp_update_attachment_metadata($attach_id, $attach_data);
         update_post_meta($post_id, '_thumbnail_id', $attach_id);
-                        
+        $this->errors->set_section($loop);
     }
     public function add_needed_meta($post_id, $meta_array){
+        $loop = $this->errors->get_section();
         $this->errors->set_section('assign meta data');
         foreach($meta_array as $field => $value){
             update_post_meta($post_id, $field, $value);   
         }
+        $this->errors->set_section($loop);
     }
     
     static function wpml_support($post_id, $article){     
