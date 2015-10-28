@@ -1,6 +1,7 @@
 <?php
 require 'libs/APIClientLibrary/ApiHandler.php';
 // 45b8688e-c6bd-4335-8633-0cbf497b71af
+// 528a432c-2f60-4dc8-80fe-4cebc1fe25ca
 class BraftonArticleLoader extends BraftonFeedLoader {
     //set as costants instead
     private $API_Domain;
@@ -70,7 +71,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
 
         foreach ($CatColl as $c){
             $category = esc_sql($c->getName());
-            if($cat_id = get_term_by('name', $category, $category_name)){
+            if($cat_id = get_term_by('name', htmlentities($category), $category_name)){
                 $parent = $cat_id->term_id;
             }else{
                 $cat_id = wp_insert_term($category, $category_name);
@@ -102,7 +103,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     private function assignCategories($obj){
 
         $this->errors->set_section('assign categories');
-        $this->errors->debug_trace(array('message' => 'Assigning Categories', 'file' => __FILE__, 'line' => __LINE__));
+        
         $cats = array();
         $CatColl = $obj->getCategories();
         $custom_cat = explode(',',$this->options['braftonCustomArticleCategories']);
@@ -136,7 +137,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     //Assigns the tags based on the option selected for the importer
     private function assignTags($obj){
         $this->errors->set_section('assign Tags');
-        $this->errors->debug_trace(array('message' => 'Assigning Tags', 'file' => __FILE__, 'line' => __LINE__));
+        
         $tags = array();
         if($this->options['braftonTags'] != 'none_tags'){
             switch($this->options['braftonTags']){
