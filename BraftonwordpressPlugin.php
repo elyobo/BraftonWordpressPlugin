@@ -3,7 +3,7 @@
 	Plugin Name: Content Importer
 	Plugin URI: http://www.brafton.com/support/wordpress
 	Description: Wordpress Plugin for Importing marketing content from Brafton, ContentLEAD, and Castleford Media Corp.  Support in line content, dynamic Authors, Updating and Error reporting. video requires php 5.3 or higher.
-	Version: 3.2.5
+	Version: 3.3.0
     Requires: 3.5
 	Author: Brafton, Inc.
 	Author URI: http://brafton.com/support/wordpress
@@ -15,7 +15,7 @@
 
 if( class_exists( 'XMLHandler' ) ){
         echo '<div class="error">
-				<p>CONTENT IMPORTER: '.$url.'You may have another Brafton, ContentLEAD, or Castleford Content Importer Installed.  Please Disable your previous version before activating your new one.<br/><blockquote>XMLHandler and XMLException Classes already declared indicating a previous version is installed.</blockquote></p>
+				<p>CONTENT IMPORTER: You may have another Brafton, ContentLEAD, or Castleford Content Importer Installed.  Please Disable your previous version before activating your new one.<br/><blockquote>XMLHandler and XMLException Classes already declared indicating a previous version is installed.</blockquote></p>
 				</div>';
     exit();
 }
@@ -29,12 +29,14 @@ include 'BraftonMarpro.php';
 include 'BraftonCustomType.php';
 include 'admin/BraftonAdminFunctions.php';
 include 'BraftonXML.php';
+include 'BraftonUpdate.php';
 
-define("BRAFTON_VERSION", '3.2.5');
+define("BRAFTON_VERSION", '3.3.0');
 
 define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
 define("BRAFTON_PLUGIN", dirname(__FILE__).'/BraftonwordpressPlugin.php');
 define("BRAFTON_BASENAME", plugin_basename(__FILE__));
+
 class BraftonWordpressPlugin {
     
     /*
@@ -84,11 +86,13 @@ class BraftonWordpressPlugin {
         add_action('braftonSetUpCron', array($this, 'BraftonCronArticle'));
         add_action('braftonSetUpCronVideo', array($this, 'BraftonCronVideo'));
         add_action('init', array('BraftonCustomType', 'BraftonInitializeType'));
+        add_action('init', array($this, 'brafton_activate_updater'));
         add_action('wp_dashboard_setup', array($this, 'BraftonDashboardWidget'));
+        
         if($this->options['braftonRemoteOperation']){
             add_action('wp_head', array($this, 'RemoteOperation'));
         }
-        if(!function_exists('curl_init') || !class_exists('DOMDocument') || !ini_get('allow_url_fopen') ){
+        if(!function_exists('curl_init') || !class_exists('DOMDocument') ){
             add_action('admin_init', array($this, 'BraftonAutoDeactivate'));
         }
         //Adds our needed filters
@@ -110,7 +114,7 @@ class BraftonWordpressPlugin {
         //Deactivate the plugin due to missing dependancies.
         deactivate_plugins(plugin_basename(__FILE__));
         $list[] = function_exists('curl_init')? '' : 'function curl_init()';
-        $list[] = function_exists('fopen') && ini_get('allow_url_fopen') ? '' : 'function fopen() with allow_url_fopen set to on or 1';
+        $list[] = function_exists('fopen') && ini_get('allow_url_fopen') ? '' : 'function fopen() with allow_url_fopen set to on or 1 (VIDEO IMPORT ONLY)';
         $list[] = class_exists('DOMDocument')? '' : 'Class DOMDocument';
         
         //strinify list of dependancies missing filtering out any empty values indicating the dependancy does exist.
@@ -124,10 +128,6 @@ class BraftonWordpressPlugin {
     }
     public function BraftonActivation(){
         $option_init = BraftonOptions::ini_BraftonOptions();
-        $staticKey = BraftonOptions::getSingleOption('braftonApiKey');
-        $staticBrand =  BraftonOptions::getSingleOption('braftonApiDomain');
-        $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
-        add_option('BraftonRegister', $option);
         
         //check for options that are turned on a activate the cron accordingly
         if(BraftonOptions::getSingleOption('braftonArticleStatus')){
@@ -150,6 +150,11 @@ class BraftonWordpressPlugin {
         wp_clear_scheduled_hook('braftonSetUpCron');
         wp_clear_scheduled_hook('braftonSetUpCronVideo');
     }
+    static function brafton_activate_updater(){
+        $brand = BraftonOptions::getSingleOption('braftonApiDomain');
+        $brafton_plugin_remote_path = 'http://updater.brafton.com/u/wordpress/update/';
+        new Brafton_Update(BRAFTON_VERSION, $brafton_plugin_remote_path, BRAFTON_BASENAME, $brand);
+    }
     static function BraftonPluginMeta($links, $file){
         if($file == plugin_basename(__FILE__)){
             $admin = admin_url('/', 'admin');
@@ -167,11 +172,16 @@ class BraftonWordpressPlugin {
         wp_add_dashboard_widget('BraftonDashAtAGlance', 'Recently Imported by '.$brand, array('BraftonWordpressPlugin','BraftonDisplayDashWidget'));
     }
     static function BraftonDisplayDashWidget(){
+        $brand = BraftonOptions::getSingleOption('braftonApiDomain');
+        $brand = switchCase($brand);
         $array = array(
             'meta_key'  => 'brafton_id',
             'posts_per_page'    => 5            
         );
         $query = new WP_Query($array);
+        ?>
+        <img src="<?php echo plugin_dir_url(__FILE__); ?>/admin/img/banner_<?php echo strtolower($brand); ?>.jpg" style="width:100% !important; height:auto !important;">
+        <?php
         if ( $query->have_posts() ) : while ( $query->have_posts() ) : $query->the_post();
             echo '<p>';
             echo '<a href="'.get_edit_post_link().'">'.get_the_title(); echo '</a><br/> Imported on: '; the_time('Y-d-m');
@@ -194,7 +204,6 @@ class BraftonWordpressPlugin {
     }
     
     public function BraftonAdminMenu(){
-        $style = BraftonOptions::getSingleOption('braftonRestyle');
         $brand = BraftonOptions::getSingleOption('braftonApiDomain');
         $brand = switchCase($brand);
         //new admin menu
@@ -223,25 +232,29 @@ class BraftonWordpressPlugin {
             $i_margin = $static['braftonInlineImageMargin'];
             $pullQuote = '';
             $inlineImage = '';
+            $js = '';
             if($static['braftonPullQuotes']){
                 $pullQuote = "'width': '{$p_width}%', 'float': '{$p_float}', 'margin': '{$p_margin}px'";
-            }
-            if($static['braftonInlineImages']){
-                $inlineImage = "'width': '{$i_width}%', 'float': '{$i_float}', 'margin': '{$i_margin}px'";
-            }
-            $restyle =<<<EOC
-            <script type="text/javascript">
-            (function(d){
-	//SELT NEW STYLE
-	//LOOP THROUGH EACH ELEMENT AND ADD THAT STYLE
+                $js .=<<<EOPQ
+	//PULLQUOTE CORRECTION
 	jQuery('.pullQuoteWrapper').each(function(){
         jQuery(this).css({{$pullQuote}});
 	});
+EOPQ;
+            }
+            if($static['braftonInlineImages']){
+                $inlineImage = "'width': '{$i_width}%', 'float': '{$i_float}', 'margin': '{$i_margin}px'";
+                $js .=<<<EOIL
 	//INLINE IMAGE WRAPPER
 	jQuery('.inlineImageWrapper').each(function(){
         jQuery(this).css({{$inlineImage}});
 	});
-    //INLINE VIDEO WRAPPER
+EOIL;
+            }
+            $restyle =<<<EOC
+            <script type="text/javascript">
+            (function(d){
+                $js
 }(document));
         </script>
 EOC;
@@ -334,7 +347,7 @@ EOC;
         $static = $ops->getAll();
         //do we need a jquery script?  Use google CDN
         if($static['braftonImportJquery'] == 'on'){
-               echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>';
+               echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>';
         }
     }
     static function BraftonVideoHead(){
@@ -439,8 +452,5 @@ EOT;
 }
 $initialize_Brafton = new BraftonWordpressPlugin();
 
-$brafton_plugin_slug = plugin_basename(__FILE__);
-$BraftonPluginData = get_plugin_data(__FILE__);
-include 'BraftonUpdate.php';
 
 ?>
