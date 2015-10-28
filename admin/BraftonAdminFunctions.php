@@ -10,25 +10,18 @@ if(isset($_POST['submit'])){
         $save = BraftonOptions::saveAllOptions();
         break;
         case 'Upload Archive':
-        //$archive = new BraftonArticleLoader();
-        //$archive->loadXMLArchive();
         add_action('init', array('BraftonArticleLoader', 'manualImportArchive'));
         break;
         case 'Save Errors':
         $er = BraftonErrorReport::errorPage();
         break;
         case 'Import Articles':
-        //$import = new BraftonArticleLoader();
-        //$import->ImportArticles();
         add_action('init', array('BraftonArticleLoader', 'manualImportArticles'));
         break;
         case 'Import Videos':
-        //$import = new BraftonVideoLoader();
-        //$import->ImportVideos();
         add_action('init', array('BraftonVideoLoader', 'manualImportVideos'));
-        case 'Get Categories';
-        //$import = new BraftonArticleLoader();
-       // $import->ImportCategories();
+        break;
+        case 'Get Categories':
         add_action('init', array('BraftonArticleLoader', 'manualImportCategories'));
         break;
         }
@@ -176,7 +169,7 @@ function print_section_info($args){
             echo '<p>This is for uploading an archive provided to you by your CMS</p>';
         break;
         case 'control':
-            echo '<p>You can manually run the importer at any point by selecting which importer you would like to run.  If you are receiving both Vidoes, and Articles you will have to run the importer for each one seperately.  The importer does run each hour for both automatically provided it is turned on.</p>';
+            echo '<p>You can manually run the importer at any point by selecting which importer you would like to run.  If you are receiving both Vidoes, and Articles you will have to run the importer for each one seperately.  The importer does run each hour automatically provided it is turned on.</p>';
         break;
         case 'atlantis':
             echo '<p>This is for Styling the Atlantis Video Player.  You may use the selection options below or choose to write your own CSS below.</p>';
@@ -266,8 +259,8 @@ function braftonDisplayLog(){
         for($i=0;$i<count($errors);++$i){
             echo $errors[$i]['client_sys_time'].':<br/>----'.$errors[$i]['error'].'<br>';
         }
-        ?>
-        
+        echo 'Total: ' . count($errors);
+        ?> 
         </pre>
     </div>
 <?php 
@@ -399,7 +392,7 @@ function braftonRemoteOperation(){
 //TODO : Will be moving to s seperate section to inself for style
 function braftonRestyle(){
     $options = getOptions();
-    tooltip('Sometimes with our premium content user stylesheets can cause confilicts with the styles for the content.  Enable this feature to correct for this problem.  NOTE: You must have JQuery on your site for this to work.  If you currently do not have JQuery you can add it with the option above.');
+    tooltip('Premium content embeeded styles can be customized the premium style Tab if they are not appearing as you would like. NOTE: You must have JQuery on your site for this to work.  If you currently do not have JQuery you can add it with the option above.');
     ?>
     <input type="radio" name="braftonRestyle" value="1" <?php checkRadioVal($options['braftonRestyle'], 1); ?>> Add Style Correction
     <input type="radio" name="braftonRestyle" value="0" <?php checkRadioVal($options['braftonRestyle'], 0); ?>> No Style Correction
@@ -636,7 +629,7 @@ function braftonArticleLimit(){
 //Displays the option for allowing overriding of previously imported articles.
 function braftonUpdateContent(){
     $options = getOptions();
-    $tip = 'Setting this to ON will override edits made to posts within the last 30 days or using an archive file';
+    $tip = 'Setting this to ON will override edits made to posts within the last 30 days or using an archive file.  NOTE: This option will completely update the article including downloading the image files associated with them.  Leaving this option ON can overload your system with image files.';
     tooltip($tip); ?>
 <input type="radio" name="braftonUpdateContent" value="1" <?php checkRadioval($options['braftonUpdateContent'], 1); ?> /> On
 <input type="radio" name="braftonUpdateContent" value="0" <?php checkRadioval($options['braftonUpdateContent'], 0); ?>/> Off
@@ -952,7 +945,7 @@ function braftonVideoPlayer(){
     tooltip($tip);
     ?>
     <input type="radio" id="embed_type" name="braftonVideoPlayer" value="videojs" <?php checkRadioval($options['braftonVideoPlayer'], 'videojs'); ?> /> Video JS
-    <input type="radio" id="atlantis" name="braftonVideoPlayer" value="atlantisjs" <?php checkRadioval($options['braftonVideoPlayer'], 'atlantisjs'); ?>/> Atlantis JS
+    <input type="radio" id="atlantis" name="braftonVideoPlayer" value="atlantisjs" <?php checkRadioval($options['braftonVideoPlayer'], 'atlantisjs'); ?>/> Atlantis JS <?php echo $options['braftonVideoPlayer']; ?>
 <?php
     
 }
