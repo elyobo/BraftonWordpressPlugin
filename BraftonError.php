@@ -62,6 +62,9 @@ class BraftonErrorReport {
     public function set_section($sec){
         $this->section = $sec;   
     }
+    public function get_section(){
+        return $this->section;   
+    }
     //sets the current level of error reporting used to determine if remote sending is enabled periodically upgraded during article and video loops from 1 (critical error script stopped running) -> 5 (minor error script continued but something happened.)
     public function set_level($level){
         $this->level = $level;
