@@ -18,14 +18,10 @@ class BraftonOptions {
     private $ser_options;
 
     public function __construct(){
-        //registers the hook for when the plugin is activated.  This method can be instantiated on its own again if needed.
-        //$this->ini_BraftonOptions();
-        //Gets the options stored in the database and stores the associative array in the $this->options
         $this->ser_options = get_option('BraftonOptions');
         $this->options = $this->ser_options;
     }
 
-    //This method checks for the existance of Brafton options.  If there are no Brafton Options it will initialize them all to start. If they already exsist return false. This method is only called when the plugin is activated with the the register_activation_hook().  It is the Second class to be called after BraftonErrors().
     static function ini_BraftonOptions(){
 
 
@@ -143,11 +139,6 @@ class BraftonOptions {
     //sets one option and saves that option to the database resets the $options array with the new data.  Note this will not affect any external variables currently holding the associative array returned previously.
     public function saveOption($option, $value){
         $this->options[$option] = $value;
-        /*
-        $this->saveAllOptions();
-        $this->ser_options = get_option('BraftonOptions');
-        $this->options = $this->ser_options;
-        */
         update_option('BraftonOptions', $this->options);
     }
     static function saveAllOptions(){
@@ -259,11 +250,16 @@ EOT;
     }
     
     static function determine_video(){
-        $old_options = get_option('BraftonOptions');
+        
+        $old_options = get_option('BraftonOptions', 0);
         if(!$old_options){
             return 'atlantisjs';
         }
-        return isset($old_options['braftonVideoPlayer']) ? $old_options['braftonVideoPlayer'] : $old_options['braftonVideoHeaderScript'];
+        $player = isset($old_options['braftonVideoPlayer']) && $old_options['braftonVideoPlayer'] != NULL ? $old_options['braftonVideoPlayer'] : $old_options['braftonVideoHeaderScript'];
+        if($player != NULL){
+            return $player;
+        }
+        return 'atlantisjs';
        
     }
 }
