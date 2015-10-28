@@ -23,7 +23,7 @@ class BraftonFeedLoader {
     public $override;
     public $publishDate;
     public $publish_status;
-    
+    private $fail;
     public function __construct(){
         include_once(ABSPATH . 'wp-includes/pluggable.php');
         $option_ini = new BraftonOptions();

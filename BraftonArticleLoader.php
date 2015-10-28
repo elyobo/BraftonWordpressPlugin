@@ -10,19 +10,26 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     private $fh;
     private $counter;
     private $connection;
+    
 
     public function __construct(){
         parent::__construct();
         //set the url and api key for use during the entire run.
         $this->API_Domain = 'http://'.$this->options['braftonApiDomain'];
         $this->API_Key = $this->options['braftonApiKey'];
-
+        if($this->API_Key == 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' || $this->API_Key == ''){
+            trigger_error('You have not set your API key');
+            $this->fail = true;
+            return;
+        }
         $this->connection = new ApiHandler($this->API_Key, $this->API_Domain);        
 
     }
     //method for full import of articles
     public function ImportArticles(){
-
+        if($this->fail){
+            return;
+        }
         //Gets the feed for importing
         $this->getArticleFeed();
         //Gets the complete category tree and adds any new categories
@@ -32,6 +39,9 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     }
     public function loadXMLArchive(){
         $this->errors->debug_trace(array('message' => 'Starting Archive Load', 'file' => __FILE__, 'line' => __LINE__));
+        if($this->fail){
+            return;
+        }
 		$this->articles = NewsItem::getNewsList($_FILES['archive']['tmp_name'], "html");
         $this->ImportCategories();
         $this->runLoop();
@@ -55,11 +65,13 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         $archive = new BraftonArticleLoader();
         $archive->loadXMLArchive();
     }
-    //Imports complete list of categories with child categories.
-    //TODO: Still need to create algorythm for joining the sames in a string to search for matches of parent child categories for use with the same child name as other child names.  all child categories that are in the db after the first imported one take on the parent slug as an appended variable to the child name turned into a slug.
+    // XML feed only handles 1 level of child categories.
     public function ImportCategories(){
         $this->errors->set_section('Importing Categories');
         $this->errors->debug_trace(array('message' => 'Importing Article Categories', 'file' => __FILE__, 'line' => __LINE__));
+        if($this->fail){
+            return;
+        }
         $CatColl = $this->connection->getCategoryDefinitions();
         $custom_cat = explode(',',$this->options['braftonCustomArticleCategories']);
         // Check for custom category/tag names.
