@@ -104,10 +104,9 @@ class BraftonErrorReport {
     }
     //workhorse of the error reporting.  This function does the heavy lifting of logging the error and sending an error report
     public function log_exception( Exception $e ){
-        //assigns values for missing arguments on custom exceptions from the api libarary
         $errorLevel = method_exists($e,'getseverity')? $e->getseverity(): 2;
         $errorLevel = $e->getMessage() == 'Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time'? 1 : $errorLevel;
-        //if errorLevel == 1 (script stop running error) and the error was not part of one of the below know issues for those pages runs error reporting. 
+
         if ( ($errorLevel == 1) || ($this->debug) && ($this->check_known_errors($e)) ){
 
             $errorlog = $this->make_local_report($e, $errorLevel);
@@ -137,7 +136,7 @@ class BraftonErrorReport {
             $this->log_error( $error["type"], $error["message"], $error["file"], $error["line"] );
     }
     
-    public function debug_trace($msg){
+    public function debug_trace($msg){    
         if(!$this->debug){
             return;
         }
@@ -145,7 +144,7 @@ class BraftonErrorReport {
         $brafton_error = $this->b_e_log();
         $debug_trace = array(
                 'client_sys_time'  => date(get_option('date_format')) . " " . date("H:i:s"),
-                'error' => 'Debug Tace : '. $this->level . ' | '.$msg['message'].' in '. $msg['file'] . ' on line '. $msg['line'] . ' in section '
+                'error' => 'Debug Tace : '.$msg['message'].' in '. $msg['file'] . ' on line '. $msg['line'] . ' in section ' . $this->section
                 );
         $brafton_error[] = $debug_trace;
         update_option('brafton_e_log', $brafton_error);        
