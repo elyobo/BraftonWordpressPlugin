@@ -80,6 +80,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
             foreach($c->child as $child){
                 $childName = $child['name'];
                 $c_id = wp_insert_term($child['name'], $category_name, array('parent' => $parent));
+                
             }
         }
         foreach($custom_cat as $cat){
