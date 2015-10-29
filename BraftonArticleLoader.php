@@ -16,6 +16,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         $this->API_Domain = 'http://'.$this->options['braftonApiDomain'];
         $this->API_Key = $this->options['braftonApiKey'];
         $this->connection = new ApiHandler($this->API_Key, $this->API_Domain);
+        add_action('init', array($this, 'myplugin'));
         
     }
     //method for full import of articles
@@ -35,10 +36,55 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     public function getArticleFeed(){
         $this->articles = $this->connection->getNewsHTML();
     }
+    public function myplugin(){
+        echo get_current_blog_id();
+        $args = array(
+	'type'                     => 'post',
+	'child_of'                 => 0,
+	'parent'                   => '',
+	'orderby'                  => 'name',
+	'order'                    => 'ASC',
+	'hide_empty'               => 1,
+	'hierarchical'             => 1,
+	'exclude'                  => '',
+	'include'                  => '',
+	'number'                   => '',
+	'taxonomy'                 => 'category',
+	'pad_counts'               => false 
+
+); 
+        $cats = get_categories($args);
+        $terms = get_terms('category');
+        echo '<pre>';
+        var_dump($cats);
+        var_dump($terms);
+        echo '</pre>';
+    }
     //Imports complete list of categories with child categories.  
     //TODO: Still need to create algorythm for joining the sames in a string to search for matches of parent child categories for use with the same child name as other child names.  all child categories that are in the db after the first imported one take on the parent slug as an appended variable to the child name turned into a slug.
     public function ImportCategories(){
- 
+        echo get_current_blog_id();
+        $args = array(
+	'type'                     => 'post',
+	'child_of'                 => 0,
+	'parent'                   => '',
+	'orderby'                  => 'name',
+	'order'                    => 'ASC',
+	'hide_empty'               => 1,
+	'hierarchical'             => 1,
+	'exclude'                  => '',
+	'include'                  => '',
+	'number'                   => '',
+	'taxonomy'                 => 'category',
+	'pad_counts'               => false 
+
+); 
+        $cats = get_categories($args);
+        $terms = get_terms();
+        echo '<pre>';
+        var_dump($cats);
+        var_dump($terms);
+        echo '</pre>';
         $this->errors->set_section('Importing Categories');
         $CatColl = $this->connection->getCategoryDefinitions();
         $custom_cat = explode(',',$this->options['braftonCustomCategories']);
@@ -56,7 +102,6 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     }
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($obj){
-
         $this->errors->set_section('assign categories');
         $cats = array();
         $CatColl = $obj->getCategories();
@@ -76,7 +121,31 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     }
     //Assigns the tags based on the option selected for the importer
     private function assignTags($obj){
-        
+        $this->errors->set_section('assign Tags');
+        $tags = array();
+        if($this->options['braftonTags'] != 'none_tags'){
+            switch($this->options['braftonTags']){
+                case 'keywords':
+                $TagColl = $obj->getKeywords();
+                $TagColl = explode(',', $TagColl);
+                break;
+                case 'cats':
+                $TagColl = $obj->getCategories();
+                break;
+                default:
+                $TagColl = $obj->getTags();
+                $TagColl = explode(',', $TagColl);
+                break;
+            }
+            foreach($TagColl as $tag){
+                $tags[] = esc_sql($tag);
+            }
+        }
+        $custom_tags = explode(',', $this->options['braftonCustomTags']);
+        foreach($custom_tags as $tag){
+            $tags[] = esc_sql($tag);
+        }
+        return $tags;
     }
     private function cleanseString($m){
         return "'<' . strtolower('$m')";

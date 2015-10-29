@@ -71,12 +71,36 @@ class BraftonWordpressPlugin {
             $marpro = new BraftonMarpro();
         }
     }
-    public function BraftonActivation(){
+    private function _BraftonActivation(){
         $option_init = BraftonOptions::ini_BraftonOptions();
         $staticKey = BraftonOptions::getSingleOption('braftonApiKey');
         $staticBrand =  BraftonOptions::getSingleOption('braftonApiDomain');
         $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
         add_option('BraftonRegister', $option);
+        if($this->options['braftonArticleStatus']){
+            //importer is set to go off 2 minutes after it is enabled than hourly after that
+            $schedule = wp_schedule_event(time()+120, 'hourly', 'braftonSetUpCron');
+        }
+        if($this->options['braftonVideoStatus']){
+            //importer is set to go off 2 minutes after it is enabled than daily after that
+            $schedule = wp_schedule_event(time()+120, 'twicedaily', 'braftonSetUpCronVideo');
+        }
+    }
+    public function BraftonActivation($network){
+        global $wpdb;
+        if(function_exists('is_multisite') && is_multisite()){
+            if($network){
+                $main_blog = $wpdb->blogid;
+                $blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+                foreach($blogids as $blog_id){
+                    switch_to_blog($blog_id);
+                    $this->_BraftonActivation();
+                }
+                switch_to_blog($main_blog);
+                return;
+                }
+            }
+        $this->_BraftonActivation();
     }
     
     public function BraftonDeactivation(){
@@ -96,14 +120,14 @@ class BraftonWordpressPlugin {
         $brand = BraftonOptions::getSingleOption('braftonApiDomain');
         $brand = switchCase($brand);
         //new admin menu
-        add_menu_page('Brafton Article Loader', "{$brand} Content Importer", 'update_plugins','BraftonArticleLoader', 'admin_page','dashicons-download', 81);
-        add_submenu_page('BraftonArticleLoader', 'Brafton Article Loader', 'General Options', 'update_plugins', 'BraftonArticleLoader', 'admin_page');
-        add_submenu_page('BraftonArticleLoader', 'Article Options', 'Article Options', 'update_plugins', 'BraftonArticleLoader&tab=1', 'admin_page');
-        add_submenu_page('BraftonArticleLoader', 'Video Options', 'Video Options', 'update_plugins', 'BraftonArticleLoader&tab=2', 'admin_page');
-        add_submenu_page('BraftonArticleLoader', 'Pumpkin Options', 'Pumpkin Options', 'update_plugins', 'BraftonArticleLoader&tab=3', 'admin_page');
-        add_submenu_page('BraftonArticleLoader', 'Archives', 'Archives', 'update_plugins', 'BraftonArticleLoader&tab=4', 'admin_page');
-        add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'update_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
-        add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'update_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
+        add_menu_page('Brafton Article Loader', "{$brand} Content Importer", 'activate_plugins','BraftonArticleLoader', 'admin_page','dashicons-download');
+        add_submenu_page('BraftonArticleLoader', 'Brafton Article Loader', 'General Options', 'activate_plugins', 'BraftonArticleLoader', 'admin_page');
+        add_submenu_page('BraftonArticleLoader', 'Article Options', 'Article Options', 'activate_plugins', 'BraftonArticleLoader&tab=1', 'admin_page');
+        add_submenu_page('BraftonArticleLoader', 'Video Options', 'Video Options', 'activate_plugins', 'BraftonArticleLoader&tab=2', 'admin_page');
+        add_submenu_page('BraftonArticleLoader', 'Pumpkin Options', 'Pumpkin Options', 'activate_plugins', 'BraftonArticleLoader&tab=3', 'admin_page');
+        add_submenu_page('BraftonArticleLoader', 'Archives', 'Archives', 'activate_plugins', 'BraftonArticleLoader&tab=4', 'admin_page');
+        add_submenu_page('BraftonArticleLoader', 'Error Logs', 'Error Logs', 'activate_plugins', 'BraftonArticleLoader&tab=5', 'admin_page');
+        add_submenu_page('BraftonArticleLoader', 'Run Importers', 'Run Importers', 'activate_plugins', 'BraftonArticleLoader&tab=6', 'admin_page');
     }
     static function BraftonRestyle(){
     $static = BraftonOptions::getSingleOption('braftonRestyle');

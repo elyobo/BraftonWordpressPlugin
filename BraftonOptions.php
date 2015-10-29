@@ -72,6 +72,13 @@ class BraftonOptions {
         }
         //Checks for the previously used type of options from any importer "Black Eye" or older and forms those options into an array to merge with new array.  This maintains many of the new settings from the old importer versions while maintaining integrity of the new versions
         elseif(get_option('braftonxml_domain')){
+            //get article status
+            $braftonxml_video = get_option("braftonxml_video");
+            $article = ($braftonxml_video == 'off' || $braftonxml_video == 'both')? 1 : 0;
+            $video = ($braftonxml_video == 'on' || $braftonxml_video == 'both')? 1 : 0;
+            $stat = ($article || $video)? 1 : 0;
+            $headerScript = get_option('brafton_video_embed');
+            $headerchoice = ($headerScript == 'videojs')? $headerScript : 'atlantisjs';
             $old_options = array(
             'braftonDebugger'           => 0,
             'braftonCategories'         => get_option("braftonxml_sched_cats"),
@@ -79,31 +86,31 @@ class BraftonOptions {
             'braftonTags'               => get_option("braftonxml_sched_tags"),
             'braftonCustomTags'         => get_option("braftonxml_sched_tags_input"),
             'braftonPublishDate'        => get_option("braftonxml_publishdate"),
-            'braftonImporterUser'       => '',
-            'braftonStatus'             => 0,
+            'braftonImporterUser'       => 'admin',
+            'braftonStatus'             => $stat,
             'braftonClearLog'           => 0,
             'braftonApiDomain'          => get_option("braftonxml_domain"),
             'braftonApiKey'             => get_option("braftonxml_sched_API_KEY"),
             'braftonUpdateContent'      => 0,
             'braftonArticleDynamic'     => get_option("braftonxml_dynamic_author"),
             'braftonArticleAuthorDefault'   => get_option("braftonxml_default_author"),
-            'braftonArticleStatus'      => 0,
+            'braftonArticleStatus'      => $article,
             'braftonArticlePostType'    => 0,
             'braftonArchiveImporterStatus'  => 0,
-            'braftonVideoStatus'        => 0,
+            'braftonVideoStatus'        => $video,
             'braftonVideoPublicKey'     => get_option("braftonxml_videoPublic"),
             'braftonVideoPrivateKey'    => get_option("braftonxml_videoSecret"),
             'braftonVideoFeed'          => 0,
-            'braftonVideoHeaderScript'  => 'atlantisjs',
+            'braftonVideoHeaderScript'  => $headerchoice,
             'braftonImportJquery'       => 'off',
             'braftonVideoCSS'           => 'off',
             'braftonVideoCTA'           => array(
-                    'pausedText'            => '',
-                    'pausedLink'            => '',
-                    'endingTitle'           => '',
-                    'endingSubtitle'        => '',
-                    'endingButtonText'      => '',
-                    'endingButtonLink'      => ''
+                    'pausedText'            => get_option("brafton_pause_txt"),
+                    'pausedLink'            => get_option("brafton_pause_link"),
+                    'endingTitle'           => get_option("brafton_endcta_title"),
+                    'endingSubtitle'        => get_option("brafton_endcta_subtitle"),
+                    'endingButtonText'      => get_option("brafton_endcta_btnlink"),
+                    'endingButtonLink'      => get_option("brafton_endcta_btntxt")
                     ),
             'braftonMarproStatus'       => 'off',
             'braftonMarproId'           => '',

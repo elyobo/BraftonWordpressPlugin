@@ -6,6 +6,7 @@ global $brand;
 $brand = BraftonOptions::getSingleOption('braftonApiDomain');
 $brand = switchCase($brand);
 ?>
+<link rel="stylesheet" href="<?php echo plugin_dir_url( __FILE__ ) .'css/BraftonAdminCSS.css'; ?>" />
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
