@@ -24,7 +24,7 @@ class ApiHandler {
     private $newsUrl;
     private $categoryUrl;
     private $commentUrl;
-    private $feedName;	 
+    private $feedName;
 
     public function __construct($API_KEY, $apiUrl){
         $this->API_KEY = $API_KEY;
