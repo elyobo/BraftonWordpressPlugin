@@ -6,12 +6,13 @@
  * @version     2.0.1
  *
  */
+require_once(ABSPATH . 'wp-includes/rewrite.php');
 include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 include_once(ABSPATH . 'wp-admin/includes/taxonomy.php');
 require_once(ABSPATH . 'wp-admin/includes/media.php');
 require_once(ABSPATH . 'wp-admin/includes/file.php');
 require_once(ABSPATH . 'wp-admin/includes/image.php');
-//require_once(ABSPATH.'wp-includes/rewrite.php');
+
 class BraftonFeedLoader {
     
     public $options;
@@ -22,43 +23,56 @@ class BraftonFeedLoader {
     public $override;
     public $publishDate;
     public $publish_status;
-    
+    public $fail = false;
     public function __construct(){
         include_once(ABSPATH . 'wp-includes/pluggable.php');
         $option_ini = new BraftonOptions();
         $this->options = $option_ini->getAll();
-        $this->errors = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
+        $this->errors = new BraftonErrorReport($this->options['braftonApiKey'],$this->options['braftonApiDomain'], $this->options['braftonDebugger']);
         $this->upload_array = wp_upload_dir();
         $this->override = $this->options['braftonUpdateContent'];
         $this->publishDate = $this->options['braftonPublishDate'];
         $this->publish_status = $this->options['braftonPostStatus'];
         $this->ch = curl_init();
         $this->user = get_user_by('login', $this->options['braftonImporterUser']);
-        wp_set_current_user($this->user->ID);
-        
+        if($this->user){
+            wp_set_current_user($this->user->ID);
+        }else{
+            trigger_error('Importer User is not set or wordpress could not retrieve the user ID.  Certain content may not import properly', E_USER_NOTICE);   
+        }
+        include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        if(is_plugin_active('sitepress-multilingual-cms/sitepress.php')){
+            add_action('brafton_article_after_save_hook', array($this,'wpml_support'),10, 2);
+        }
         
     }
     //checks if the article exsists already. Return null if it doesn't return the post id if it does.
     public function  brafton_post_exists($brafton_id){
+        $loop = $this->errors->get_section();
+        $this->errors->set_section('checking for existing Brafton ID '.$brafton_id);
         global $wpdb;
-        //var_dump($args);
+        
         $post_id = null;
         $results = $wpdb->get_results( "select post_id, meta_key from $wpdb->postmeta where meta_key = 'brafton_id' AND meta_value = $brafton_id", ARRAY_A );
         
         if($results){
             $post_id = $results[0]['post_id'];
+            
         }
+        $this->errors->set_section($loop);
         return $post_id;
     }
     
     //dynamic Author Check
     public function checkAuthor($author, $byLine){
-        
+        $loop = $this->errors->get_section();
+        $this->errors->set_section("Checking for $byLine as author");
         if($author == 'n' ){
             $author = $this->options['braftonArticleAuthorDefault'];
         }
         else{
             if(empty($byLine)){$author = $this->options['braftonArticleAuthorDefault'];return $author; }
+            $this->errors->debug_trace(array('message' => 'Adding new Author to Wordpress for '. $byLine, 'file' => __FILE__, 'line' => __LINE__));
             if(!(username_exists($byLine))){
                 $pass = wp_generate_password(12,false);
                 $author = wp_create_user($byLine, $pass, $byLine.rand().'@example.com');
@@ -68,6 +82,7 @@ class BraftonFeedLoader {
                 $author = $user->ID;
             }
         }
+        $this->errors->set_section($loop);
         return $author;
     }
     public function getPostDate($article){
@@ -92,7 +107,8 @@ class BraftonFeedLoader {
     }
     public function image_download($post_image, $post_id, $image_id, $image_alt, $image_caption){
         //Set the section for error reporting
-        $this->errors->set_section('image_download');
+        $loop = $this->errors->get_section();
+        $this->errors->set_section('Downloading Image');
         //Download the image to the temp folder for preperation as a fake $_FILE
         $temp_file = download_url($post_image);
         $wp_filetype = wp_check_filetype(basename($post_image), NULL);
@@ -128,13 +144,21 @@ class BraftonFeedLoader {
         $attach_data = wp_generate_attachment_metadata($attach_id, $up_dir);
         wp_update_attachment_metadata($attach_id, $attach_data);
         update_post_meta($post_id, '_thumbnail_id', $attach_id);
-                        
+        $this->errors->set_section($loop);
     }
     public function add_needed_meta($post_id, $meta_array){
+        $loop = $this->errors->get_section();
         $this->errors->set_section('assign meta data');
         foreach($meta_array as $field => $value){
             update_post_meta($post_id, $field, $value);   
         }
+        $this->errors->set_section($loop);
+    }
+    
+    static function wpml_support($post_id, $article){     
+        include_once( WP_PLUGIN_DIR . '/sitepress-multilingual-cms/inc/wpml-api.php' );
+        $_POST['icl_post_language'] = $language_code = 'en'; // change the language code
+        wpml_add_translatable_content( 'post_post', $post_id, $language_code );
     }
 }
 ?>

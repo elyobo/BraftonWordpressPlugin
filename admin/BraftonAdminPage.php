@@ -41,7 +41,7 @@ jQuery( document ).tooltip();
         <li><a href="#tab-1">General Settings</a></li>
         <li><a href="#tab-2">Articles</a></li>
         <li><a href="#tab-3">Videos</a></li>
-        <li><a href="#tab-4">Pumpkin</a></li>
+        <li><a href="#tab-4">ARCH</a></li>
         <li><a href="#tab-5">Archives</a></li>
         <li><a href="#tab-6">Error Logs</a></li>
         <li><a href="#tab-7">Manual Control</a></li>
@@ -80,7 +80,6 @@ jQuery( document ).tooltip();
     settings_fields( 'brafton_error_options' );
     do_settings_sections( 'brafton_error' );
     submit_button('Save Errors');
-    submit_button('Download Error Log');
     echo '</form>';
     echo '</div>';
     echo '<div id="tab-7" class="tab-7">';

@@ -70,7 +70,14 @@ input[type=submit]{
 .brafton_tt:hover{
     cursor:pointer;
 }
+#show_hide, #show_hide_cta{
+    color:blue;
+    text-decoration:underline;
+    font-size:.85em;
+    cursor:pointer;
+}
 .b_e_display{
+    display:none;
     box-sizing:border-box;
     width:100%;
     max-width:425px;
@@ -79,6 +86,9 @@ input[type=submit]{
     font-size:10px;
     border: 1px solid #CCC;
     padding:10px;
+}
+.b_v_cta{
+    display:none;
 }
 .form-table{
     font-size: 14px !important;

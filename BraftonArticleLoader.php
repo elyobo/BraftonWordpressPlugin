@@ -1,6 +1,7 @@
 <?php
 require 'libs/APIClientLibrary/ApiHandler.php';
-
+// 45b8688e-c6bd-4335-8633-0cbf497b71af
+// 528a432c-2f60-4dc8-80fe-4cebc1fe25ca
 class BraftonArticleLoader extends BraftonFeedLoader {
     //set as costants instead
     private $API_Domain;
@@ -9,18 +10,26 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     private $fh;
     private $counter;
     private $connection;
+    
 
     public function __construct(){
         parent::__construct();
         //set the url and api key for use during the entire run.
         $this->API_Domain = 'http://'.$this->options['braftonApiDomain'];
         $this->API_Key = $this->options['braftonApiKey'];
+        if($this->API_Key == 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' || $this->API_Key == ''){
+            trigger_error('You have not set your API key');
+            $this->fail = true;
+            return;
+        }
+        $this->errors->set_section('Connect to XML Feed @ '.$this->API_Domain.'/'.$this->API_Key);
         $this->connection = new ApiHandler($this->API_Key, $this->API_Domain);
-
     }
     //method for full import of articles
     public function ImportArticles(){
-
+        if($this->fail){
+            return;
+        }
         //Gets the feed for importing
         $this->getArticleFeed();
         //Gets the complete category tree and adds any new categories
@@ -29,12 +38,16 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         $this->runLoop();
     }
     public function loadXMLArchive(){
-        echo "Archive Option Selected<br/>";
+        $this->errors->debug_trace(array('message' => 'Starting Archive Load', 'file' => __FILE__, 'line' => __LINE__));
+        if($this->fail){
+            return;
+        }
 		$this->articles = NewsItem::getNewsList($_FILES['archive']['tmp_name'], "html");
         $this->ImportCategories();
         $this->runLoop();
     }
     public function getArticleFeed(){
+        $this->errors->debug_trace(array('message' => 'Retrieving Article Feed XML', 'file' => __FILE__, 'line' => __LINE__));
         $this->articles = $this->connection->getNewsHTML();
     }
 
@@ -52,13 +65,15 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         $archive = new BraftonArticleLoader();
         $archive->loadXMLArchive();
     }
-    //Imports complete list of categories with child categories.
-    //TODO: Still need to create algorythm for joining the sames in a string to search for matches of parent child categories for use with the same child name as other child names.  all child categories that are in the db after the first imported one take on the parent slug as an appended variable to the child name turned into a slug.
+    // XML feed only handles 1 level of child categories.
     public function ImportCategories(){
         $this->errors->set_section('Importing Categories');
+        $this->errors->debug_trace(array('message' => 'Importing Article Categories', 'file' => __FILE__, 'line' => __LINE__));
+        if($this->fail){
+            return;
+        }
         $CatColl = $this->connection->getCategoryDefinitions();
         $custom_cat = explode(',',$this->options['braftonCustomArticleCategories']);
-
         // Check for custom category/tag names.
         if( $this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingCategory'] != ''){
             $category_name = $this->options['braftonArticleExistingCategory'];
@@ -66,12 +81,18 @@ class BraftonArticleLoader extends BraftonFeedLoader {
             $category_name = 'category';
         }
 
-
         foreach ($CatColl as $c){
-                $category = esc_sql($c->getName());
+            $category = esc_sql($c->getName());
+            if($cat_id = get_term_by('name', htmlentities($category), $category_name)){
+                $parent = $cat_id->term_id;
+            }else{
                 $cat_id = wp_insert_term($category, $category_name);
+                $parent = $cat_id['term_id'];
+            }          
             foreach($c->child as $child){
-                wp_insert_term($child['name'], $category_name, array('parent' => $cat_id));
+                $childName = $child['name'];
+                $c_id = wp_insert_term($child['name'], $category_name, array('parent' => $parent));
+                
             }
         }
         foreach($custom_cat as $cat){
@@ -80,11 +101,22 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     }
 
 
-
+    private function category_search($name, $taxonomy){
+        $CatColl = $this->connection->getCategoryDefinitions();
+        foreach($CatColl as $cat){
+            if($slugObj = get_term_by('slug', $name.'-'.$cat->getName(), $taxonomy)){
+                   return $slugObj->term_id;
+            }
+        }
+        $slugObj = get_term_by('slug', $name, $taxonomy);
+        return $slugObj->term_id;
+    }
+    
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($obj){
-
+        $loop = $this->errors->get_section();
         $this->errors->set_section('assign categories');
+        
         $cats = array();
         $CatColl = $obj->getCategories();
         $custom_cat = explode(',',$this->options['braftonCustomArticleCategories']);
@@ -99,8 +131,9 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         if($this->options['braftonCategories'] == 'categories'){
             foreach($CatColl as $cat){
                 //$slugObj = get_category_by_slug(esc_sql($cat->getName()));
-                $slugObj = get_term_by('slug', esc_sql($cat->getName()), $category_name);
-                $cats[] = $slugObj->term_id;
+                //$slugObj = get_term_by('slug', esc_sql($cat->getName()), $category_name);
+                //$cats[] = $slugObj->term_id;
+                $cats[] = $this->category_search(esc_sql($cat->getName()), $category_name);
             }
         }
         foreach($custom_cat as $cat){
@@ -109,14 +142,14 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $cats[] = $slugObj->term_id;
             }
         }
-
-
-
+        $this->errors->set_section($loop);
         return $cats;
     }
     //Assigns the tags based on the option selected for the importer
     private function assignTags($obj){
+        $loop = $this->errors->get_section();
         $this->errors->set_section('assign Tags');
+        
         $tags = array();
         if($this->options['braftonTags'] != 'none_tags'){
             switch($this->options['braftonTags']){
@@ -140,23 +173,24 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         foreach($custom_tags as $tag){
             $tags[] = esc_sql($tag);
         }
+        $this->errors->set_section($loop);
         return $tags;
     }
     private function cleanseString($m){
         return "'<' . strtolower('$m')";
     }
     public function runLoop(){
+        $this->errors->set_section('Master Article loop');
+        $this->errors->debug_trace(array('message' => 'Starting Import of Articles', 'file' => __FILE__, 'line' => __LINE__));
         $list = array();
         global $level, $post, $wp_rewrite;
-        $this->errors->set_section('master loop');
         $article_count = count($this->articles);
         $counter = 0;
         foreach($this->articles as $article){//start individual article loop
-            if($counter == 30){ return; }
             $brafton_id = $article->getId();
             if(!($post_id = $this->brafton_post_exists($brafton_id)) || $this->override){//Start actual importing
                 if($counter == $this->options['braftonArticleLimit']){ return; }
-                $this->errors->set_section('individual article loop');
+                $this->errors->set_section('Individual article loop. run: '.$counter);
                 set_time_limit(60);
                 $post_title = $article->getHeadline();
 
@@ -174,11 +208,13 @@ class BraftonArticleLoader extends BraftonFeedLoader {
 		        $post_image_caption = NULL;
                 if (!empty($photos))
                 {
+                    $this->errors->debug_trace(array('message' => 'Photos for Article exists', 'file' => __FILE__, 'line' => __LINE__));
                     if ($photo_option == 'large') //Large photo
                         $image = $photos[0]->getLarge();
 
                     if (!empty($image))
                     {
+                        $this->errors->debug_trace(array('message' => 'Found individual Large Photo', 'file' => __FILE__, 'line' => __LINE__));
                         $post_image = $image->getUrl();
                         $post_image_caption = $photos[0]->getCaption();
                         $image_id = $photos[0]->getId();
@@ -191,7 +227,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $post_date_gmt = $post_date_array[0];
 
                 $compacted_article = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_status', 'post_excerpt');
-
+                
                 // Check for custom category name.
                 if($this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingCategory'] != ''){
                     $category_name = $this->options['braftonArticleExistingCategory'];
@@ -207,23 +243,28 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 //$compacted_article['post_category'] = $this->assignCategories($article);
                 //$compacted_article['tags_input'] = $this->assignTags($article);
                 $the_categories = $this->assignCategories($article);
+                $this->errors->set_section('Main article loop');
                 $the_tags = $this->assignTags($article);
+                $this->errors->set_section('Main article loop');
                 if($this->options['braftonArticlePostType']){
                     $compacted_article['post_type'] = 'blog_content';
-                    //$compacted_article['tax_input'] = array('category' => $compacted_article['post_category'], 'post_tag' => $compacted_article['tags_input']);
+                    
                 }
                 // Load Brafton articles as pre-existing post type if specified
                 elseif($this->options['braftonArticleExistingPostType']) {
                     $compacted_article['post_type'] = $this->options['braftonArticleExistingPostType'];
-                    //$compacted_article['tax_input'] = array('blog-category' => $compacted_article['post_category'], 'blog-tag' => $compacted_article['tags_input']);
-                }
+   
+                }    
+
                 $compacted_article['tax_input'] = array($category_name => $the_categories, $tag_name => $the_tags);
 
                 if($post_id){//If the post existed but we are overriding values
+                    $this->set_section('Updating Article with ID: '.$post_id);
                     $compacted_article['ID'] = $post_id;
                     $post_id = wp_update_post($compacted_article);
                 }
                 else{//if the post doesn't exists we add it to the database
+                    $this->errors->set_section('Inserting New Article');
                     $post_id = wp_insert_post($compacted_article);
                     // Extra work to set custom tags.
                     wp_set_object_terms($post_id, $the_tags, $tag_name);
@@ -245,6 +286,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     ));
                 }
                 $this->add_needed_meta($post_id, $meta_array);
+
                 //update_post_meta($post_id, 'brafton_id', $brafton_id);
                 if($post_image != 'NULL' && $post_image != NULL){
                     $temp_name = $this->image_download($post_image, $post_id, $image_id, $image_alt, $post_image_caption);
@@ -266,15 +308,16 @@ class BraftonArticleLoader extends BraftonFeedLoader {
 
         }//end individual article loop
         $list['counter'] = $counter;
-        //if($list['counter']){
             echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
                 echo '<h3>'.$list['counter'].' Articles Imported</h3>';
+        if($list['counter']){
             foreach($list['titles'] as $item => $title){
                 echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
             }
+        }
             echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
             echo '</div>';
-        //}
+        
     }
 
 }

@@ -17,13 +17,66 @@ function settingsValidate(){
         validate = false;
         alert('You have choosen to use the importers custom post type of "blog_content" but have not entered a url slug');
     }
+    if($('input[name="braftonStatus"]:checked').val() == 1 && $('input[name="braftonRemoteOperation"]:checked').val() == 1){
+        validate = false;
+        alert('You have turned on Remote Operation however have not turned off Automatic Import.  Please turn Off one of these options before saving');
+    }
     if($('#braftonArticleExistingPostType:checked').val()){
            $('input[name="braftonArticleExistingCategory"]').val() = '';
            $('input[name="braftonArticleExistingTag"]').val() = '';
     }
     return validate;
 }
+
+function premium(e){
+    var $ = jQuery;
+    if($('input[name="braftonEnableCustomCSS"]:checked').val() == 1){
+        $('.braftonCustomCSS').css({display: 'block'});
+        $('#tab-2 table.form-table tr').each(function(e){
+            if(e > 1){
+                $(this).css({display: 'none'});
+            }
+        });
+    }else if($('input[name="braftonEnableCustomCSS"]:checked').val() == 2){
+        $('.braftonCustomCSS').css({display: 'none'}); 
+        $('#tab-2 table.form-table tr').each(function(e){
+            if(e > 1){
+                $(this).css({display: 'table-row'});
+            }
+        });
+    }else{
+        $('#tab-2 table.form-table tr').each(function(e){
+            if(e > 1){
+                $(this).css({display: 'none'});
+            }
+        });
+        $('.braftonCustomCSS').css({display: 'none'}); 
+    }
+}
 jQuery(document).ready(function($){
+        if($('input[name="braftonEnableCustomCSS"]').length != 0){
+            premium(null);
+        }
+        $('input[name="braftonEnableCustomCSS"]').map(function(e){
+            $(this).change(function(e){
+                premium(e);
+            });
+        });
+    
+    $('#show_hide').toggle(function(e){
+        $(this).html('(Hide Log)');
+       $('.b_e_display').show();
+    },function(e){
+        $(this).html('(Show Log)');
+        $('.b_e_display').hide();
+    });
+    $('#show_hide_cta').toggle(function(e){
+       $(this).html('(Hide Settings)');
+        $('.b_v_cta').show();
+    }, function(e){
+        $(this).html('(Show Settings)');
+        $('.b_v_cta').hide();
+    });
     if($('#brafton-end-button-preview')){
         var count = $('.braftonPositionInput');
         var cor = $('.braftonPositionInput').map(function(){

@@ -31,7 +31,6 @@ class XMLHandler {
     $feed_string = curl_exec($ch);
     
 		if(!$this->doc->loadXML($feed_string)) {
-			echo $url."<br>";
 			throw new XMLLoadException($url);
 		}
 

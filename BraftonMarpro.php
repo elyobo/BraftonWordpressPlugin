@@ -16,7 +16,7 @@ class BraftonMarpro {
 	(function(w,pk){var s=w.createElement('script');s.type='text/javascript';s.async=true;s.src='//pumpkin$domain/pumpkin.js';var f=w.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);if(!pk.__S){window._pk=pk;pk.__S = 1.1;}pk.host='conversion$domain';pk.clientId='$marproId';})(document,window._pk||[])}
 </script>
 EOC;
-        if($static == 'on'){
+        if($static == 'on' ){
             echo $pumpkin;   
         }
     }
@@ -88,7 +88,7 @@ class CallToAction_Widget extends WP_Widget {
             <input class="widefat" id="<?php echo $this->get_field_id('linktext'); ?>" name="<?php echo $this->get_field_name('linktext'); ?>" type="text" value="<?php echo $linktext; ?>"/>
         </p>
         <p>
-            <label for="<?php echo $this->get_field_id('marpro'); ?>"><?php _e('Marpro Form ID', 'cta_widget_plugin'); ?><span class="call-to-action-info">*If usign marpro form be sure link field is set to 'javascript:void(0)'</span> </label>
+            <label for="<?php echo $this->get_field_id('marpro'); ?>"><?php _e('Arch Form ID', 'cta_widget_plugin'); ?><span class="call-to-action-info">*If using Arch form be sure link field is set to 'javascript:void(0)'</span> </label>
             <input class="widefat" id="<?php echo $this->get_field_id('marpro'); ?>" name="<?php echo $this->get_field_name('marpro'); ?>" type="text" value="<?php echo $marpro; ?>"/>
         </p>
         <p>

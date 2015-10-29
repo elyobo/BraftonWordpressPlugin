@@ -18,14 +18,10 @@ class BraftonOptions {
     private $ser_options;
 
     public function __construct(){
-        //registers the hook for when the plugin is activated.  This method can be instantiated on its own again if needed.
-        //$this->ini_BraftonOptions();
-        //Gets the options stored in the database and stores the associative array in the $this->options
         $this->ser_options = get_option('BraftonOptions');
         $this->options = $this->ser_options;
     }
 
-    //This method checks for the existance of Brafton options.  If there are no Brafton Options it will initialize them all to start. If they already exsist return false. This method is only called when the plugin is activated with the the register_activation_hook().  It is the Second class to be called after BraftonErrors().
     static function ini_BraftonOptions(){
 
 
@@ -57,7 +53,8 @@ class BraftonOptions {
             'braftonVideoPublicKey'     => get_option("braftonxml_videoPublic", 'XXXXX'),
             'braftonVideoPrivateKey'    => get_option("braftonxml_videoSecret", 'XXXXXXXXXXX'),
             'braftonVideoFeed'          => 0,
-            'braftonVideoHeaderScript'  => 'atlantisjs',
+            'braftonVideoHeaderScript'  => 1,
+            'braftonVideoPlayer'        => BraftonOptions::determine_video(),
             'braftonImportJquery'       => 'off',
             'braftonVideoCSS'           => 'off',
             'braftonVideoCTA'           => array(
@@ -80,8 +77,8 @@ class BraftonOptions {
             'braftonMarproId'           => '',
             'braftonOpenGraphStatus'    => 'off',
             'braftonRestyle'            => 0,
-            'braftonArticleLimit'       => 30,
-            'braftonVideoLimit'         => 30,
+            'braftonArticleLimit'       => 15,
+            'braftonVideoLimit'         => 5,
             'braftonPauseColor'         => '',
             'braftonEndBackgroundcolor' => '',
             'braftonEndTitleColor'      => '',
@@ -104,7 +101,9 @@ class BraftonOptions {
             'braftonInlineImageWidth' => 25,
             'braftonInlineImageFloat' => 'left',
             'braftonInlineImageMargin'    => 5,
-            'braftonVideoOutput'        => 0
+            'braftonVideoOutput'        => 0,
+            'braftonRemoteOperation'    => 0,
+            'braftonRemoteTime'         => ''
             );
         //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
         if($old_options = get_option('BraftonOptions')){
@@ -113,6 +112,9 @@ class BraftonOptions {
         } else{
             add_option('BraftonOptions', $default_options);
         }
+        $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $default_options['braftonApiKey'], 'brand' => $default_options['braftonApiDomain'] )));
+        add_option('BraftonRegister', $option);
+        update_option('BraftonVersion', BRAFTON_VERSION);
 
     }
 
@@ -139,11 +141,6 @@ class BraftonOptions {
     //sets one option and saves that option to the database resets the $options array with the new data.  Note this will not affect any external variables currently holding the associative array returned previously.
     public function saveOption($option, $value){
         $this->options[$option] = $value;
-        /*
-        $this->saveAllOptions();
-        $this->ser_options = get_option('BraftonOptions');
-        $this->options = $this->ser_options;
-        */
         update_option('BraftonOptions', $this->options);
     }
     static function saveAllOptions(){
@@ -252,6 +249,20 @@ a.ajs-call-to-action-button:hover, a.ajs-call-to-action-button:visited{
 }
 EOT;
         return $css;
+    }
+    
+    static function determine_video(){
+        
+        $old_options = get_option('BraftonOptions', 0);
+        if(!$old_options){
+            return 'atlantisjs';
+        }
+        $player = isset($old_options['braftonVideoPlayer']) && $old_options['braftonVideoPlayer'] != NULL ? $old_options['braftonVideoPlayer'] : $old_options['braftonVideoHeaderScript'];
+        if($player != NULL){
+            return $player;
+        }
+        return 'atlantisjs';
+       
     }
 }
 ?>
