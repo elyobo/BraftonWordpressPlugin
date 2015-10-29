@@ -126,24 +126,36 @@ class BraftonWordpressPlugin {
 				</div>';
         
     }
-    public function BraftonActivation(){
+    private function _BraftonActivation(){
         $option_init = BraftonOptions::ini_BraftonOptions();
-        
-        //check for options that are turned on a activate the cron accordingly
-        if(BraftonOptions::getSingleOption('braftonArticleStatus')){
-            if(!wp_next_scheduled('braftonSetUpCron')){
-                wp_clear_scheduled_hook('braftonSetUpCron');
-                //importer is set to go off 2 minutes after it is enabled than hourly after that
-                $schedule = wp_schedule_event(time()+120, 'hourly', 'braftonSetUpCron');
-            }
+        $staticKey = BraftonOptions::getSingleOption('braftonApiKey');
+        $staticBrand =  BraftonOptions::getSingleOption('braftonApiDomain');
+        $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
+        add_option('BraftonRegister', $option);
+        if($this->options['braftonArticleStatus']){
+            //importer is set to go off 2 minutes after it is enabled than hourly after that
+            $schedule = wp_schedule_event(time()+120, 'hourly', 'braftonSetUpCron');
         }
-        if(BraftonOptions::getSingleOption('braftonVideoStatus')){
-            if(!wp_next_scheduled('braftonSetUpCronVideo')){
-                wp_clear_scheduled_hook('braftonSetUpCronVideo');
-                //importer is set to go off 2 minutes after it is enabled than daily after that
-                $schedule = wp_schedule_event(time()+120, 'twicedaily', 'braftonSetUpCronVideo');
-            }
+        if($this->options['braftonVideoStatus']){
+            //importer is set to go off 2 minutes after it is enabled than daily after that
+            $schedule = wp_schedule_event(time()+120, 'twicedaily', 'braftonSetUpCronVideo');
         }
+    }
+    public function BraftonActivation($network){
+        global $wpdb;
+        if(function_exists('is_multisite') && is_multisite()){
+            if($network){
+                $main_blog = $wpdb->blogid;
+                $blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+                foreach($blogids as $blog_id){
+                    switch_to_blog($blog_id);
+                    $this->_BraftonActivation();
+                }
+                switch_to_blog($main_blog);
+                return;
+                }
+            }
+        $this->_BraftonActivation();
     }
     
     public function BraftonDeactivation(){

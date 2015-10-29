@@ -16,6 +16,7 @@ $brand = switchCase($brand);
 <link rel="stylesheet" href="//code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
 <script src="//code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 
+
 <script>
 tab = <?php if(isset($_GET['tab'])){ echo $_GET['tab'];} else{ echo 0;}?>;
 jQuery(function() {

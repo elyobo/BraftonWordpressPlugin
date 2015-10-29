@@ -24,6 +24,11 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         }
         $this->errors->set_section('Connect to XML Feed @ '.$this->API_Domain.'/'.$this->API_Key);
         $this->connection = new ApiHandler($this->API_Key, $this->API_Domain);
+<<<<<<< HEAD
+=======
+        add_action('init', array($this, 'myplugin'));
+        
+>>>>>>> multi-compat
     }
     //method for full import of articles
     public function ImportArticles(){
@@ -115,6 +120,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($obj){
         $loop = $this->errors->get_section();
+
         $this->errors->set_section('assign categories');
         
         $cats = array();
@@ -149,7 +155,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     private function assignTags($obj){
         $loop = $this->errors->get_section();
         $this->errors->set_section('assign Tags');
-        
+
         $tags = array();
         if($this->options['braftonTags'] != 'none_tags'){
             switch($this->options['braftonTags']){
@@ -161,7 +167,6 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 break;
                 default:
                 $TagColl = $obj->getTags();
-
                 break;
             }
             $TagColl = explode(',', $TagColl);
@@ -174,6 +179,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
             $tags[] = esc_sql($tag);
         }
         $this->errors->set_section($loop);
+
         return $tags;
     }
     private function cleanseString($m){
