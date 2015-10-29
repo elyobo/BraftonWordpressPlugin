@@ -71,7 +71,10 @@ class BraftonErrorReport {
     }
     //upon error being thrown log_error fires off to throw an exception erro
     public function log_error( $num, $str, $file, $line, $context = null )
-    {
+    {   
+        if($str == 'Call to a member function getAttribute() on a non-object'){
+            $str = $str. " Couldn't retrieve either (news, comments, categoryDefinition)";
+        }
         $this->log_exception( new ErrorException( $str, 0, $num, $file, $line ) );
     }
     //retrieves the current error log from the db returns an array of current logs
@@ -84,7 +87,7 @@ class BraftonErrorReport {
             $brafton_error = get_option('brafton_e_log');
             $brafton = $brafton_error;
         }
-        return $brafton;
+        return $brafton; 
     }
     //Known minor Errors occuring from normal operation.
     public function check_known_errors($e){
@@ -109,25 +112,27 @@ class BraftonErrorReport {
     public function log_exception( Exception $e ){
         $errorLevel = method_exists($e,'getseverity')? $e->getseverity(): 2;
         $errorLevel = $e->getMessage() == 'Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time'? 1 : $errorLevel;
-
+        /*echo '<pre>';
+        var_dump($e);
+        echo '</pre>';
+        exit();
+        */
         if ( ($errorLevel == 1) || ($this->debug) && ($this->check_known_errors($e)) ){
 
             $errorlog = $this->make_local_report($e, $errorLevel);
             
             if($errorLevel == 1){ 
+                $append = '&b_error=vital';
                 $turn_on_debug = new BraftonOptions();
                 $turn_on_debug->saveOption('braftonDebugger', 1);
-                if($_GET['b_error'] == 'vital'){ return; }
                 if($this->domain != 'localhost'){
                     $this->send_remote_report($errorlog);
                 }
-                header("LOCATION:$this->url&b_error=vital");
+                if(isset($_GET['b_error']) && $_GET['b_error'] == 'vital'){ $append = ''; }
+                header("LOCATION:$this->url{$append}");
             }else {
                 return;
             }
-        }
-        else{
-            return;
         }
         return;
     }
@@ -143,7 +148,7 @@ class BraftonErrorReport {
         if(!$this->debug){
             return;
         }
-        if($this->level > 1){ return; }
+        if($this->level > 2){ return; }
         $brafton_error = $this->b_e_log();
         $debug_trace = array(
                 'client_sys_time'  => date(get_option('date_format')) . " " . date("H:i:s"),
