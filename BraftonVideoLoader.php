@@ -225,12 +225,21 @@ EOC;
 
         $feeds = $this->Client->Feeds();
         $feedList = $feeds->ListFeeds(0,10);
+        if($feedList->totalCount == 0){
+            trigger_error('No Feeds were returned. Check your Public and Private keys.');
+            $this->fail = true;
+            return;
+        }
         $this->feedId = $feedList->items[$this->FeedNum]->id;
 
         $articles = $this->Client->Articles();
         $this->ArticleList = $articles->ListForFeed($feedList->items[$this->FeedNum]->id, 'live', 0, 100);
         $this->ArticleCount = count($this->ArticleList->items);
-
+        if($this->ArticleList->totalCount == 0){
+            $this->errors->debug_trace(array('message' => 'There are currently no LIVE Videos in your feed', 'file'=>__FILE__, 'line' => __LINE__));
+            $this->fail = true;
+            return;
+        }
         //$categories var from old importer
         $this->ClientCategory = $this->Client->Categories();
 
@@ -248,6 +257,9 @@ EOC;
     public function ImportVideos(){
         //Gets the Video Feed
         $this->getvideoFeed();
+        if($this->fail){
+            return;
+        }
         //Gets the Categories
         $this->ImportCategories();
         //runs the actual loop
