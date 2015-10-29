@@ -436,7 +436,7 @@ EOT;
         if($static['braftonRemoteTime'] + 21600 > current_time('timestamp')){
             return;
         }
-        $remoteUrl = 'http://localhost/test/remote.php?';
+        $remoteUrl = 'http://updater.brafton.com/wp-remote/remote.php?';
         $siteUrl = site_url();
         $functions = $static['braftonArticleStatus'] ? 'articles,' : '';
         $functions .= $static['braftonVideoStatus'] ? 'videos' : '';
