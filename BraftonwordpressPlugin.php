@@ -3,7 +3,7 @@
 	Plugin Name: Content Importer
 	Plugin URI: http://www.brafton.com/support/wordpress
 	Description: Wordpress Plugin for Importing marketing content from Brafton, ContentLEAD, and Castleford Media Corp.  Support in line content, dynamic Authors, Updating and Error reporting. video requires php 5.3 or higher.
-	Version: 3.3.0
+	Version: 3.3.1
     Requires: 3.5
 	Author: Brafton, Inc.
 	Author URI: http://brafton.com/support/wordpress
@@ -31,7 +31,7 @@ include 'admin/BraftonAdminFunctions.php';
 include 'BraftonXML.php';
 include 'BraftonUpdate.php';
 
-define("BRAFTON_VERSION", '3.3.0');
+define("BRAFTON_VERSION", '3.3.1');
 
 define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
 define("BRAFTON_PLUGIN", dirname(__FILE__).'/BraftonwordpressPlugin.php');
@@ -65,8 +65,11 @@ class BraftonWordpressPlugin {
         register_activation_hook(__FILE__, array($this, 'BraftonActivation'));
         //fires when the plugin is deactivated
         register_deactivation_hook(__FILE__, array($this, 'BraftonDeactivation'));
+        if(function_exists('is_multisite') && is_multisite()){
+            add_action('wpmu_new_blog', array($this, 'BraftonMultisiteActivation'), 10,6);
+        }
         if(version_compare(get_option('BraftonVersion', 0), BRAFTON_VERSION, '!=')){
-            $option_init = BraftonOptions::ini_BraftonOptions();
+            BraftonOptions::ini_BraftonOptions();
         }
         //enable Featured Images if it isn't already
         if(!current_theme_supports('post-thumbnails')){
@@ -128,15 +131,12 @@ class BraftonWordpressPlugin {
     }
     private function _BraftonActivation(){
         $option_init = BraftonOptions::ini_BraftonOptions();
-        $staticKey = BraftonOptions::getSingleOption('braftonApiKey');
-        $staticBrand =  BraftonOptions::getSingleOption('braftonApiDomain');
-        $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $staticKey, 'brand' => $staticBrand )));
-        add_option('BraftonRegister', $option);
-        if($this->options['braftonArticleStatus']){
+
+        if(BraftonOptions::getSingleOption('braftonArticleStatus')){
             //importer is set to go off 2 minutes after it is enabled than hourly after that
             $schedule = wp_schedule_event(time()+120, 'hourly', 'braftonSetUpCron');
         }
-        if($this->options['braftonVideoStatus']){
+        if(BraftonOptions::getSingleOption('braftonVideoStatus')){
             //importer is set to go off 2 minutes after it is enabled than daily after that
             $schedule = wp_schedule_event(time()+120, 'twicedaily', 'braftonSetUpCronVideo');
         }
@@ -161,6 +161,13 @@ class BraftonWordpressPlugin {
     public function BraftonDeactivation(){
         wp_clear_scheduled_hook('braftonSetUpCron');
         wp_clear_scheduled_hook('braftonSetUpCronVideo');
+    }
+    public function BraftonMultisiteActivation($blod_id, $user_id, $domain, $path, $site_id, $meta){
+        if(is_plugin_active_for_network(BRAFTON_PLUGIN)){
+            switch_to_blog($blog_id);
+            $this->BraftonActivation();
+            restore_current_blog();
+        }
     }
     static function brafton_activate_updater(){
         $brand = BraftonOptions::getSingleOption('braftonApiDomain');

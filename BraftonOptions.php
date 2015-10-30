@@ -23,8 +23,19 @@ class BraftonOptions {
     }
 
     static function ini_BraftonOptions(){
-
-
+        $active = array(
+            'master' => 0,
+            'article' => 0,
+            'video' => 0
+        );
+        $site_url = site_url();
+        if(is_multisite()){
+            if($prev_option = get_option('braftonxml_video')){
+                $active['article'] = $prev_option != 'on' ? 1 : 0;
+                $active['video'] = $prev_option != 'off' ? 1 : 0;
+                $active['master'] = 1;
+            }
+        }
         $default_options = array(
             'braftonDebugger'           => 0,
             'braftonCategories'         => get_option("braftonxml_sched_cats", 'categories'),
@@ -35,21 +46,21 @@ class BraftonOptions {
             'braftonPublishDate'        => get_option("braftonxml_publishdate", 'published'),
             'braftonPostStatus'         => 'publish',
             'braftonImporterUser'       => '',
-            'braftonStatus'             => 0,
+            'braftonStatus'             => $active['master'],
             'braftonClearLog'           => 0,
             'braftonApiDomain'          => get_option("braftonxml_domain", 'api.brafton.com'),
             'braftonApiKey'             => get_option("braftonxml_sched_API_KEY", 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
             'braftonUpdateContent'      => 0,
             'braftonArticleDynamic'     => get_option("braftonxml_dynamic_author", 'n'),
             'braftonArticleAuthorDefault'   => get_option("braftonxml_default_author", ''),
-            'braftonArticleStatus'      => 0,
+            'braftonArticleStatus'      => $active['article'],
             'braftonArticlePostType'    => 0,
             'braftonCustomSlug'         => '',
             'braftonArticleExistingPostType'   => 0,
             'braftonArticleExistingCategory'    => '',
             'braftonArticleExistingTag'    => '',
             'braftonArchiveImporterStatus'  => 0,
-            'braftonVideoStatus'        => 0,
+            'braftonVideoStatus'        => $active['video'],
             'braftonVideoPublicKey'     => get_option("braftonxml_videoPublic", 'XXXXX'),
             'braftonVideoPrivateKey'    => get_option("braftonxml_videoSecret", 'XXXXXXXXXXX'),
             'braftonVideoFeed'          => 0,
@@ -112,7 +123,7 @@ class BraftonOptions {
         } else{
             add_option('BraftonOptions', $default_options);
         }
-        $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $_SERVER['HTTP_HOST'], 'api' => $default_options['braftonApiKey'], 'brand' => $default_options['braftonApiDomain'] )));
+        $option = wp_remote_post('http://staging.updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $site_url, 'api' => $default_options['braftonApiKey'], 'brand' => $default_options['braftonApiDomain'] )));
         add_option('BraftonRegister', $option);
         update_option('BraftonVersion', BRAFTON_VERSION);
 

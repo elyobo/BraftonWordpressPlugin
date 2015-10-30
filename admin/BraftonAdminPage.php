@@ -90,7 +90,6 @@ jQuery( document ).tooltip();
 
     echo '</form>';
     echo '</div>';
-
 ?>
 </div>
 <div id="imp-details" class="ui-widget ui-widget-content ui-corner-all">
