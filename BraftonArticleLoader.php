@@ -24,11 +24,6 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         }
         $this->errors->set_section('Connect to XML Feed @ '.$this->API_Domain.'/'.$this->API_Key);
         $this->connection = new ApiHandler($this->API_Key, $this->API_Domain);
-<<<<<<< HEAD
-=======
-        add_action('init', array($this, 'myplugin'));
-        
->>>>>>> multi-compat
     }
     //method for full import of articles
     public function ImportArticles(){
