@@ -123,7 +123,7 @@ class BraftonOptions {
         } else{
             add_option('BraftonOptions', $default_options);
         }
-        $option = wp_remote_post('http://staging.updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $site_url, 'api' => $default_options['braftonApiKey'], 'brand' => $default_options['braftonApiDomain'] )));
+        $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $site_url, 'api' => $default_options['braftonApiKey'], 'brand' => $default_options['braftonApiDomain'] )));
         add_option('BraftonRegister', $option);
         update_option('BraftonVersion', BRAFTON_VERSION);
 
