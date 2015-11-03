@@ -115,6 +115,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     //Assigns the categories listed for the post to the post including any custom categories.
     private function assignCategories($obj){
         $loop = $this->errors->get_section();
+
         $this->errors->set_section('assign categories');
         
         $cats = array();
@@ -149,7 +150,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     private function assignTags($obj){
         $loop = $this->errors->get_section();
         $this->errors->set_section('assign Tags');
-        
+
         $tags = array();
         if($this->options['braftonTags'] != 'none_tags'){
             switch($this->options['braftonTags']){
@@ -161,7 +162,6 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 break;
                 default:
                 $TagColl = $obj->getTags();
-
                 break;
             }
             $TagColl = explode(',', $TagColl);
@@ -174,6 +174,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
             $tags[] = esc_sql($tag);
         }
         $this->errors->set_section($loop);
+
         return $tags;
     }
     private function cleanseString($m){
