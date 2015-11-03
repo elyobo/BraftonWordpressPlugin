@@ -259,7 +259,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $compacted_article['tax_input'] = array($category_name => $the_categories, $tag_name => $the_tags);
 
                 if($post_id){//If the post existed but we are overriding values
-                    $this->set_section('Updating Article with ID: '.$post_id);
+                    $this->errors->set_section('Updating Article with ID: '.$post_id);
                     $compacted_article['ID'] = $post_id;
                     $post_id = wp_update_post($compacted_article);
                 }
