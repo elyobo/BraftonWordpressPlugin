@@ -1,6 +1,6 @@
-Installation: for Version 3.1+
+Installation: for Version 3.x.x+
 	Wordpress Plugin for importing Brafton/ContentLEAD/Castleford Content.  
-	Latest Version Version 3.2.3
+	Latest Version Version 3.3.3
 Requirements:
 	PHP Version 5.3+ with the following Libraries:
 •	DOMDocument
