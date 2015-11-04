@@ -3,10 +3,11 @@
 Wordpress : v3.5+
 
 PHP: 
--v5.3+
--DOMDocument
--cURL
--fOpen (video) with allow\_url\_fopen enabled
+
+-   v5.3+
+-   DOMDocument
+-   cURL
+-   fOpen (video) with allow\_url\_fopen enabled
 
 #Installation:
 
