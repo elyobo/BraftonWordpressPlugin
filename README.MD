@@ -61,11 +61,11 @@ Your Content will now import within 2 minutes of turning the importer on. It wil
 
 Dashboard Widget
 
-To aid in monitoring your content, there is now a Dashboard widget included with the importer. The “Recently Importer by {BRAND}” widget displays the latest content importer. This widget filter out any native content and will only display content importered.
-|____________________________________________________________________________________________________________________________|
-**Options Explanation**
+> To aid in monitoring your content, there is now a Dashboard widget included with the importer. The “Recently Importer by {BRAND}” widget displays the latest content importer. This widget filter out any native content and will only display content importered.
 
-General:
+#Options Explanation
+
+##General:
 
 -   Automatic Import: Must be turned on to enable the Importer to trigger with the Wordpress Sudo cron.
 
@@ -107,7 +107,7 @@ General:
 
     -   NOTE: This option will not work on all systems as it requires the use of XML-RPC which is can be blocked by some servers.
 
-Articles:
+##Articles:
 
 -   Article Importer Status: Enable the import of Article content from your XML feed.
 
@@ -129,7 +129,7 @@ Articles:
 
 -   \# Articles to Import: Total Number of articles to import each time the importer runs. The lower the number the fewer system resources are used. (v3.1.8)
 
-Videos:
+##Videos:
 
 -   Video Importer Status: Enable the import of your Video content from your separate Video XML Feed.
 
@@ -183,7 +183,7 @@ Videos:
 
 -   Below The AtlantisJS CTA’s you will notice as you enter your Ending CTA Options you will see an approximation of what your layout will look like. (v3.2.0)
 
-ARCH:
+##ARCH:
 
 This is for enabling our Arch Product. Setting this to “On” enables a Call To Action widget available in the Appearance-&gt;Widget menu, and requires the feed ID from the Arch account.
 
@@ -191,13 +191,13 @@ This is for enabling our Arch Product. Setting this to “On” enables a Call T
 
 -   Arch Id: Your unique feed id provided by your Account Manager
 
-Archives:
+##Archives:
 
 -   Archive Importer Status: Turn this “on” to enable the uploading of an XML file provided by your Account Manager from our Archives.
 
 -   Upload an XML File: This must be an XML file only! The larger the file the longer it will take to upload to your system. Timeouts can occur with larger files. Simply upload the archive again to begin where you left off.
 
-Error Logs:
+##Error Logs:
 
 -   Debug Mode: enabling Debug Mode collects all errors reported during operation of the content importer plugin.
 
@@ -207,15 +207,15 @@ Error Logs:
 
     -   \*NOTE: Not all errors reported are related to the importer. Some errors are completely harmless and others may be simply “caught” by the importer error system because they occurred while the importer was running.
 
-Note: Errors that result in failure to deliver content are reported to our system to expedite the troubleshooting process. If such an error does occur “Debug Mode” is turned on by default to assist in collecting data that will aid in those efforts.
+> Note: Errors that result in failure to deliver content are reported to our system to expedite the troubleshooting process. If such an error does occur “Debug Mode” is turned on by default to assist in collecting data that will aid in those efforts.
 
 -   Download Error Log: this will download a text file with any error data currently available. Please be sure to include this report with any emails requesting assistance. (v3.2.0)
 
-Manual Control:
+##Manual Control:
 
 This allows you to run the importer manually regardless of your status settings. Note that this will ignore the “Article Importer Status” and “Video Importer Status” options.
 
-Options:
+##Options:
 
 1.  Run the Article Importer
 
@@ -223,11 +223,11 @@ Options:
 
 3.  Import complete list of categories.
 
-Premium Styles:
+#Premium Styles:
 
 This Option will only be available if “Add Premium Styles” option is turned on under the “General Settings” Tab.
 
-Article Styles: (v3.2.0)
+##Article Styles: (v3.2.0)
 
 -   Enable Pull Quote Styles: Turning this on will effect changes to Pull Quotes that are imported.
 
@@ -249,9 +249,9 @@ Article Styles: (v3.2.0)
 
 -   Inline Image margins: This will space the Inline Image away from surrounding content by the pixel width you specify.
 
-Note: Enabling the Inline Image Styles will apply these changes to any and all images that the writer has inserted into your imported content.
+> Note: Enabling the Inline Image Styles will apply these changes to any and all images that the writer has inserted into your imported content.
 
-Atlantis Video Style: (v3.2.0)
+##Atlantis Video Style: (v3.2.0)
 
 You now have the option to control some video player elements to help fit better with the look and feel of your site. If you are using this feature all fields will need to be filled out. (v3.2.0)
 
@@ -291,7 +291,7 @@ You now have the option to control some video player elements to help fit better
 
     -   You may use any valid CSS styles to target the appropriate elements.
 
-Updating:
+#Updating:
 
 It is important to keep all your plugins up to date to ensure that bugs are fixed, security holes are patched, and you have the most up to date features available.
 
