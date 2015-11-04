@@ -68,22 +68,7 @@ class BraftonOptions {
             'braftonVideoPlayer'        => BraftonOptions::determine_video(),
             'braftonImportJquery'       => 'off',
             'braftonVideoCSS'           => 'off',
-            'braftonVideoCTA'           => array(
-                    'pausedText'            => '',
-                    'pausedLink'            => '',
-                    'pauseAssetGatewayId'   => '',
-                    'endingTitle'           => '',
-                    'endingSubtitle'        => '',
-                    'endingButtonImage'     => '',
-                    'endingButtonPositionOne'   => 'top',
-                    'endingButtonPositionOneValue'  => 0,
-                    'endingButtonPositionTwo'   => 'left',
-                    'endingButtonPositionTwoValue'  => 0,
-                    'endingButtonText'      => '',
-                    'endingButtonLink'      => '',
-                    'endingAssetGatewayId'   => '',
-                    'endingBackground'      => ''
-                    ),
+            'braftonVideoCTA'           => array(),
             'braftonMarproStatus'       => 'off',
             'braftonMarproId'           => '',
             'braftonOpenGraphStatus'    => 'off',
@@ -119,8 +104,10 @@ class BraftonOptions {
         //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
         if($old_options = get_option('BraftonOptions')){
             $default_options = wp_parse_args($old_options, $default_options);
+            $default_options['braftonVideoCTA'] = BraftonOptions::video_cta();
             update_option('BraftonOptions', $default_options);
         } else{
+            $default_options['braftonVideoCTA'] = BraftonOptions::video_cta();
             add_option('BraftonOptions', $default_options);
         }
         $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $site_url, 'api' => $default_options['braftonApiKey'], 'brand' => $default_options['braftonApiDomain'] )));
@@ -128,7 +115,38 @@ class BraftonOptions {
         update_option('BraftonVersion', BRAFTON_VERSION);
 
     }
-
+    static function video_cta(){
+        $cta = array(
+            'pausedText'            => '',
+            'pausedLink'            => '',
+            'pauseAssetGatewayId'   => '',
+            'endingTitle'           => '',
+            'endingSubtitle'        => '',
+            'endingButtonImage'     => '',
+            'endingButtonPositionOne'   => 'top',
+            'endingButtonPositionOneValue'  => 0,
+            'endingButtonPositionTwo'   => 'left',
+            'endingButtonPositionTwoValue'  => 0,
+            'endingButtonText'      => '',
+            'endingButtonLink'      => '',
+            'endingAssetGatewayId'   => '',
+            'endingBackground'      => ''
+        ); 
+        if($old_cta = get_option('BraftonOptions')){
+            foreach($cta as $key => $value){
+                $cta[$key] = isset($old_cta['braftonVideoCTA'][$key])? $old_cta['braftonVideoCTA'][$key] : $value;
+            }
+            
+        }else if(get_option("braftonxml_domain")){
+            $cta['pausedText'] = get_option("brafton_pause_txt","");
+			$cta['pausedLink'] = get_option("brafton_pause_link","");
+			$cta['endingTitle'] = get_option("brafton_endcta_title","");
+			$cta['endingSubtitle'] = get_option("brafton_endcta_subtitle","");
+			$cta['endingButtonLink'] = get_option("brafton_endcta_btnlink","");
+			$cta['endingButtonText'] = get_option("brafton_endcta_btntxt","");
+        }
+        return $cta;
+    }
     static function article_category_options() {
         $old_options = get_option('BraftonOptions');
         $combined_cats = $old_options['braftonCustomCategories'] . ',' . get_option("braftonxml_sched_cats_input", '');
