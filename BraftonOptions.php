@@ -68,7 +68,7 @@ class BraftonOptions {
             'braftonVideoPlayer'        => BraftonOptions::determine_video(),
             'braftonImportJquery'       => 'off',
             'braftonVideoCSS'           => 'off',
-            'braftonVideoCTA'           => BraftonOptions::video_cta(),
+            'braftonVideoCTA'           => array(),
             'braftonMarproStatus'       => 'off',
             'braftonMarproId'           => '',
             'braftonOpenGraphStatus'    => 'off',
@@ -104,8 +104,10 @@ class BraftonOptions {
         //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
         if($old_options = get_option('BraftonOptions')){
             $default_options = wp_parse_args($old_options, $default_options);
+            $default_options['braftonVideoCTA'] = BraftonOptions::video_cta();
             update_option('BraftonOptions', $default_options);
         } else{
+            $default_options['braftonVideoCTA'] = BraftonOptions::video_cta();
             add_option('BraftonOptions', $default_options);
         }
         $option = wp_remote_post('http://updater.brafton.com/u/wordpress/update', array('body' => array('action' => 'register', 'version' => BRAFTON_VERSION, 'domain' => $site_url, 'api' => $default_options['braftonApiKey'], 'brand' => $default_options['braftonApiDomain'] )));
