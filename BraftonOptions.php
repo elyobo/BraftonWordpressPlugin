@@ -68,22 +68,7 @@ class BraftonOptions {
             'braftonVideoPlayer'        => BraftonOptions::determine_video(),
             'braftonImportJquery'       => 'off',
             'braftonVideoCSS'           => 'off',
-            'braftonVideoCTA'           => array(
-                    'pausedText'            => '',
-                    'pausedLink'            => '',
-                    'pauseAssetGatewayId'   => '',
-                    'endingTitle'           => '',
-                    'endingSubtitle'        => '',
-                    'endingButtonImage'     => '',
-                    'endingButtonPositionOne'   => 'top',
-                    'endingButtonPositionOneValue'  => 0,
-                    'endingButtonPositionTwo'   => 'left',
-                    'endingButtonPositionTwoValue'  => 0,
-                    'endingButtonText'      => '',
-                    'endingButtonLink'      => '',
-                    'endingAssetGatewayId'   => '',
-                    'endingBackground'      => ''
-                    ),
+            'braftonVideoCTA'           => BraftonOptions::video_cta(),
             'braftonMarproStatus'       => 'off',
             'braftonMarproId'           => '',
             'braftonOpenGraphStatus'    => 'off',
@@ -128,7 +113,31 @@ class BraftonOptions {
         update_option('BraftonVersion', BRAFTON_VERSION);
 
     }
-
+    static function video_cta(){
+        $cta = array(
+            'pausedText'            => '',
+            'pausedLink'            => '',
+            'pauseAssetGatewayId'   => '',
+            'endingTitle'           => '',
+            'endingSubtitle'        => '',
+            'endingButtonImage'     => '',
+            'endingButtonPositionOne'   => 'top',
+            'endingButtonPositionOneValue'  => 0,
+            'endingButtonPositionTwo'   => 'left',
+            'endingButtonPositionTwoValue'  => 0,
+            'endingButtonText'      => '',
+            'endingButtonLink'      => '',
+            'endingAssetGatewayId'   => '',
+            'endingBackground'      => ''
+        ); 
+        if($old_cta = get_option('BraftonOptions')){
+            foreach($cta as $key => $value){
+                $cta[$key] = isset($old_cta['braftonVideoCTA'][$key])? $old_cta['braftonVideoCTA'][$key] : $value;
+            }
+            
+        }
+        return $cta;
+    }
     static function article_category_options() {
         $old_options = get_option('BraftonOptions');
         $combined_cats = $old_options['braftonCustomCategories'] . ',' . get_option("braftonxml_sched_cats_input", '');
