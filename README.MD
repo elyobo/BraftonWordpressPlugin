@@ -1,10 +1,14 @@
-REQUIRMENTS:
+#REQUIRMENTS:
 
 Wordpress : v3.5+
 
-PHP: v5.3+, DOMDocument, cURL, fOpen (video) with allow\_url\_fopen enabled
+PHP: 
+-v5.3+
+-DOMDocument
+-cURL
+-fOpen (video) with allow\_url\_fopen enabled
 
-**Installation:**
+#Installation:
 
 Installation of the Wordpress Plugin is very easy.                                                                      
                                                                                                                           
@@ -19,9 +23,9 @@ Installation of the Wordpress Plugin is very easy.
  5.  Activate your plugin and find it in the main menu to the left in your Admin Dashboard. {BRAND} Content Importer
 
 
-**First Time Setup**
+##First Time Setup
 
-Under General Settings Tab.
+**Under General Settings Tab.**
 
 1. Turn the "Automatic Import" to on.
 
@@ -29,7 +33,7 @@ Under General Settings Tab.
 
 3. Select an "Importer User". If on a multisite the “Network Admin” will be automatically set for you.
 
-Under Articles Tab.
+**Under Articles Tab.**
 
 1. Turn the "Article Importer Status" to on.
 
@@ -39,7 +43,7 @@ Under Articles Tab.
 
 If you are just receiving articles Click "Save Settings". If you are receiving videos please continue.
 
-Under Videos Tab.
+**Under Videos Tab.**
 
 1. Turn the "Video Importer Status" to on.
 
@@ -58,7 +62,7 @@ Your Content will now import within 2 minutes of turning the importer on. It wil
 Dashboard Widget
 
 To aid in monitoring your content, there is now a Dashboard widget included with the importer. The “Recently Importer by {BRAND}” widget displays the latest content importer. This widget filter out any native content and will only display content importered.
-
+|____________________________________________________________________________________________________________________________|
 **Options Explanation**
 
 General:
