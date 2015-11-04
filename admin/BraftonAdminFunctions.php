@@ -93,6 +93,16 @@ function braftonWarnings(){
 				<p>Curl not enabled.</p>
 				</div>';
     }
+    if(!ini_get('allow_url_fopen')){
+        echo '<div class="error">
+                <p>allow_url_fopen may not be enabled.  Your videos will not import</p>
+                </div>';
+    }
+    if(!class_exists('DOMDocument')){
+        echo '<div class="error">
+                <p>DOMDocument not found.  Your content will not import</p>
+                </div>';
+    }
     if(!current_theme_supports( 'post-thumbnails' )) {
         echo '<div class="updated">
                 <p>Thumbnails not enabled for this Theme.</p>
@@ -301,13 +311,15 @@ function GeneralSettingsSetup(){
             'brafton_general', // Page
             'general' // Section
         );
-        add_settings_field(
-            'braftonImporterUser', // ID
-            'Importer User', // Title
-            'braftonImporterUser' , // Callback
-            'brafton_general', // Page
-            'general' // Section
-        );
+        if(!is_multisite()){
+            add_settings_field(
+                'braftonImporterUser', // ID
+                'Importer User', // Title
+                'braftonImporterUser' , // Callback
+                'brafton_general', // Page
+                'general' // Section
+            );
+        }
         add_settings_field(
             'braftonImportJquery',
             'Import JQuery Script',
