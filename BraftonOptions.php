@@ -135,6 +135,13 @@ class BraftonOptions {
                 $cta[$key] = isset($old_cta['braftonVideoCTA'][$key])? $old_cta['braftonVideoCTA'][$key] : $value;
             }
             
+        }else if(get_option("brafton_pause_link")){
+            $cta['pausedText'] = get_option("brafton_pause_txt","");
+			$cta['pausedLink'] = get_option("brafton_pause_link","");
+			$cta['endingTitle'] = get_option("brafton_endcta_title","");
+			$cta['endingSubtitle'] = get_option("brafton_endcta_subtitle","");
+			$cta['endingButtonLink'] = get_option("brafton_endcta_btnlink","");
+			$cta['endingButtonText'] = get_option("brafton_endcta_btntxt","");
         }
         return $cta;
     }
