@@ -137,7 +137,7 @@ class BraftonOptions {
                 $cta[$key] = isset($old_cta['braftonVideoCTA'][$key])? $old_cta['braftonVideoCTA'][$key] : $value;
             }
             
-        }else if(get_option("brafton_pause_link")){
+        }else if(get_option("braftonxml_domain")){
             $cta['pausedText'] = get_option("brafton_pause_txt","");
 			$cta['pausedLink'] = get_option("brafton_pause_link","");
 			$cta['endingTitle'] = get_option("brafton_endcta_title","");
