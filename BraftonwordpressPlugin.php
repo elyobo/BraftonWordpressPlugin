@@ -464,7 +464,7 @@ EOT;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT_MS, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_exec($ch);
         
         $ops->saveOption('braftonRemoteTime', current_time('timestamp'));
