@@ -459,13 +459,14 @@ EOT;
         }
         $remoteUrl = 'http://updater.brafton.com/wp-remote/remote.php?';
         $siteUrl = site_url();
-        $functions = $static['braftonArticleStatus'] ? 'articles,' : '';
+        $functions = $static['braftonArticleStatus'] ? 'articles' : '';
+        	$functions .= $functions == 'articles' && ($static['braftonVideoStatus']) ? ',' : '';
         $functions .= $static['braftonVideoStatus'] ? 'videos' : '';
         $fullUrl = $remoteUrl . 'clientUrl=' . $siteUrl . '&function=' .$functions;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 0);
         curl_exec($ch);
         
         $ops->saveOption('braftonRemoteTime', current_time('timestamp'));
