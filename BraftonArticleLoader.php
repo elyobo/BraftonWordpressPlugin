@@ -35,7 +35,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         //Gets the complete category tree and adds any new categories
         $this->ImportCategories();
         //imports each article in the feed
-        $this->runLoop();
+        return $this->runLoop();
     }
     public function loadXMLArchive(){
         $this->errors->debug_trace(array('message' => 'Starting Archive Load', 'file' => __FILE__, 'line' => __LINE__));
@@ -58,7 +58,8 @@ class BraftonArticleLoader extends BraftonFeedLoader {
 
     static function manualImportArticles() {
         $import = new BraftonArticleLoader();
-        $import->ImportArticles();
+        $msg = $import->ImportArticles();
+        echo $msg;
 
     }
     static function manualImportArchive() {
@@ -242,8 +243,6 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     $tag_name = 'post_tag';
                 }
 
-                //$compacted_article['post_category'] = $this->assignCategories($article);
-                //$compacted_article['tags_input'] = $this->assignTags($article);
                 $the_categories = $this->assignCategories($article);
                 $this->errors->set_section('Main article loop');
                 $the_tags = $this->assignTags($article);
@@ -272,8 +271,8 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     wp_set_object_terms($post_id, $the_tags, $tag_name);
                 }
                 if(is_object($post_id) && get_class($post_id) == 'WP_Error'){
-                    $wp_error = $post_id->get_error_message();
-                    trigger_error($wp_error);
+                    $wp_error_msg = implode(', ',$post_id->error_data);
+                    trigger_error($wp_error_msg);
                     continue;
                 }
                 $meta_array = array(
@@ -315,15 +314,16 @@ class BraftonArticleLoader extends BraftonFeedLoader {
 
         }//end individual article loop
         $list['counter'] = $counter;
-            echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
-                echo '<h3>'.$list['counter'].' Articles Imported</h3>';
+        $returnMessage = '';
+            $returnMessage .= '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
+                $returnMessage .= '<h3>'.$list['counter'].' Articles Imported</h3>';
         if($list['counter']){
             foreach($list['titles'] as $item => $title){
-                echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
+                $returnMessage .= '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
             }
         }
-            echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
-            echo '</div>';
+            $returnMessage .= '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
+            $returnMessage .= '</div>';
         
     }
 

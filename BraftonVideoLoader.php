@@ -292,7 +292,7 @@ EOC;
                 $post_content = $thisArticle->fields['content'];
                 $post_title = $thisArticle->fields['title'];
                 $post_excerpt = $thisArticle->fields['extract'];
-                $post_excerpt = $post_excerpt == null? ' ', $post_excerpt;
+                $post_excerpt = $post_excerpt == null? ' ': $post_excerpt;
                 $post_status = $this->options['braftonPostStatus'];
 
                 $post_date_array = $this->getPostDate($thisArticle->fields['date']);
@@ -312,8 +312,8 @@ EOC;
                     $post_id = wp_insert_post($compacted_article, true);
                 }
                 if(is_object($post_id) && get_class($post_id) == 'WP_Error'){
-                    $wp_error = $post_id->get_error_message();
-                    trigger_error($wp_error);
+                    $wp_error_msg = implode(', ',$post_id->error_data);
+                    trigger_error($wp_error_msg);
                     continue;
                 }
                 else{
