@@ -223,6 +223,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     }
                 }
                 $post_excerpt = ($e = $article->getHtmlMetaDescription())? $e: $article->getExtract();
+                $post_excerpt = $post_excerpt == null? ' ' : $post_excerpt;
                 $post_date_array = $this->getPostDate($article);
                 $post_date = $post_date_array[1];
                 $post_date_gmt = $post_date_array[0];
@@ -262,13 +263,18 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 if($post_id){//If the post existed but we are overriding values
                     $this->errors->set_section('Updating Article with ID: '.$post_id);
                     $compacted_article['ID'] = $post_id;
-                    $post_id = wp_update_post($compacted_article);
+                    $post_id = wp_update_post($compacted_article, true);
                 }
                 else{//if the post doesn't exists we add it to the database
                     $this->errors->set_section('Inserting New Article');
-                    $post_id = wp_insert_post($compacted_article);
+                    $post_id = wp_insert_post($compacted_article, true);
                     // Extra work to set custom tags.
                     wp_set_object_terms($post_id, $the_tags, $tag_name);
+                }
+                if(is_object($post_id) && get_class($post_id) == 'WP_Error'){
+                    $wp_error = $post_id->get_error_message();
+                    trigger_error($wp_error);
+                    continue;
                 }
                 $meta_array = array(
                     'brafton_id'        => $brafton_id

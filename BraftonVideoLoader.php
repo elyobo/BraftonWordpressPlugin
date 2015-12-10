@@ -292,6 +292,7 @@ EOC;
                 $post_content = $thisArticle->fields['content'];
                 $post_title = $thisArticle->fields['title'];
                 $post_excerpt = $thisArticle->fields['extract'];
+                $post_excerpt = $post_excerpt == null? ' ', $post_excerpt;
                 $post_status = $this->options['braftonPostStatus'];
 
                 $post_date_array = $this->getPostDate($thisArticle->fields['date']);
@@ -304,14 +305,16 @@ EOC;
                 if($post_id){//If the post existed but we are overriding values
                     $this->errors->set_section('Updating video with id: '.$post_id);
                     $compacted_article['ID'] = $post_id;
-                    $post_id = wp_update_post($compacted_article);
+                    $post_id = wp_update_post($compacted_article, true);
                 }
                 else{//if the post doesn't exists we add it to the database
                     $this->errors->set_section('Inserting new video');
-                    $post_id = wp_insert_post($compacted_article);
+                    $post_id = wp_insert_post($compacted_article, true);
                 }
-                if(is_wp_error($post_id)){
-                    trigger_error($post_id);
+                if(is_object($post_id) && get_class($post_id) == 'WP_Error'){
+                    $wp_error = $post_id->get_error_message();
+                    trigger_error($wp_error);
+                    continue;
                 }
                 else{
                     /*
