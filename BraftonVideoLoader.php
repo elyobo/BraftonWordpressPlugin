@@ -67,7 +67,6 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         $catArray = array();
         $cNum = $this->ClientCategory->ListForArticle($brafton_id, 0, 100)->totalCount;
         $custom_cat = explode(',',$this->options['braftonCustomVideoCategories']);
-
         for($i=0;$i<$cNum;$i++){
             $catId = $this->ClientCategory->ListForArticle($brafton_id,0,100)->items[$i]->id;
             $catNew = $this->ClientCategory->Get($catId);
@@ -75,6 +74,7 @@ class BraftonVideoLoader extends BraftonFeedLoader {
             $catArray[] = $slugObj->term_id;
         }
         foreach($custom_cat as $cat){
+            if($cat == '' || $cat == null){ continue; }
             $slugObj = get_category_by_slug(esc_sql($cat));
             $catArray[] = $slugObj->term_id;
 
@@ -245,13 +245,11 @@ EOC;
 
     }
 
-
-
     static function manualImportVideos() {
         $import = new BraftonVideoLoader();
-        $import->ImportVideos();
+        $msg = $import->ImportVideos();
+        echo $msg;
     }
-
 
     //Actual workhorse of the import video class
     public function ImportVideos(){
@@ -263,7 +261,8 @@ EOC;
         //Gets the Categories
         $this->ImportCategories();
         //runs the actual loop
-        $this->runLoop();
+        return $this->runLoop();
+        
     }
     public function runLoop(){
         $this->errors->set_section('Video Master loop');
@@ -276,7 +275,7 @@ EOC;
         foreach($this->ArticleList->items as $article){
             $brafton_id = $article->id;
             if( !($post_id = $this->brafton_post_exists($brafton_id)) || $this->override ){//Begin individual video article import
-                if($counter == $this->options['braftonVideoLimit']){ return; }
+                if($counter == $this->options['braftonVideoLimit']){ continue; }
                 $this->errors->set_section('Individual video loop run '.$counter);
                 //Get the current article info in the loop
                 $thisArticle = $this->Client->Articles()->Get($brafton_id);
@@ -377,19 +376,19 @@ EOC;
                 ++$counter;
                 ++$this->errors->level;
             }//End the individual video article import
-
         }
         $listImported['counter'] = $counter;
-            echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
-                echo '<h3>'.$listImported['counter'].' Videos Imported</h3>';
+        $returnMessage = '';
+        $returnMessage .= '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
+        $returnMessage .= '<h3>'.$listImported['counter'].' Videos Imported</h3>';
         if($listImported['counter']){
-                
             foreach($listImported['titles'] as $item => $title){
-                echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
+                $returnMessage .= '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
             }
         }
-            echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
-            echo '</div>';
+        $returnMessage .= '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
+        $returnMessage .= '</div>';
+        return $returnMessage;
         
     }
 }

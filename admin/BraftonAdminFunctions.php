@@ -26,6 +26,17 @@ if(isset($_POST['submit'])){
         break;
         }
 }
+add_action( 'wp_ajax_health_check', 'health_check');
+function health_check(){
+    $ch = curl_init();
+    $client = site_url();
+    curl_setopt($ch, CURLOPT_URL, 'http://localtest.updater.com/wp-remote/remote.php?clientUrl='.$client.'&function=health_check');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    $response = curl_exec($ch);
+    echo $response;
+    wp_die();
+}
 
 /*
  *********************************************************************************************************************
@@ -83,9 +94,15 @@ function braftonWarnings(){
     }
 	if (!$options['braftonStatus'])
 	{
-		echo '<div class="error">
-				<p>Importer not enabled.</p>
-				</div>';
+        if($options['braftonRemoteOperation']){
+            echo '<div class="notice notice-info message is-dismissable">
+                    <p>Remote Import enabled.</p>
+                    </div>';
+        }else{
+            echo '<div class="error">
+                    <p>Importer not enabled.</p>
+                    </div>';
+        }
 	}
     //check if curl is enabled throw warning if it is not
     if(!function_exists('curl_init')){
@@ -385,7 +402,7 @@ function GeneralSettingsSetup(){
         );
         add_settings_field(
             'braftonRemoteOperation',
-            '<span style="color:red;">Remote Import</span>',
+            '<span style="">Remote Import</span><span style="display:block;color:red;" id="checkFlasher"></span>',
             'braftonRemoteOperation',
             'brafton_general',
             'general'
@@ -397,6 +414,7 @@ function braftonRemoteOperation(){
     ?>
     <input type="radio" name="braftonRemoteOperation" value="1" <?php checkRadioVal($options['braftonRemoteOperation'], 1); ?>> ON
     <input type="radio" name="braftonRemoteOperation" value="0" <?php checkRadioVal($options['braftonRemoteOperation'], 0); ?>> OFF <input type="hidden" name="braftonRemoteTime" value="<?php echo $options['braftonRemoteTime']; ?>">
+    <?php $src='';$disp=''; if($options['braftonRemoteOperation']){ $src = '../wp-includes/images/uploader-icons-2x.png'; $disp = 'position:absolute;left-188px;';} ?><span id="remoteCheck" style="display:inline-block;position:absolute;top:10px;padding:5px;width:40px;height:40px;overflow:hidden"><img style="<?php echo $disp; ?>" src="<?php echo $src; ?>"></span>
 <?php
 
 }

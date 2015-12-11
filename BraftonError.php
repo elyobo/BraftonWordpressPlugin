@@ -86,6 +86,17 @@ class BraftonErrorReport {
         else{
             $brafton_error = get_option('brafton_e_log');
             $brafton = $brafton_error;
+            if(is_writable(dirname(__FILE__))){
+                $folder = BRAFTON_DIR;
+                if(!is_dir($folder.'/admin/logs')){
+                    mkdir($folder.'/admin/logs');
+                }
+                $jsonErrors = json_encode(get_option('brafton_e_log'));
+                $filename = "Brafton_Errors_".date('Y-M-d-(h.m.s)')."-".$_SERVER['HTTP_HOST'].".txt";
+                $file = fopen($folder.'admin/logs/'.$filename, 'w');
+                fwrite($file, $jsonErrors);
+                fclose($file);
+            }
         }
         return $brafton; 
     }
@@ -112,11 +123,7 @@ class BraftonErrorReport {
     public function log_exception( Exception $e ){
         $errorLevel = method_exists($e,'getseverity')? $e->getseverity(): 2;
         $errorLevel = $e->getMessage() == 'Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time'? 1 : $errorLevel;
-        /*echo '<pre>';
-        var_dump($e);
-        echo '</pre>';
-        exit();
-        */
+
         if ( ($errorLevel == 1) || ($this->debug) && ($this->check_known_errors($e)) ){
 
             $errorlog = $this->make_local_report($e, $errorLevel);

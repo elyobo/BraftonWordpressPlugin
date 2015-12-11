@@ -44,7 +44,8 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         }
 		$this->articles = NewsItem::getNewsList($_FILES['archive']['tmp_name'], "html");
         $this->ImportCategories();
-        $this->runLoop();
+        $msg = $this->runLoop();
+        echo $msg;
     }
     public function getArticleFeed(){
         $this->errors->debug_trace(array('message' => 'Retrieving Article Feed XML', 'file' => __FILE__, 'line' => __LINE__));
@@ -73,6 +74,8 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         if($this->fail){
             return;
         }
+        
+        $categoryList = '';
         $CatColl = $this->connection->getCategoryDefinitions();
         $custom_cat = explode(',',$this->options['braftonCustomArticleCategories']);
         // Check for custom category/tag names.
@@ -315,16 +318,16 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         }//end individual article loop
         $list['counter'] = $counter;
         $returnMessage = '';
-            $returnMessage .= '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
-                $returnMessage .= '<h3>'.$list['counter'].' Articles Imported</h3>';
+        $returnMessage .= '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
+        $returnMessage .= '<h3>'.$list['counter'].' Articles Imported</h3>';
         if($list['counter']){
             foreach($list['titles'] as $item => $title){
                 $returnMessage .= '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
             }
         }
-            $returnMessage .= '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
-            $returnMessage .= '</div>';
-        
+        $returnMessage .= '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
+        $returnMessage .= '</div>';
+        return $returnMessage;
     }
 
 }
