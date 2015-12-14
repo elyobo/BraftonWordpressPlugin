@@ -232,7 +232,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $post_date = $post_date_array[1];
                 $post_date_gmt = $post_date_array[0];
 
-                $compacted_article = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_status', 'post_excerpt');
+                $compacted_article = compact('post_author', 'post_date', 'post_content', 'post_title', 'post_status', 'post_excerpt');
                 
                 // Check for custom category name.
                 if($this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingCategory'] != ''){

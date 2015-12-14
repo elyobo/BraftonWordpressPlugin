@@ -85,9 +85,9 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     }
     public function getPostDate($pdate){
 
-        $post_date_gmt = strtotime($pdate);
-        $post_date_gmt = gmdate('Y-m-d H:i:s', $post_date_gmt);
-        $post_date = get_date_from_gmt($post_date_gmt);
+        $post_date = strtotime($pdate);
+        $post_date_gmt = gmdate('Y-m-d H:i:s', $post_date);
+        $post_date = date('Y-m-d H:i:s', $post_date);
         $date_array = array($post_date_gmt, $post_date);
         return $date_array;
 
@@ -298,7 +298,7 @@ EOC;
                 $post_date = $post_date_array[1];
                 $post_date_gmt = $post_date_array[0];
 
-                $compacted_article = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_status', 'post_excerpt');
+                $compacted_article = compact('post_author', 'post_date', 'post_content', 'post_title', 'post_status', 'post_excerpt');
                 $compacted_article['post_category'] = $this->assignCategories($brafton_id);
                 
                 if($post_id){//If the post existed but we are overriding values

@@ -467,6 +467,7 @@ EOT;
         if($static['braftonRemoteTime'] + 21600 > current_time('timestamp')){
             return;
         }
+        $ops->saveOption('braftonRemoteTime', current_time('timestamp'));
         $remoteUrl = 'http://updater.brafton.com/wp-remote/remote.php?';
         $siteUrl = site_url();
         $functions = $static['braftonArticleStatus'] ? 'articles' : '';
@@ -478,8 +479,6 @@ EOT;
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 0);
         curl_exec($ch);
-        
-        $ops->saveOption('braftonRemoteTime', current_time('timestamp'));
     }
     static function BraftonNotices(){
         //Notify user there is an update available
@@ -491,7 +490,7 @@ EOT;
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 0);
         $version = curl_exec($ch);
-        if(version_compare(BRAFTON_VERSION, $version, '>=')){
+        if(version_compare(BRAFTON_VERSION, $version, '<')){
             echo "<div class='brafton".BRAFTON_VERSION."updateAvailable-notice notice error'>
                 <p style='width:85%'><strong>$brand Content Importer: </strong> An Update is available for your Content Importer.  You are on version ".BRAFTON_VERSION." while version $version is available for download. Please <a href='plugins.php?plugin_status=upgrade'><strong>UPDATE</strong> your plugin</a>.</p>
                 </div>";

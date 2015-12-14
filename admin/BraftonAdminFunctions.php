@@ -30,7 +30,9 @@ add_action( 'wp_ajax_health_check', 'health_check');
 function health_check(){
     $ch = curl_init();
     $client = site_url();
-    curl_setopt($ch, CURLOPT_URL, 'http://localtest.updater.com/wp-remote/remote.php?clientUrl='.$client.'&function=health_check');
+    $url = 'http://updater.brafton.com/wp-remote/remote.php?clientUrl='.$client.'&function=health_check';
+    //$url = 'http://localtest.updater.com/wp-remote/remote.php?clientUrl='.$client.'&function=health_check';
+    curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     $response = curl_exec($ch);
@@ -92,18 +94,6 @@ function braftonWarnings(){
 				<p>Options Saved Successfully</p>
 				</div>';
     }
-	if (!$options['braftonStatus'])
-	{
-        if($options['braftonRemoteOperation']){
-            echo '<div class="notice notice-info message is-dismissable">
-                    <p>Remote Import enabled.</p>
-                    </div>';
-        }else{
-            echo '<div class="error">
-                    <p>Importer not enabled.</p>
-                    </div>';
-        }
-	}
     //check if curl is enabled throw warning if it is not
     if(!function_exists('curl_init')){
         echo '<div class="error">
@@ -162,14 +152,31 @@ function braftonWarnings(){
 				</div>";
         if(!isset($_GET['b_error'])){
             $failed_error = new BraftonErrorReport(BraftonOptions::getSingleOption('braftonApiKey'),BraftonOptions::getSingleOption('braftonApiDomain'), BraftonOptions::getSingleOption('braftonDebugger') );
-            trigger_error('Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
+            trigger_error('Video Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time');
         }
     }
-    echo "<div class='$status'>
-                <p>Current Time: $current_time</p>
-				<p>Next Article Run: $last_run</p>
+    $master = "<div class='$status'>
+                <p>Current Time: $current_time</p>";
+    
+    if (!$options['braftonStatus'])
+	{
+        $master .= "</div>";
+        
+        if($options['braftonRemoteOperation']){
+            echo '<div class="notice notice-info message is-dismissable">
+                    <p>Remote Import enabled.</p>
+                    </div>';
+        }else{
+            echo '<div class="error">
+                    <p>Importer not enabled.</p>
+                    </div>';
+        }
+	}else{
+        $master .= "<p>Next Article Run: $last_run</p>
                 <p>Next Video Run: $last_run_video</p>
 				</div>";
+    }
+    echo $master;
 }
 /*
 function for displaying the sections information
@@ -277,6 +284,7 @@ function braftonDisplayLog(){
         <pre>
         
         <?php $errors = get_option('brafton_e_log');
+    $length = mb_strlen(json_encode($errors));
         if(!$errors){ echo 'Everythin is fine. You have no errors'; }
         //convert obj to array
         $errors = $errors;
@@ -290,6 +298,7 @@ function braftonDisplayLog(){
         ?> 
         </pre>
     </div>
+<?php echo $length; ?>
 <?php 
     submit_button('Download Error Log');
 

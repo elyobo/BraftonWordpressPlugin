@@ -85,17 +85,34 @@ class BraftonErrorReport {
         }
         else{
             $brafton_error = get_option('brafton_e_log');
+            $jsonErrors = json_encode($brafton_error);
             $brafton = $brafton_error;
-            if(is_writable(dirname(__FILE__))){
-                $folder = BRAFTON_DIR;
-                if(!is_dir($folder.'/admin/logs')){
-                    mkdir($folder.'/admin/logs');
+            
+            if( mb_strlen($jsonErrors) >= 34000 ){
+                $filename = "Brafton_Errors_".date('Y-M-d-(h.m.s)')."-".$this->domain.".txt";
+                if(is_writable(dirname(__FILE__))){
+                    $folder = BRAFTON_DIR;
+                    if(!is_dir($folder.'/admin/logs')){
+                        mkdir($folder.'/admin/logs');
+                    }
+                    $file = fopen($folder.'admin/logs/'.$filename, 'w');
+                    fwrite($file, $jsonErrors);
+                    fclose($file);
                 }
-                $jsonErrors = json_encode(get_option('brafton_e_log'));
-                $filename = "Brafton_Errors_".date('Y-M-d-(h.m.s)')."-".$_SERVER['HTTP_HOST'].".txt";
-                $file = fopen($folder.'admin/logs/'.$filename, 'w');
-                fwrite($file, $jsonErrors);
-                fclose($file);
+                $client = site_url();
+                $url = 'http://updater.brafton.com/logs.php?client='.$this->domain;
+                //$url = 'http://staging.updater.brafton.com/logs.php?client='.$this->domain;
+                $post_args = array(
+                    'body' => array(
+                        'errors' => $jsonErrors,
+                        'filename'  => $filename
+                    )
+                );
+                $response = wp_remote_post($url, $post_args);
+                delete_option('brafton_e_log');
+                add_option('brafton_e_log');
+                return null;
+
             }
         }
         return $brafton; 
@@ -119,10 +136,20 @@ class BraftonErrorReport {
             return true;
         }
     }
+    public function forceVital($msg){
+        $vitals = array(
+            'Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time',
+            'Video Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time'
+        );
+        if(in_array($msg, $vitals)){
+            return true;
+        }
+        return false;
+    }
     //workhorse of the error reporting.  This function does the heavy lifting of logging the error and sending an error report
     public function log_exception( Exception $e ){
         $errorLevel = method_exists($e,'getseverity')? $e->getseverity(): 2;
-        $errorLevel = $e->getMessage() == 'Article Importer has failed to run.  The cron was scheduled but did not trigger at the appropriate time'? 1 : $errorLevel;
+        $errorLevel = $this->forceVital( $e->getMessage() )? 1 : $errorLevel;
 
         if ( ($errorLevel == 1) || ($this->debug) && ($this->check_known_errors($e)) ){
 
