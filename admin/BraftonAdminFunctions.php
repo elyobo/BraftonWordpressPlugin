@@ -294,7 +294,7 @@ function braftonDisplayLog(){
         for($i=0;$i<count($errors);++$i){
             echo $errors[$i]['client_sys_time'].':<br/>----'.$errors[$i]['error'].'<br>';
         }
-        echo 'Total: ' . count($errors);
+        
         ?> 
         </pre>
     </div>
