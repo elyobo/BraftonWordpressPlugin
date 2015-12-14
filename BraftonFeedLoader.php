@@ -110,9 +110,9 @@ class BraftonFeedLoader {
             $pdate = $article->getPublishDate();
             break;
         }
-        $post_date_gmt = strtotime($pdate);
-        $post_date_gmt = gmdate('Y-m-d H:i:s', $post_date_gmt);
-        $post_date = get_date_from_gmt($post_date_gmt);
+        $post_date = strtotime($pdate);
+        $post_date_gmt = gmdate('Y-m-d H:i:s', $post_date);
+        $post_date = date('Y-m-d H:i:s', $post_date);
         $date_array = array($post_date_gmt, $post_date);
         return $date_array;
            

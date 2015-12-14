@@ -54,6 +54,35 @@ function premium(e){
     }
 }
 jQuery(document).ready(function($){
+        $('input[name="braftonRemoteOperation"]').change(function(e){
+           if($(this).val() == 1){
+                var $e = $(this);
+                //$('#remoteCheck').css({display:'inline-block'});
+               $('#checkFlasher').html('System Check');
+               $('#checkFlasher').addClass('blinking-text');
+               $('#remoteCheck').find('img').attr('src', '../wp-includes/images/wpspin-2x.gif');
+               $('#remoteCheck').find('img').css({left: '0px', position: 'relative'});
+               var data = {'action': 'health_check'};
+               jQuery.post(ajaxurl, data, function(response){
+                   if(response == 'ok'){
+                       //$('#remoteCheck').css({display:'none'});
+                       $('#remoteCheck').find('img').attr('src', '../wp-includes/images/uploader-icons-2x.png');
+                       alert('Your system supports Remote Operation.  Save your settings to initialize this option.  The Remote Operation is triggered every 6 hours');
+                   }else if(response == 'fail'){
+                        alert('Your system does not support the Remote Operation.  Please contact your System Administrator to enable the use of XML-RPC on your server');
+                       $e.prop("checked", false);
+                       $e.next('input[type="radio"]').prop("checked", true);
+                       //$('#remoteCheck').css({display:'none'});
+                       $('#remoteCheck').find('img').attr('src', '../wp-includes/images/uploader-icons-2x.png');
+                       $('#remoteCheck').find('img').css({position: 'absolute', left: '-188px'});
+                   }
+                   $('#checkFlasher').html('');
+                   $('#checkFlasher').removeClass('blinking-text');
+               });
+           }else{
+                $('#remoteCheck').find('img').attr('src', '');   
+           }
+        });
         if($('input[name="braftonEnableCustomCSS"]').length != 0){
             premium(null);
         }
