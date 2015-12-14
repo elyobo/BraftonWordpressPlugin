@@ -67,7 +67,6 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         $catArray = array();
         $cNum = $this->ClientCategory->ListForArticle($brafton_id, 0, 100)->totalCount;
         $custom_cat = explode(',',$this->options['braftonCustomVideoCategories']);
-
         for($i=0;$i<$cNum;$i++){
             $catId = $this->ClientCategory->ListForArticle($brafton_id,0,100)->items[$i]->id;
             $catNew = $this->ClientCategory->Get($catId);
@@ -75,6 +74,7 @@ class BraftonVideoLoader extends BraftonFeedLoader {
             $catArray[] = $slugObj->term_id;
         }
         foreach($custom_cat as $cat){
+            if($cat == '' || $cat == null){ continue; }
             $slugObj = get_category_by_slug(esc_sql($cat));
             $catArray[] = $slugObj->term_id;
 
@@ -85,9 +85,9 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     }
     public function getPostDate($pdate){
 
-        $post_date_gmt = strtotime($pdate);
-        $post_date_gmt = gmdate('Y-m-d H:i:s', $post_date_gmt);
-        $post_date = get_date_from_gmt($post_date_gmt);
+        $post_date = strtotime($pdate);
+        $post_date_gmt = gmdate('Y-m-d H:i:s', $post_date);
+        $post_date = date('Y-m-d H:i:s', $post_date);
         $date_array = array($post_date_gmt, $post_date);
         return $date_array;
 
@@ -245,13 +245,11 @@ EOC;
 
     }
 
-
-
     static function manualImportVideos() {
         $import = new BraftonVideoLoader();
-        $import->ImportVideos();
+        $msg = $import->ImportVideos();
+        echo $msg;
     }
-
 
     //Actual workhorse of the import video class
     public function ImportVideos(){
@@ -263,7 +261,8 @@ EOC;
         //Gets the Categories
         $this->ImportCategories();
         //runs the actual loop
-        $this->runLoop();
+        return $this->runLoop();
+        
     }
     public function runLoop(){
         $this->errors->set_section('Video Master loop');
@@ -276,7 +275,7 @@ EOC;
         foreach($this->ArticleList->items as $article){
             $brafton_id = $article->id;
             if( !($post_id = $this->brafton_post_exists($brafton_id)) || $this->override ){//Begin individual video article import
-                if($counter == $this->options['braftonVideoLimit']){ return; }
+                if($counter == $this->options['braftonVideoLimit']){ continue; }
                 $this->errors->set_section('Individual video loop run '.$counter);
                 //Get the current article info in the loop
                 $thisArticle = $this->Client->Articles()->Get($brafton_id);
@@ -292,26 +291,29 @@ EOC;
                 $post_content = $thisArticle->fields['content'];
                 $post_title = $thisArticle->fields['title'];
                 $post_excerpt = $thisArticle->fields['extract'];
+                $post_excerpt = $post_excerpt == null? ' ': $post_excerpt;
                 $post_status = $this->options['braftonPostStatus'];
 
                 $post_date_array = $this->getPostDate($thisArticle->fields['date']);
                 $post_date = $post_date_array[1];
                 $post_date_gmt = $post_date_array[0];
 
-                $compacted_article = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_status', 'post_excerpt');
+                $compacted_article = compact('post_author', 'post_date', 'post_content', 'post_title', 'post_status', 'post_excerpt');
                 $compacted_article['post_category'] = $this->assignCategories($brafton_id);
                 
                 if($post_id){//If the post existed but we are overriding values
                     $this->errors->set_section('Updating video with id: '.$post_id);
                     $compacted_article['ID'] = $post_id;
-                    $post_id = wp_update_post($compacted_article);
+                    $post_id = wp_update_post($compacted_article, true);
                 }
                 else{//if the post doesn't exists we add it to the database
                     $this->errors->set_section('Inserting new video');
-                    $post_id = wp_insert_post($compacted_article);
+                    $post_id = wp_insert_post($compacted_article, true);
                 }
-                if(is_wp_error($post_id)){
-                    trigger_error($post_id);
+                if(is_object($post_id) && get_class($post_id) == 'WP_Error'){
+                    $wp_error_msg = implode(', ',$post_id->error_data);
+                    trigger_error($wp_error_msg);
+                    continue;
                 }
                 else{
                     /*
@@ -374,19 +376,19 @@ EOC;
                 ++$counter;
                 ++$this->errors->level;
             }//End the individual video article import
-
         }
         $listImported['counter'] = $counter;
-            echo '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
-                echo '<h3>'.$listImported['counter'].' Videos Imported</h3>';
+        $returnMessage = '';
+        $returnMessage .= '<div id="imported-list" style="position:absolute;top:50px;width:50%;left:25%;z-index:9999;background-color:#CCC;padding:25px;box-sizing:border-box;line-height:24px;font-size:18px;border-radius:7px;border:2px outset #000000;">';
+        $returnMessage .= '<h3>'.$listImported['counter'].' Videos Imported</h3>';
         if($listImported['counter']){
-                
             foreach($listImported['titles'] as $item => $title){
-                echo '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
+                $returnMessage .= '<a href="'.$title['link'].'"> VIEW </a> '.$title['title'].'<br/>';
             }
         }
-            echo '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
-            echo '</div>';
+        $returnMessage .= '<a class="close-imported" id="close-imported" style="position:absolute;top:0px;right:0px;padding:10px 15px;cursor:pointer;font-size:18px;">CLOSE</a>';
+        $returnMessage .= '</div>';
+        return $returnMessage;
         
     }
 }

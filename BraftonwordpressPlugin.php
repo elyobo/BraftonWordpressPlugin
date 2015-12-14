@@ -3,7 +3,7 @@
 	Plugin Name: Content Importer
 	Plugin URI: http://www.brafton.com/support/wordpress
 	Description: Wordpress Plugin for Importing marketing content from Brafton, ContentLEAD, and Castleford Media Corp.  Support in line content, dynamic Authors, Updating and Error reporting. video requires php 5.3 or higher.
-	Version: 3.3.6
+	Version: 3.3.7
     Requires: 3.5
 	Author: Brafton, Inc.
 	Author URI: http://brafton.com/support/wordpress
@@ -15,7 +15,7 @@
 
 if( class_exists( 'XMLHandler' ) ){
         echo '<div class="error">
-				<p>CONTENT IMPORTER: You may have another Brafton, ContentLEAD, or Castleford Content Importer Installed.  Please Disable your previous version before activating your new one.<br/><blockquote>XMLHandler and XMLException Classes already declared indicating a previous version is installed.</blockquote></p>
+				<p><strong>CONTENT IMPORTER</strong>: You may have another Brafton, ContentLEAD, or Castleford Content Importer Installed.  Please Disable your previous version before activating your new one.<br/><blockquote>XMLHandler and XMLException Classes already declared indicating a previous version is installed.</blockquote></p>
 				</div>';
     exit();
 }
@@ -32,11 +32,12 @@ include 'BraftonXML.php';
 include 'BraftonUpdate.php';
 
 
-define("BRAFTON_VERSION", '3.3.6');
+define("BRAFTON_VERSION", '3.3.7');
 
 define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
 define("BRAFTON_PLUGIN", dirname(__FILE__).'/BraftonwordpressPlugin.php');
 define("BRAFTON_BASENAME", plugin_basename(__FILE__));
+define("BRAFTON_DIR", dirname(__FILE__).'/');
 
 class BraftonWordpressPlugin {
     
@@ -62,15 +63,16 @@ class BraftonWordpressPlugin {
 
     
     public function __construct(){
+        if(version_compare(get_option('BraftonVersion', 0), BRAFTON_VERSION, '!=')){
+            add_action('admin_notices', array($this, 'BraftonUpdatedPluginNotification'));
+            BraftonOptions::ini_BraftonOptions();
+        }
         //fires when the plugin is activated
         register_activation_hook(__FILE__, array($this, 'BraftonActivation'));
         //fires when the plugin is deactivated
         register_deactivation_hook(__FILE__, array($this, 'BraftonDeactivation'));
         if(function_exists('is_multisite') && is_multisite()){
             add_action('wpmu_new_blog', array($this, 'BraftonMultisiteActivation'), 10,6);
-        }
-        if(version_compare(get_option('BraftonVersion', 0), BRAFTON_VERSION, '!=')){
-            BraftonOptions::ini_BraftonOptions();
         }
         //enable Featured Images if it isn't already
         if(!current_theme_supports('post-thumbnails')){
@@ -92,6 +94,7 @@ class BraftonWordpressPlugin {
         add_action('init', array('BraftonCustomType', 'BraftonInitializeType'));
         add_action('init', array($this, 'brafton_activate_updater'));
         add_action('wp_dashboard_setup', array($this, 'BraftonDashboardWidget'));
+        add_action('admin_notices', array($this, 'BraftonNotices'));
         
         if($this->options['braftonRemoteOperation']){
             add_action('wp_head', array($this, 'RemoteOperation'));
@@ -129,6 +132,12 @@ class BraftonWordpressPlugin {
 				<p>Your Content Importer for Brafton, ContentLEAD, and Castleford Content has been disabled due to the missing dependancies.Ensure '.$missing.' are enabled on your server.</p>
 				</div>';
         
+    }
+    static function BraftonUpdatedPluginNotification(){
+        //use this function to register what changes were made and direct the user to check out the new features.
+        echo "<div class='brafton".BRAFTON_VERSION."updateFeatures-notice notice error is-dismissible'>
+                <p style='width:85%'>Updated Importer: Check out the new features.</p>
+                </div>";
     }
     private function _BraftonActivation(){
         $option_init = BraftonOptions::ini_BraftonOptions();
@@ -179,6 +188,7 @@ class BraftonWordpressPlugin {
         if($file == plugin_basename(__FILE__)){
             $admin = admin_url('/', 'admin');
             $links[] = '<a href="'.$admin.'admin.php?page=BraftonArticleLoader">Settings</a>';
+            $links[] = '<a href="http://localhost/wp_feature/wp-content/plugins/BraftonWordpressPlugin/ImporterInstructions.pdf" target="_blank">Instructions</a>';
         }
         return $links;
     }
@@ -457,6 +467,7 @@ EOT;
         if($static['braftonRemoteTime'] + 21600 > current_time('timestamp')){
             return;
         }
+        $ops->saveOption('braftonRemoteTime', current_time('timestamp'));
         $remoteUrl = 'http://updater.brafton.com/wp-remote/remote.php?';
         $siteUrl = site_url();
         $functions = $static['braftonArticleStatus'] ? 'articles' : '';
@@ -468,8 +479,22 @@ EOT;
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 0);
         curl_exec($ch);
-        
-        $ops->saveOption('braftonRemoteTime', current_time('timestamp'));
+    }
+    static function BraftonNotices(){
+        //Notify user there is an update available
+        $brand = BraftonOptions::getSingleOption('braftonApiDomain');
+        $brand = switchCase($brand);
+        $url = 'http://updater.brafton.com/u/wordpress/update/version/';
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 0);
+        $version = curl_exec($ch);
+        if(version_compare(BRAFTON_VERSION, $version, '<')){
+            echo "<div class='brafton".BRAFTON_VERSION."updateAvailable-notice notice error'>
+                <p style='width:85%'><strong>$brand Content Importer: </strong> An Update is available for your Content Importer.  You are on version ".BRAFTON_VERSION." while version $version is available for download. Please <a href='plugins.php?plugin_status=upgrade'><strong>UPDATE</strong> your plugin</a>.</p>
+                </div>";
+        }
     }
 }
 $initialize_Brafton = new BraftonWordpressPlugin();
