@@ -109,6 +109,8 @@ class BraftonErrorReport {
                     )
                 );
                 $response = wp_remote_post($url, $post_args);
+                $message = 'Hello, <br/> '.$this->domain. ' has experienced an overflow of errors and has dumped the current log to the api folder logs/'.$this->domain.'.  The response received by the api was as follows. <br/>'. json_encode($response);
+                mail('deryk.king@brafton.com', 'Error log for '.$this->domain, $message);
                 delete_option('brafton_e_log');
                 add_option('brafton_e_log');
                 return null;
