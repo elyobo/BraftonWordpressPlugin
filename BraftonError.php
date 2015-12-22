@@ -88,7 +88,7 @@ class BraftonErrorReport {
             $jsonErrors = json_encode($brafton_error);
             $brafton = $brafton_error;
             
-            if( mb_strlen($jsonErrors) >= 34000 ){
+            if( mb_strlen($jsonErrors) >= 50000 ){
                 $filename = "Brafton_Errors_".date('Y-M-d-(h.m.s)')."-".$this->domain.".txt";
                 if(is_writable(dirname(__FILE__))){
                     $folder = BRAFTON_DIR;
@@ -109,8 +109,6 @@ class BraftonErrorReport {
                     )
                 );
                 $response = wp_remote_post($url, $post_args);
-                $message = 'Hello, <br/> '.$this->domain. ' has experienced an overflow of errors and has dumped the current log to the api folder logs/'.$this->domain.'.  The response received by the api was as follows. <br/>'. json_encode($response);
-                mail('deryk.king@brafton.com', 'Error log for '.$this->domain, $message);
                 delete_option('brafton_e_log');
                 add_option('brafton_e_log');
                 return null;
