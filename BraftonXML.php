@@ -66,7 +66,13 @@ class BraftonXMLRPC{
         $bOptions->saveOption('braftonStatus', 0);
         $bOptions->saveOption('braftonArticleStatus', 0);
         $bOptions->saveOption('braftonVideoStatus', 0);
-        $msg .= "<h2>This importer has now been turned on</h2>";
+        $msg = "<h2>This importer has now been turned on</h2>";
+        $this->message .= $msg;
+    }
+    public function debug_off(){
+        $bOptions = new BraftonOptions();
+        $bOptions->saveOption('braftonDebugger', 0);
+        $msg = "<h2>Debug has now been turned off</h2>";
         $this->message .= $msg;
     }
     static function RemoteOperation($args){
