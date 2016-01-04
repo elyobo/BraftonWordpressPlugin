@@ -261,7 +261,9 @@ EOC;
         //Gets the Categories
         $this->ImportCategories();
         //runs the actual loop
-        return $this->runLoop();
+        $msg = $this->runLoop();
+        $this->options_ini->saveOption("braftonUpdateContent", 0);
+        return $msg;
         
     }
     public function runLoop(){
