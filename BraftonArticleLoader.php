@@ -35,7 +35,9 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         //Gets the complete category tree and adds any new categories
         $this->ImportCategories();
         //imports each article in the feed
-        return $this->runLoop();
+        $msg = $this->runLoop();
+        $this->options_ini->saveOption("braftonUpdateContent", 0);
+        return $msg;
     }
     public function loadXMLArchive(){
         $this->errors->debug_trace(array('message' => 'Starting Archive Load', 'file' => __FILE__, 'line' => __LINE__));
