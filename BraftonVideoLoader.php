@@ -262,7 +262,7 @@ EOC;
         $this->ImportCategories();
         //runs the actual loop
         $msg = $this->runLoop();
-        $this->options_ini->saveOption("braftonUpdateContent", 0);
+        $this->option_ini->saveOption("braftonUpdateContent", 0);
         return $msg;
         
     }

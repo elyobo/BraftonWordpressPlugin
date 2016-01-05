@@ -36,7 +36,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         $this->ImportCategories();
         //imports each article in the feed
         $msg = $this->runLoop();
-        $this->options_ini->saveOption("braftonUpdateContent", 0);
+        $this->option_ini->saveOption("braftonUpdateContent", 0);
         return $msg;
     }
     public function loadXMLArchive(){
