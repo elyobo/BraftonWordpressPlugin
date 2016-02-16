@@ -30,6 +30,7 @@ include 'BraftonCustomType.php';
 include 'admin/BraftonAdminFunctions.php';
 include 'BraftonXML.php';
 include 'BraftonUpdate.php';
+include 'BraftonWidgets.php';
 
 
 define("BRAFTON_VERSION", '3.3.11');
@@ -81,10 +82,11 @@ class BraftonWordpressPlugin {
         if(!current_theme_supports('post-thumbnails')){
             add_theme_support('post-thumbnails');
         }
-        
+
         $init_options = new BraftonOptions();
         $this->options = $init_options->getAll();
-        
+        define('CURRENT_BRAND', switchCase($this->options['braftonApiDomain']));
+
         //Adds our needed hooks
         add_action('wp_head', array($this, 'BraftonOpenGraph'));
         add_action('wp_head', array($this, 'BraftonJQuery'));
@@ -94,7 +96,13 @@ class BraftonWordpressPlugin {
         add_action('admin_menu', array($this, 'BraftonAdminMenu'));
         add_action('braftonSetUpCron', array($this, 'BraftonCronArticle'));
         add_action('braftonSetUpCronVideo', array($this, 'BraftonCronVideo'));
-        add_action('init', array('BraftonCustomType', 'BraftonInitializeType'));
+        //conditional upon enabling the option
+        if($this->options['braftonArticlePostType']){
+            add_action('init', array('BraftonCustomType', 'BraftonInitializeType'));
+            add_action('widgets_init', array('BraftonWidgets', 'CustomTypeCategory'));
+            add_action('widgets_init', array('BraftonWidgets', 'CustomTypeDateArchives'));
+        }
+        
         add_action('init', array($this, 'brafton_activate_updater'));
         add_action('wp_dashboard_setup', array($this, 'BraftonDashboardWidget'));
         add_action('admin_notices', array($this, 'BraftonNotices'));
@@ -113,11 +121,13 @@ class BraftonWordpressPlugin {
         add_filter( 'xmlrpc_methods', array($this, 'BraftonXMLRPC' ));
 
         $this->ogStatus = $this->options['braftonOpenGraphStatus'];
+        
         if($this->options['braftonMarproStatus'] == 'on'){
             $marpro = new BraftonMarpro();
+            add_action('widgets_init', array('BraftonWidgets', 'CallToAction'));
         }
         if($this->options['braftonArticlePostType']){
-            add_action('pre_get_posts', array('BraftonCustomType', 'BraftonIncludeContent'));
+            //add_action('pre_get_posts', array('BraftonCustomType', 'BraftonIncludeContent'));
         }
     }
     static function BraftonAutoDeactivate(){

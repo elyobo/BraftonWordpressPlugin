@@ -30,6 +30,9 @@ class BraftonErrorReport {
     public $debug;
     
     private $domain;
+    
+    private static $Errors = null;
+    
     //Construct our error reporting functions
     public function __construct($api, $brand, $debug){
         $this->debug = $debug;
@@ -79,6 +82,9 @@ class BraftonErrorReport {
     }
     //retrieves the current error log from the db returns an array of current logs
     private function b_e_log(){
+        if(self::$Errors != null){
+            return self::$Errors;
+        }
         if(!$brafton_error = get_option('brafton_e_log')){
             add_option('brafton_e_log');
             $brafton = null;
@@ -115,7 +121,9 @@ class BraftonErrorReport {
 
             }
         }
-        return $brafton; 
+        return self::$Errors = $brafton;
+        
+        //return $brafton; 
     }
     //Known minor Errors occuring from normal operation.
     public function check_known_errors($e){
@@ -189,7 +197,8 @@ class BraftonErrorReport {
                 'error' => 'Debug Tace : '.$msg['message'].' in '. $msg['file'] . ' on line '. $msg['line'] . ' in section ' . $this->section
                 );
         $brafton_error[] = $debug_trace;
-        update_option('brafton_e_log', $brafton_error);        
+        self::$Errors = $brafton_error;
+        update_option('brafton_e_log', self::$Errors);        
     }
     
     public function make_local_report($e, $errorLevel){
@@ -202,6 +211,7 @@ class BraftonErrorReport {
                 'error'     => get_class($e).' : '.$errorLevel.' | '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine().' brafton_level '.$this->level.' in section '.$this->section
             );
             $brafton_error[] = $errorlog;
+            self::$Errors = $brafton_error;
             update_option('brafton_e_log', $brafton_error);
             return $errorlog;
     }

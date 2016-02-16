@@ -253,7 +253,12 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                 $the_tags = $this->assignTags($article);
                 $this->errors->set_section('Main article loop');
                 if($this->options['braftonArticlePostType']){
-                    $compacted_article['post_type'] = 'blog_content';
+                     $type = strtolower(
+                        str_replace(' ', '-', 
+                                    preg_replace("/[^a-z0-9 ]/i", "",$this->options['braftonCustomSlug'])
+                                   )
+                    );
+                    $compacted_article['post_type'] = $type;
                     
                 }
                 // Load Brafton articles as pre-existing post type if specified
