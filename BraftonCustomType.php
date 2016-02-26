@@ -3,7 +3,7 @@ class BraftonCustomType {
     
     public $options;
     public $cleanSlug;
-    
+    static $urlSlug;
     public function __construct(){
         $op = new BraftonOptions();
         $this->options =  $op->options;
@@ -14,13 +14,30 @@ class BraftonCustomType {
         add_filter('pre_get_posts', array($this, 'BraftonIncludeContent'));
         $this->copyTemplates();
         $this->registerTemplates();
+        //add_filter('wp_get_nav_menu_items', array($this, 'add_nav'), 10,3);
+        add_filter('wp_setup_nav_menu_item', array($this, 'flter_items'), 10, 1);
         flush_rewrite_rules();
     }
     
     static function BraftonInitializeType(){
         $initialize = new BraftonCustomType();
     }
-    
+    static function add_nav($items,$menu, $args){
+        echo '<pre>';var_dump($items,$menus, $args); echo '</pre>';
+        exit();
+        
+    }
+    static function flter_items($menu_item){
+        //Get option for what the id of the blog page is when it is added as a page.
+        echo '<pre>';var_dump($menu_item); echo '</pre>';
+        $customBlogPageId = "1591"; //This must be a string
+        if($menu_item->object_id == $customBlogPageId){
+            exit();
+            $url = site_url().'/slug';
+            //$menu_item->url = $url;
+        }
+        return $menu_item;
+    }
     public function copyTemplates(){
         $dir = get_template_directory();
         //copy archive.php file for use with custom post type
@@ -50,6 +67,7 @@ class BraftonCustomType {
        //$slug = BraftonOptions::getSingleOption('braftonCustomSlug');
        $slug = $this->options['braftonCustomSlug']? $this->options['braftonCustomSlug']: 'blog';
        $this->cleanSlug = $cleanSlug = strtolower(str_replace(' ', '-', preg_replace("/[^a-z0-9 ]/i", "",$slug) ));
+       $this->urlSlug = $cleanSlug;
        $post_args = array(
           'label'   => __($brand.' Content'),
           'labels'  => array(
