@@ -389,8 +389,6 @@ EOC;
         $static = $ops->getAll();
         
         $videojs = '<link href="//vjs.zencdn.net/4.3/video-js.css" rel="stylesheet"><script src="//vjs.zencdn.net/4.3/video.js"></script>';
-        
-        $atlantisjs_src = '//atlantisjs.brafton.com';
     
         $atlantisjs = '<link rel="stylesheet" href="//atlantisjs.brafton.com/v1/atlantisjsv1.4.css" type="text/css" /><script src="//atlantisjs.brafton.com/v1/atlantis.min.v1.3.js" type="text/javascript"></script>';
         
