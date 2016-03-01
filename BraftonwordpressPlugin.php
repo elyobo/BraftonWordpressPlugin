@@ -3,7 +3,7 @@
 	Plugin Name: Content Importer
 	Plugin URI: http://www.brafton.com/support/wordpress
 	Description: Wordpress Plugin for Importing marketing content from Brafton, ContentLEAD, and Castleford Media Corp.  Support in line content, dynamic Authors, Updating and Error reporting. video requires php 5.3 or higher.
-	Version: 3.3.11
+	Version: 3.3.12
     Requires: 3.5
 	Author: Brafton, Inc.
 	Author URI: http://brafton.com/support/wordpress
@@ -32,7 +32,7 @@ include 'BraftonXML.php';
 include 'BraftonUpdate.php';
 
 
-define("BRAFTON_VERSION", '3.3.11');
+define("BRAFTON_VERSION", '3.3.12');
 
 define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
 
@@ -392,10 +392,7 @@ EOC;
         
         $atlantisjs_src = '//atlantisjs.brafton.com';
     
-        if (!empty($_SERVER['HTTPS']) && strtolower($_SERVER["HTTPS"]) == "on"){
-            $atlantisjs_src = 'https://d1z1nkr1lc6xgd.cloudfront.net';
-        }
-        $atlantisjs = '<link rel="stylesheet" href="'.$atlantisjs_src.'/v1/atlantisjsv1.4.css" type="text/css" /><script src="'.$atlantisjs_src.'/v1/atlantis.min.v1.3.js" type="text/javascript"></script>';
+        $atlantisjs = '<link rel="stylesheet" href="//atlantisjs.brafton.com/v1/atlantisjsv1.4.css" type="text/css" /><script src="//atlantisjs.brafton.com/v1/atlantis.min.v1.3.js" type="text/javascript"></script>';
         
         //defines what video javascript option we are using
         $videoOption = $static['braftonVideoHeaderScript'];
