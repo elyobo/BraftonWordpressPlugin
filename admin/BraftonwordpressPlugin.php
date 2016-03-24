@@ -30,7 +30,7 @@ define("BRAFTON_BASENAME", plugin_basename(__FILE__));
 define("BRAFTON_DIR", dirname(__FILE__).'/');
 
 define("BRAFTON_BASE_URL", "http://updater.brafton.com/");
-//define("BRAFTON_BASE_URL", "http://staging.updater.brafton.com/");
+//define("BRAFTON_BASE_URL", "http://localtest.updater.com/");
 
 define("BRAFTON_ERROR_KEY", "ucocfukkuineaxf2lzl3x6h9");
 

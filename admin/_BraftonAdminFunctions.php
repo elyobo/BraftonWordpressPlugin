@@ -185,6 +185,7 @@ class BraftonAdministration {
         submit_button('Save Settings');
         echo '</div>';
         echo '</form>';
+        if($this->options['braftonRestyle']){
         echo '<form method="post" action="'. $_SERVER['REQUEST_URI'].'" class="braf_options_form" onsubmit="return settingsValidate()">';
         echo '<div id="tab-10" class="tab-9">';
         settings_fields('brafton_article_style_options');
@@ -197,6 +198,7 @@ class BraftonAdministration {
         submit_button('Save Settings');
         echo '</div>';
         echo '</form>';
+        }
         echo '<div id="tab-6" class="tab-5">';
         echo '<form method="post" action="'; echo $_SERVER['REQUEST_URI']; echo '" enctype="multipart/form-data" class="brafton_archive_form">';
         settings_fields('brafton_archive_options');

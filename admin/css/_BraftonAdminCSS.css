@@ -272,6 +272,9 @@ span.brafton-cursor-switch {
     box-shadow:0px 0px 1px 1px #FFF;
 
 }
+input[type=checkbox]{
+    margin-top:0px !important;
+}
 input[type=checkbox]:checked + span.brafton-switch{
     background-color:#46B450;
 }

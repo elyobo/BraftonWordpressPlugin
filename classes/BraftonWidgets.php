@@ -10,7 +10,7 @@ class BraftonWidgets {
         register_widget('CustomTypeCategory_Widget');
     }
     static function CustomTypeDateArchives(){
-        include_once BRAFTON_DIR.'widgets/customTypeDateArchives.php';
+        include_once BRAFTON_DIR.'widgets/CustomTypeDateArchives.php';
         register_widget('customTypeDateArchives_Widget');
     }
 }
