@@ -33,15 +33,17 @@ class BraftonErrorReport {
     
     private static $Errors = null;
     
+    public static $instance = null;
+    
     //Construct our error reporting functions
-    public function __construct($api, $brand, $debug){
+    private function __construct($api, $brand, $debug){
         $this->debug = $debug;
         $this->url = $_SERVER['REQUEST_URI'];
         $this->domain = $_SERVER['HTTP_HOST'];
         $this->api = $api;
         $this->brand = $brand;
-        $this->e_key = 'ucocfukkuineaxf2lzl3x6h9';
-        $this->post_url = 'http://updater.brafton.com/errorlog/wordpress/error/'.$this->e_key;
+        //$this->e_key = 'ucocfukkuineaxf2lzl3x6h9';
+        $this->post_url = BRAFTON_BASE_URL.'errorlog/wordpress/error/'.BRAFTON_ERROR_KEY;
         $this->level = 1;
         $this->section = 'error initialize';
         register_shutdown_function(array($this,  'check_for_fatal'));
@@ -49,17 +51,21 @@ class BraftonErrorReport {
         set_exception_handler(array($this, 'log_exception'));
         ini_set( "display_errors", 0 );
         error_reporting( E_ALL );
-        
-
-        
+    }
+    public static function getInstance($api, $brand, $debug){
+        if(self::$instance == null){
+            self::$instance = new BraftonErrorReport($api, $brand, $debug);
+        }
+        return self::$instance;
     }
     //handles the error log page
     static function errorPage(){
-        if($_POST['braftonClearLog'] == 1){
+        if(isset($_POST['braftonClearLog']) && $_POST['braftonClearLog'] == 1){
             delete_option('brafton_e_log');
         }
+        
         $_POST['braftonClearLog'] = 0;
-        $save = BraftonOptions::saveAllOptions();
+        //$save = BraftonOptions::saveAllOptions();
     }
     //Sets the current section reporting the error periodically set by the article and video loops themselves
     public function set_section($sec){
@@ -106,7 +112,7 @@ class BraftonErrorReport {
                     fclose($file);
                 }
                 $client = site_url();
-                $url = 'http://updater.brafton.com/logs.php?client='.$this->domain;
+                $url = BRAFTON_BASE_URL.'logs.php?client='.$this->domain;
                 //$url = 'http://staging.updater.brafton.com/logs.php?client='.$this->domain;
                 $post_args = array(
                     'body' => array(

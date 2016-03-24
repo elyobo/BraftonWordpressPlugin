@@ -1,43 +1,32 @@
 <?php
 class CallToAction_Widget extends WP_Widget {
     
-    function CallToAction_Widget(){
+    function __construct(){
 
-        parent::WP_Widget(false, $name = __('Call To Action', 'wp_Widget_plugin'));
-        parent::WP_Widget('call_to_action', 
-                          strtoupper(CURRENT_BRAND).': Call To Action', 
+        //parent::__construct(false, $name = __('Call To Action', 'wp_Widget_plugin'));
+        parent::__construct('call_to_action', 
+                          strtoupper(BRAFTON_BRAND).': Call To Action', 
               array(
-                  'classname'   => 'widget_call_to_action '.CURRENT_BRAND.'_cta',
-                  'description' => 'Custom Call to Action Widget. Can be used with '.CURRENT_BRAND.' Arch Product'
+                  'classname'   => 'widget_call_to_action '.BRAFTON_BRAND.'_cta',
+                  'description' => 'Custom Call to Action Widget. Can be used with '.BRAFTON_BRAND.' Arch Product'
               )
         );
-        wp_enqueue_script('upload_media_widget', BRAFTON_ROOT . '/js/upload-media.js', array('jquery'));
-        wp_enqueue_media();
+        add_action('admin_enqueue_scripts', array($this, 'add_scripts'));
 
     }
-    
+    function add_scripts(){
+        wp_enqueue_script('upload_media_widget', BRAFTON_ROOT . '/js/upload-media.js', array('jquery'));
+        wp_enqueue_media();
+    }
     //Generates the form on the widgets page to populate the individual widget
     function form($instance){
-
-        if($instance){
-
-            $title = $instance['title'];
-            $linktext = $instance['linktext'];
-            $linkto = $instance['linkto'];
-            $image = $instance['image'];
-            $marpro = $instance['marpro'];
-            $img_support = $instance['img_support'];
-
-        } else{
-
-            $title = '';
-            $linktext = '';
-            $linkto = 'javascript:void(0)';
-            $image = '';
-            $marpro = '';
-            $img_support = 0;
-
-        }
+        
+            $title = $instance ? $instance['title'] : '';
+            $linktext = $instance ? $instance['linktext'] : '';
+            $linkto = $instance ? $instance['linkto'] : 'javascript:void(0)';
+            $image = $instance ? $instance['image'] : '';
+            $marpro = $instance ? $instance['marpro'] : '';
+            $img_support = $instance ? $instance['img_support'] : 0;
 
         ?>
         <style>

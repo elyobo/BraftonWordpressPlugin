@@ -1,5 +1,5 @@
 <?php
-require 'libs/APIClientLibrary/ApiHandler.php';
+require BRAFTON_DIR.'libs/APIClientLibrary/ApiHandler.php';
 // 45b8688e-c6bd-4335-8633-0cbf497b71af
 // 528a432c-2f60-4dc8-80fe-4cebc1fe25ca
 class BraftonArticleLoader extends BraftonFeedLoader {

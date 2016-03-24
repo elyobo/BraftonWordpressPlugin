@@ -29,7 +29,7 @@ class BraftonFeedLoader {
         include_once(ABSPATH . 'wp-includes/pluggable.php');
         $this->option_ini = new BraftonOptions();
         $this->options = $this->option_ini->getAll();
-        $this->errors = new BraftonErrorReport($this->options['braftonApiKey'],$this->options['braftonApiDomain'], $this->options['braftonDebugger']);
+        $this->errors = BraftonErrorReport::getInstance($this->options['braftonApiKey'],$this->options['braftonApiDomain'], $this->options['braftonDebugger']);
         $this->upload_array = wp_upload_dir();
         $this->override = $this->options['braftonUpdateContent'];
         $this->publishDate = $this->options['braftonPublishDate'];

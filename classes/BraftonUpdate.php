@@ -48,17 +48,10 @@ class Brafton_Update
  
         // define the alternative API for updating checking
         add_filter('pre_set_site_transient_update_plugins', array(&$this, 'check_update'));
-        //add_filter('plugins_api_args', array(&$this, 'add_args'), 10, 2);
+
         // Define the alternative response for information checking
         add_filter('plugins_api', array($this, 'check_info'), 10, 3);
         //var_dump($suc);
-    }
-    public function add_args($args, $action){
-        $args->fields = array(
-            'teltale'   => true
-        );
-        return $args;
-        
     }
     /**
      * Add our self-hosted autoupdate plugin to the filter transient
@@ -75,7 +68,7 @@ class Brafton_Update
  
         // Get the remote version
         $remote_version = $this->getRemote_version();
-        //$remote_version = 158;
+        
         $remote_info = $this->getRemote_information();
 
         // If a newer version is available, add the update
@@ -93,9 +86,6 @@ class Brafton_Update
             );
             $transient->response[$this->plugin_slug] = $obj;
         }
-        //echo '<pre>3';
-        //var_dump($transient);
-        //echo '</pre>'; 
         return $transient;
     }
  
@@ -110,8 +100,8 @@ class Brafton_Update
     //registers wheither it is our plugin or not if it is add results filter
     public function check_info($false,$action, $arg)
     {
-        //echo "<h1>Brafton Plugin</h1>";
-        if($arg->slug === $this->slug){
+
+        if( isset($arg->slug) && $arg->slug === $this->slug){
             $remote_info = $this->getRemote_information();
             $obj = new stdClass();
             $obj->slug = $this->slug;
@@ -133,25 +123,14 @@ class Brafton_Update
             return $obj;
         }
         return false;
-        //echo '<pre>1';
-        //var_dump($result);
-        
 
     }
     //results filter to return the obj for veiw version details pop
     public function check_inf($false,$action, $arg)
     {
 
-        /*
-        if ($arg->slug === $this->slug) {
-            $information = $this->getRemote_information();
-            return $information;
-        }
-        return false;
-       */
-        //echo "<h1>Brafton Plugin</h1>";
         //These will come from the api loading in only the appropriate variables based on the domain that they have the api from
-        if($arg->slug === $this->slug){
+        if( isset($arg->slug) && $arg->slug === $this->slug){
             $remote_info = $this->getRemote_information();
             $obj = new stdClass();
             $obj->slug = $this->slug;
@@ -180,10 +159,7 @@ class Brafton_Update
             $obj->external = true;
             return $obj;
         }
-        return false;
-        //echo '<pre>2';
-        //var_dump($result);
-        
+        return false;        
 
     }
  

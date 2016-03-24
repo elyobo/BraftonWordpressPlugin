@@ -99,7 +99,8 @@ class BraftonOptions {
             'braftonInlineImageMargin'    => 5,
             'braftonVideoOutput'        => 0,
             'braftonRemoteOperation'    => 0,
-            'braftonRemoteTime'         => ''
+            'braftonRemoteTime'         => '',
+            'braftonCustomBlogPageId'   => ''
             );
         //checks for a previous instance of the options array and merges already set values with the default array.  This accounts for new features and new options added to a new version of the importer
         if($old_options = get_option('BraftonOptions')){

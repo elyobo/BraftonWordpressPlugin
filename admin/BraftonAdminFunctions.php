@@ -26,7 +26,6 @@ if(isset($_POST['submit'])){
         break;
         }
 }
-add_action( 'wp_ajax_health_check', 'health_check');
 function health_check(){
     $ch = curl_init();
     $client = site_url();
@@ -203,7 +202,7 @@ function print_section_info($args){
             echo '<p>This is for uploading an archive provided to you by your CMS</p>';
         break;
         case 'control':
-            echo '<p>You can manually run the importer at any point by selecting which importer you would like to run.  If you are receiving both Vidoes, and Articles you will have to run the importer for each one seperately.  The importer does run each hour automatically provided it is turned on.</p>';
+            echo '<p>You can manually run the importer at any point by selecting which importer you would like to run.  If you are receiving both Vidoes, and Articles you will have to run the importer for each one seperatly.  The importer does run each hour automatically provided it is turned on.</p>';
         break;
         case 'atlantis':
             echo '<p>This is for Styling the Atlantis Video Player.  You may use the selection options below or choose to write your own CSS below.</p>';
@@ -1505,5 +1504,46 @@ function admin_page(){
 function style_page(){
     braftonRegisterSettings();
     include 'BraftonStylePage.php';
+}
+function render_brafton_admin_page(){
+    echo '<div id="tab-1" class="tab-1">';
+    settings_fields( 'brafton_general_options' );
+    do_settings_sections( 'brafton_general' );
+    submit_button('Save Settings');
+    echo '</div>';
+    echo '<div id="tab-2" class="tab-2">';
+    settings_fields( 'brafton_article_options');
+    do_settings_sections('brafton_article');
+    submit_button('Save Settings');
+    echo '</div>';
+    echo '<div id="tab-3" class="tab-3">';
+    settings_fields('brafton_video_options');
+    do_settings_sections('brafton_video');
+    submit_button('Save Settings');
+    echo '</div>';
+    echo '<div id="tab-4" class="tab-4">';
+    settings_fields('brafton_marpro_options');
+    do_settings_sections('brafton_marpro');
+    submit_button('Save Settings');
+    echo '</div>';
+    echo '</form>';
+    echo '<div id="tab-5" class="tab-5">';
+    echo '<form method="post" action="'; echo $_SERVER['REQUEST_URI']; echo '" enctype="multipart/form-data">';
+    settings_fields('brafton_archive_options');
+    do_settings_sections('brafton_archive');
+    submit_button('Upload Archive');
+    echo '</form>';
+    echo '</div>';
+    echo '<div id="tab-6" class="tab-6">';
+    echo '<form method="post" action="">';
+    settings_fields( 'brafton_error_options' );
+    do_settings_sections( 'brafton_error' );
+    submit_button('Save Errors');
+    echo '</form>';
+    echo '</div>';
+    echo '<div id="tab-7" class="tab-7">';
+    echo "<form method='post' action=''>";
+    settings_fields('brafton_control_options');
+    do_settings_sections('brafton_control');
 }
 ?>

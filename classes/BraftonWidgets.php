@@ -2,15 +2,15 @@
 class BraftonWidgets {
 
     static function CallToAction(){
-        include_once 'widgets/CallToAction.php';
+        include_once BRAFTON_DIR.'widgets/CallToAction.php';
         register_widget('CallToAction_Widget');
     }
     static function CustomTypeCategory(){
-        include_once 'widgets/CustomTypeCategory.php';
+        include_once BRAFTON_DIR.'widgets/CustomTypeCategory.php';
         register_widget('CustomTypeCategory_Widget');
     }
     static function CustomTypeDateArchives(){
-        include_once 'widgets/customTypeDateArchives.php';
+        include_once BRAFTON_DIR.'widgets/customTypeDateArchives.php';
         register_widget('customTypeDateArchives_Widget');
     }
 }

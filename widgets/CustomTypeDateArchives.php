@@ -7,7 +7,7 @@ class CustomTypeDateArchives_Widget extends WP_Widget {
         $this->typeName = ucfirst(BraftonOptions::getSingleOption('braftonCustomSlug'));
         $this->slugName = strtolower(str_replace(' ', '-', preg_replace("/[^a-z0-9 ]/i", "",$this->typeName) ));
         $this->siteUrl = site_url();
-        parent::WP_Widget($this->slugName.'_DateArchive', strtoupper(CURRENT_BRAND).':'.$this->typeName.' Archives', 
+        parent::__construct($this->slugName.'_DateArchive', strtoupper(BRAFTON_BRAND).':'.$this->typeName.' Archives', 
               array(
                   'classname'   => 'widget_archive '.$this->slugName.'_archives',
                   'description' => 'A list or dropdown of '.$this->typeName.' montly archives'
@@ -17,18 +17,10 @@ class CustomTypeDateArchives_Widget extends WP_Widget {
     
     function form($instance){
 
-        if($instance){
-
-            $title = $instance['title'];
-            $isdrp = (boolean)$instance['isdrp'];
-            $count = (boolean)$instance['incnt'];
+            $title = $instance ? $instance['title'] : '';
+            $isdrp = $instance ? (boolean)$instance['isdrp'] : false;
+            $count = $instance ? (boolean)$instance['incnt'] : false;
             
-        } else{
-
-            $title = '';
-            $isdrp = false;
-            $count = false;
-        }
 
         ?>
         <p>

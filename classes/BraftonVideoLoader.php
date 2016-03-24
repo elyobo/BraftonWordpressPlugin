@@ -18,9 +18,9 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     public $Sitemap;
 
     public function __construct(){
-        require_once 'libs/RCClientLibrary/AdferoArticlesVideoExtensions/AdferoVideoClient.php';
-        require_once 'libs/RCClientLibrary/AdferoArticles/AdferoClient.php';
-        require_once 'libs/RCClientLibrary/AdferoPhotos/AdferoPhotoClient.php';
+        require_once BRAFTON_DIR.'libs/RCClientLibrary/AdferoArticlesVideoExtensions/AdferoVideoClient.php';
+        require_once BRAFTON_DIR.'libs/RCClientLibrary/AdferoArticles/AdferoClient.php';
+        require_once BRAFTON_DIR.'libs/RCClientLibrary/AdferoPhotos/AdferoPhotoClient.php';
 
         parent::__construct();
         //set the url and api key for use during the entire run.
@@ -50,11 +50,22 @@ class BraftonVideoLoader extends BraftonFeedLoader {
             $catNew = $this->ClientCategory->Get($catId);
             $catArray[] = $catNew->name;
         }
+        
+        if( $this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingCategory'] != ''){
+            $category_name = $this->options['braftonArticleExistingCategory'];
+        } else {
+            $category_name = 'category';
+        }
+        
         foreach($catArray as $c){
-            wp_create_category($c);
+            $category = esc_sql($c);
+            wp_insert_term($category, $category_name);
+            //wp_create_category($c);
         }
         foreach($custom_cat as $c){
-            wp_create_category($c);
+             
+            wp_insert_term($c, $category_name);
+            //wp_create_category($c);
         }
         
 
@@ -67,15 +78,24 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         $catArray = array();
         $cNum = $this->ClientCategory->ListForArticle($brafton_id, 0, 100)->totalCount;
         $custom_cat = explode(',',$this->options['braftonCustomVideoCategories']);
+        
+        if($this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingCategory'] != ''){
+            $category_name = $this->options['braftonArticleExistingCategory'];
+        } else {
+            $category_name = 'category';
+        }
+        
         for($i=0;$i<$cNum;$i++){
             $catId = $this->ClientCategory->ListForArticle($brafton_id,0,100)->items[$i]->id;
             $catNew = $this->ClientCategory->Get($catId);
-            $slugObj = get_category_by_slug(esc_sql($catNew->name));
+            //$slugObj = get_category_by_slug(esc_sql($catNew->name));
+            $slugObj = get_term_by('slug', esc_sql($catNew->name), $category_name);
             $catArray[] = $slugObj->term_id;
         }
         foreach($custom_cat as $cat){
             if($cat == '' || $cat == null){ continue; }
-            $slugObj = get_category_by_slug(esc_sql($cat));
+            //$slugObj = get_category_by_slug(esc_sql($cat));
+            $slugObj = get_term_by('slug', esc_sql($cat), $category_name);
             $catArray[] = $slugObj->term_id;
 
         }
@@ -301,8 +321,35 @@ EOC;
                 $post_date_gmt = $post_date_array[0];
 
                 $compacted_article = compact('post_author', 'post_date', 'post_content', 'post_title', 'post_status', 'post_excerpt');
-                $compacted_article['post_category'] = $this->assignCategories($brafton_id);
                 
+                if($this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingCategory'] != ''){
+                    $category_name = $this->options['braftonArticleExistingCategory'];
+                } else {
+                    $category_name = 'category';
+                }
+                if($this->options['braftonArticleExistingPostType'] && $this->options['braftonArticleExistingTag'] != ''){
+                    $tag_name = $this->options['braftonArticleExistingTag'];
+                } else {
+                    $tag_name = 'post_tag';
+                }
+                $the_categories = $this->assignCategories($brafton_id);
+                $compacted_article['tax_input'] = array($category_name => $the_categories);
+                //$compacted_article['post_category'] = $this->assignCategories($brafton_id);
+                
+                if($this->options['braftonArticlePostType']){
+                     $type = strtolower(
+                        str_replace(' ', '-', 
+                                    preg_replace("/[^a-z0-9 ]/i", "",$this->options['braftonCustomSlug'])
+                                   )
+                    );
+                    $compacted_article['post_type'] = $type;
+                    
+                }
+                // Load Brafton articles as pre-existing post type if specified
+                elseif($this->options['braftonArticleExistingPostType']) {
+                    $compacted_article['post_type'] = $this->options['braftonArticleExistingPostType'];
+   
+                } 
                 if($post_id){//If the post existed but we are overriding values
                     $this->errors->set_section('Updating video with id: '.$post_id);
                     $compacted_article['ID'] = $post_id;

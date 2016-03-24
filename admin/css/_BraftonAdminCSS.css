@@ -1,9 +1,12 @@
 #tab-cont{
-    width:65%;
+    width:85%;
     min-width:500px;
+    min-height:500px;
     float:left;
     box-sizing:border-box;
     font-size:12px !important;
+    position:relative;
+    overflow:hidden;
 }
 #imp-details{
     width:30%;
@@ -18,11 +21,11 @@
     padding-left:5px;
     padding-bottom:10px;
 }
-.tab-1, .tab-2, .tab-3, .tab-4, .tab-5, .tab-6, .tab-7{
-    width:95%;
-    min-width:500px;
+.tab-1, .tab-2, .tab-3, .tab-4, .tab-5, .tab-6, .tab-7, .tab-8, .tab-9, .tab-10, .tab-11, .tab-12, .tab-13{
+    width:73%;
     border:1px solid #000;
     font-size:10px;
+    float:right;
 }
 /* Default color for links inside the tabbed box 
 .ui-widget-content a, .ui-widget-content a:hover, .ui-widget-content a:visited, .ui-widget-content a:active {
@@ -60,6 +63,9 @@ input[type=submit]{
 }
 .form-table td{
     position:relative;
+}
+.form-table th{
+    padding:10px 10px 20px 0;
 }
 .brafton_tt{
     position: absolute;
@@ -271,4 +277,64 @@ input[type=checkbox]:checked + span.brafton-switch{
 }
 input[type=checkbox]:checked + span.brafton-switch span.brafton-cursor-switch{
     right:0px;
+}
+ul.ui-tabs-nav.ui-helper-reset.ui-helper-clearfix.ui-widget-header.ui-corner-all {
+    width: 100%;
+    float:left;
+    padding:0;
+}
+.ui-tabs .ui-tabs-nav li{
+    float:none !important;
+}
+.ui-tabs .ui-tabs-nav li a{
+    float:none !important;
+    line-height:20px;
+    font-size:14px;
+    font-weight: 700;
+    display:block;
+    box-shadow:none !important;
+}
+li.ui-state-default.ui-corner-top.ui-tabs-active.ui-state-active {
+    text-align: right;
+}
+.ui-tabs .ui-tabs-nav li{
+    margin-right:0px !important;
+}
+.ui-tabs .ui-tabs-nav li:last-child{
+    border-bottom:1px solid #CCC;
+}
+span.shortcode_example {
+    background-color: #CCC;
+    display: block;
+    padding: 5px 15px 5px;
+    color: #000;
+}
+.shortcode_example .example{
+    font-size:.85em;
+    display:block;
+}
+ul.explain_list{
+    list-style: circle;
+    font-size:13px;
+}
+.menu-container{
+        width: 20%;
+    max-width: 300px;
+    /*position: absolute;*/
+    height: 100%;
+    min-height: 500px;
+   /* background-color: #CCC;*/
+    float: left;
+    padding-right: 2px;
+}
+ul li.pass a.pass{
+    background-color:forestgreen;
+    color:#FFF;
+}
+ul li.fail a.fail{
+    background-color:darkred;
+    color:#FFF;
+}
+section.brafton_article_list {
+    font-size: 12px;
 }
