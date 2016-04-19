@@ -68,7 +68,9 @@ function settingsValidate(){
     }
     return validate;
 }
-function getBraftonArticles($){
+function getBraftonArticles(page){
+    console.log(page);
+    var $ = jQuery;
      var input = $('#braf_id_input');
         var result = $('#b_searchResults');
         var val = input.val();
@@ -76,11 +78,14 @@ function getBraftonArticles($){
                 action: "getBraftonArticles",
                 ids: []
             };
-            
+            if(undefined != page){
+                data.page = page;   
+            }
             val = val.length > 0? val.split(',') : '';
             for(var i = 0; i<val.length;++i){
                 data.ids.push(val[i]);   
             }
+    console.log(data);
             $.post(ajaxurl, data, function(response){
                 result.html(response);
             });
@@ -117,7 +122,7 @@ function braftonDialog(element, optionsArray){
     options[optionsArray.OptionsName] = optionsArray.OptionsFucntion;
 }
 jQuery(function($){
-    getBraftonArticles($);
+    getBraftonArticles();
         /*$('input[name="braftonRemoteOperation"]').change(function(e){
            if($(this).val() == 1){
                 var $e = $(this);

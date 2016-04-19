@@ -1,5 +1,5 @@
 <?php
-require BRAFTON_DIR.'libs/APIClientLibrary/ApiHandler.php';
+require BRAFTON_DIR.'libs/ArticleAPILibrary/ApiHandler.php';
 // 45b8688e-c6bd-4335-8633-0cbf497b71af
 // 528a432c-2f60-4dc8-80fe-4cebc1fe25ca
 class BraftonArticleLoader extends BraftonFeedLoader {
@@ -15,7 +15,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
     public function __construct(){
         parent::__construct();
         //set the url and api key for use during the entire run.
-        $this->API_Domain = 'http://'.$this->options['braftonApiDomain'];
+        $this->API_Domain = 'https://'.$this->options['braftonApiDomain'];
         $this->API_Key = $this->options['braftonApiKey'];
         if($this->API_Key == 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' || $this->API_Key == ''){
             trigger_error('You have not set your API key');

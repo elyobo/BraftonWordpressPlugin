@@ -18,9 +18,9 @@ class BraftonVideoLoader extends BraftonFeedLoader {
     public $Sitemap;
 
     public function __construct(){
-        require_once BRAFTON_DIR.'libs/RCClientLibrary/AdferoArticlesVideoExtensions/AdferoVideoClient.php';
-        require_once BRAFTON_DIR.'libs/RCClientLibrary/AdferoArticles/AdferoClient.php';
-        require_once BRAFTON_DIR.'libs/RCClientLibrary/AdferoPhotos/AdferoPhotoClient.php';
+        require_once BRAFTON_DIR.'libs/VideoAPILibrary/AdferoArticlesVideoExtensions/AdferoVideoClient.php';
+        require_once BRAFTON_DIR.'libs/VideoAPILibrary/AdferoArticles/AdferoClient.php';
+        require_once BRAFTON_DIR.'libs/VideoAPILibrary/AdferoPhotos/AdferoPhotoClient.php';
 
         parent::__construct();
         //set the url and api key for use during the entire run.
@@ -31,10 +31,11 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         $this->Sitemap = array();
 
     }
+
     //Builds the urls needed for video import
     private function buildVideoURL(){
-        $this->VideoURL = 'http://livevideo.'.$this->options['braftonApiDomain'].'/v2/';
-        $this->PhotoURL = 'http://'.str_replace('api', 'pictures',$this->options['braftonApiDomain']).'/v2/';
+        $this->VideoURL = 'https://livevideo.'.$this->options['braftonApiDomain'].'/v2/';
+        $this->PhotoURL = 'https://'.str_replace('api', 'pictures',$this->options['braftonApiDomain']).'/v2/';
 
     }
 

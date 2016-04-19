@@ -98,9 +98,12 @@ class BraftonAdministration {
         $options = $options->options;
         $postType = $options['braftonArticlePostType']? strtolower(str_replace(' ', '-', preg_replace("/[^a-z0-9 ]/i", "",$options['braftonCustomSlug']) )) : 'post';
         $postType = $options['braftonArticleExistingPostType']? $options['braftonArticleExistingPostType'] : $postType;
+        $page = isset($_POST['page'])? $_POST['page'] : 1;
         $args = array(
             'post_type' => $postType,
-            'meta_key'  => 'brafton_id'
+            'meta_key'  => 'brafton_id',
+            'posts_per_page'    => 10,
+            'paged' => $page
         );
         $msg = "Last 10 Articles imported by ". BRAFTON_BRAND;
         if($ids){
@@ -129,6 +132,9 @@ class BraftonAdministration {
         else:
             echo '<p>Sorry No articles have the id of '. implode(',', $ids).'</p>';
         endif; ?>
+            <div class="braf_page">
+            <a href="#" onclick="getBraftonArticles(<?php echo $page; ?>)">Previous Page </a> <a href="#" onclick="getBraftonArticles(<?php echo $page + 1; ?>)"> Next page</a>
+            </div>
             </section>
         <?php wp_die();
     }
@@ -387,7 +393,7 @@ class BraftonAdministration {
                 echo '<p>This is for uploading an archive provided to you by your CMS</p>';
             break;
             case 'control':
-                echo '<p>You can manually run the importer at any point by selecting which importer you would like to run.  If you are receiving both Vidoes, and Articles you will have to run the importer for each one seperatly.  The importer does run each hour automatically provided it is turned on.</p>';
+                echo '<p>You can manually run the importer at any point by selecting which importer you would like to run.  If you are receiving both Vidoes, and Articles you will have to run the importer for each one seperatly.  The article importer runs each hour, the video importer runs every 12 hours.</p>';
             break;
             case 'atlantis':
                 echo '<p>This is for Styling the Atlantis Video Player.  You may use the selection options below or choose to write your own CSS below.</p>';
@@ -402,7 +408,7 @@ class BraftonAdministration {
                 echo '<p>These shortcodes are used to add ARCH forms to your site.</p><ul class="explain_list"><li>The ID parameter is required and should be replaced with your desired ARCH Form ID. </li><li>Type is your desired Form either "native", "iframe", or "popup".  The Default is "native"</li><li>The POPUP form has an addition feature allowing you to set a custom link for the pop up form.  this can be any valid HTML </li></ul>';
             break;
             case 'b_search':
-                echo '<p>Search Brafton Content by Brafton ID that has already been imported.  You can search for multiple articles by entering multiple id\'s seperated by a comma (,) .  example [1223, 3456, 9876]</p>';
+                echo '<p>Search Brafton Content by Brafton ID that has already been imported.  You can search for multiple articles by entering multiple id\'s seperated by a comma (,) .  example [1223, 3456, 9876]</p><p>If using a custom post type this form will search ONLY that post type for content.</p>';
             break;
         }
     }
@@ -489,17 +495,17 @@ class BraftonAdministration {
     }
     function nativeFormArch(){
         $this->tooltip("This will build the ARCH form into your site.");
-       ?><span class="shortcode_example">[arch_form type="native" id="<i>58</i>"/]</span>
+       ?><span class="shortcode_example">[arch_form type="native" id="<i>{ID}</i>"/]</span>
     <?php
     }
     function iframeFormArch(){
         $this->tooltip("This will add an IFrame to your site containing your ARCH Form");
-       ?><span class="shortcode_example">[arch_form type="iframe" id="<i>58</i>"/]</span>
+       ?><span class="shortcode_example">[arch_form type="iframe" id="<i>{ID}</i>"/]</span>
     <?php
     }
     function popupFormArch(){
         $this->tooltip("This will create a link that once clicked will open the ARCH Form as a PopUp.");
-       ?><span class="shortcode_example">[arch_form type="popup" id="<i>58</i>"](Content)[/arch_form]</span>
+       ?><span class="shortcode_example">[arch_form type="popup" id="<i>{ID}</i>"](Content)[/arch_form]</span>
     <?php
     }
     function InstructionsSetup(){
@@ -751,7 +757,7 @@ echo $errors[$i]['client_sys_time'].':<br/>----'.$errors[$i]['error'].'<br>';
     //TODO : Will be moving to s seperate section to inself for style
     function braftonRestyle(){
         $options = $this->options;
-        $this->tooltip('Premium content embeeded styles can be customized the premium style Tab if they are not appearing as you would like. NOTE: You must have JQuery on your site for this to work.  If you currently do not have JQuery you can add it with the option above.');
+        $this->tooltip('Premium content embeeded styles can be customized the premium style Tab if they are not appearing as you would like. NOTE: You must have JQuery on your site for this to work.  If you currently do not have JQuery you can add it with the &quot;Import jQuery Script&quot; option on the General Settings Tab.');
         ?>
         <!--<input type="radio" name="braftonRestyle" value="1" <?php checkRadioVal($options['braftonRestyle'], 1); ?>> Add Style Correction
         <input type="radio" name="braftonRestyle" value="0" <?php checkRadioVal($options['braftonRestyle'], 0); ?>> No Style Correction-->
@@ -1015,7 +1021,7 @@ echo $errors[$i]['client_sys_time'].':<br/>----'.$errors[$i]['error'].'<br>';
     //Displays the option for allowing overriding of previously imported articles.
     function braftonUpdateContent(){
         $options = $this->options;
-        $tip = 'Setting this to ON will override edits made to posts within the last 30 days or using an archive file.  NOTE: This option will completely update the article including downloading the image files associated with them.  Leaving this option ON can overload your system with image files.';
+        $tip = 'Setting this to ON will override edits made to posts within the last 30 days or using an archive file.  NOTE: This option will completely update the article including downloading the image files associated with them.  When Turned on this option will apply ONLY to the immediately next importer operation.  It will automatically disable itself upon completion.';
         $this->tooltip($tip); ?>
     <!--<input type="radio" name="braftonUpdateContent" value="1" <?php checkRadioval($options['braftonUpdateContent'], 1); ?> /> On
     <input type="radio" name="braftonUpdateContent" value="0" <?php checkRadioval($options['braftonUpdateContent'], 0); ?>/> Off-->
@@ -1283,7 +1289,7 @@ echo $errors[$i]['client_sys_time'].':<br/>----'.$errors[$i]['error'].'<br>';
             );
             add_settings_field(
                 'braftonVideoOutput',
-                'Video Position',
+                'Insert Video',
                 array($this, 'braftonVideoOutput'),
                 'brafton_video',
                 'video'
