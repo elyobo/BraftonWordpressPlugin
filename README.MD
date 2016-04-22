@@ -2,7 +2,7 @@ REQUIRMENTS:
 
 Wordpress : v3.5+
 
-PHP: v5.3+, cURL or fOpen (video) with allow\_url\_fopen enabled
+PHP: v5.3+, cURL or fOpen with allow\_url\_fopen enabled
 
 Installation of the Wordpress Plugin is very easy.                        
                                                                                                                           
