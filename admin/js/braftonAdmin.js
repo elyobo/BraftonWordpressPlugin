@@ -69,7 +69,6 @@ function settingsValidate(){
     return validate;
 }
 function getBraftonArticles(page){
-    console.log(page);
     var $ = jQuery;
      var input = $('#braf_id_input');
         var result = $('#b_searchResults');
@@ -85,7 +84,6 @@ function getBraftonArticles(page){
             for(var i = 0; i<val.length;++i){
                 data.ids.push(val[i]);   
             }
-    console.log(data);
             $.post(ajaxurl, data, function(response){
                 result.html(response);
             });

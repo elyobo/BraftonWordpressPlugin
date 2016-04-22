@@ -1,10 +1,17 @@
-REQUIRMENTS:
+#REQUIRMENTS:
 
 Wordpress : v3.5+
 
-PHP: v5.3+, cURL or fOpen (video) with allow\_url\_fopen enabled
+PHP: 
 
-| Installation of the Wordpress Plugin is very easy.                        
+-   v5.3+
+-   DOMDocument
+-   cURL
+-   fOpen (video) with allow\_url\_fopen enabled
+
+#Installation:
+
+Installation of the Wordpress Plugin is very easy.                                                                      
                                                                                                                           
  1.  In your Wordpress Dashboard select Plugins-&gt; Add New                                                              
                                                                                                                           
@@ -14,14 +21,12 @@ PHP: v5.3+, cURL or fOpen (video) with allow\_url\_fopen enabled
                                                                                                                           
  4.  Once your plugin finishes installing you can “Activate Now” or Return to Plugins Page.                               
                                                                                                                           
- 5.  Activate your plugin and find it in the main menu to the left in your Admin Dashboard. {BRAND} Content Importer      |
-|-------------------------------------------------------------------------------------------------------------------------|
+ 5.  Activate your plugin and find it in the main menu to the left in your Admin Dashboard. {BRAND} Content Importer
 
-**Installation:**
 
-**First Time Setup**
+##First Time Setup
 
-Under General Settings Tab.
+**Under General Settings Tab.**
 
 1. Turn the "Automatic Import" to on.
 
@@ -29,17 +34,17 @@ Under General Settings Tab.
 
 3. Select an "Importer User". If on a multisite the “Network Admin” will be automatically set for you.
 
-4. Designate a default Author: If there is only one user for this installation the default author will automatically be set to that user.
-
-Under Articles Tab.
+**Under Articles Tab.**
 
 1. Turn the "Article Importer Status" to on.
 
 2. Enter your "API Key" provided by your Account Manager
 
+3. Select a "Default Author" if your Installation of Wordpress has more than one user.
+
 If you are just receiving articles Click "Save Settings". If you are receiving videos please continue.
 
-Under Videos Tab.
+**Under Videos Tab.**
 
 1. Turn the "Video Importer Status" to on.
 
@@ -47,13 +52,9 @@ Under Videos Tab.
 
 3. Enter your "Private Key" provided by your Account Manager.
 
-4. Enter a feed Number (if provided to you by your Account Manager, else leave as 0(zero)).
+4. Select if you would like your video to appear before or after the body content.
 
-5. Turn on “Include Player on Pages” if using our HTML5 video player. A browsers default video player (if available) will be used otherwise.
-
-6. Select the type of player you would like to use. (AtlantisJS provides dynamic CTA’s)
-
-7. Select where you would like to video to display (before or after the content of your article)
+5. If you are using the Atlantis JS video player enter any CTA's you wish to use.
 
 Click the "Save Settings" Button.
 
@@ -61,19 +62,11 @@ Your Content will now import within 2 minutes of turning the importer on. It wil
 
 Dashboard Widget
 
-To aid in monitoring your content, there is now a Dashboard widget included with the importer. The “Recently Importer by {BRAND}” widget displays the latest content importer. This widget filter out any native content and will only display content imported by the importer.
+> To aid in monitoring your content, there is now a Dashboard widget included with the importer. The “Recently Importer by {BRAND}” widget displays the latest content importer. This widget filter out any native content and will only display content importered.
 
-**Options Explanation**
+#Options Explanation
 
-Status:
-
--   Displays the Status of the Importer.
-
-    -   GREEN: indicates everything is functioning properly
-
-    -   RED: Indicates there may be an issue that should be addressed.
-
-General:
+##General:
 
 -   Automatic Import: Must be turned on to enable the Importer to trigger with the Wordpress Sudo cron.
 
@@ -89,27 +82,33 @@ General:
 
     -   Note: If on a multisite the importer will automatically attempt to run the importer as a Network Administrator.
 
--   Default Author: If your wordpress install has more than 1 user you can set the Author of your imported content. Note that this will be overridden if the Dynamic Author option is enabled for Editorial content, but it will still be used for Video content (assuming you receive Video content).
-
--   Arch ID : If you are using our ARCH product you will need to enter your ARCH ID.
-
-    -   Enables the inclusion of our “pumpkin” tracking script added to the sites footer.
-
-    -   Enables a Custom CTA widget for use in any widgetized area on your site.
-
 -   Import JQuery: Some of the features supported by the importer require a copy of jQuery to function. If a copy of jQuery is not loaded in the website turn this feature “on” to import a copy from Google’s Developer CDN (Content Delivery Network).
+
+-   Add Premium Styles: Turning this feature on will enable the Styles tab allowing you to overwrite inline styles of some of our premium content including but not limited to pullquotes, videos, tweets etc.
+
+    -   This feature does REQUIRE jQuery.
 
 -   Default Post Status: You may import content in the Published, Drafts, or Private States. Drafts will require manual posting or scheduling to go live.
 
 -   Categories: Import content and set the categories to match the categories set up by your XML Feed or to Import without categories at all.
 
+-   Tag Options: Tags have since been depreciated in value by modern search engines but we still support them. Options to set your tags as the following nodes from the xml feed. Tags, Keywords, or Categories. Of course by selecting one of these options you must be receiving that option from your xml feed.
+
+-   Custom Tags: Allows you to add your own tags to the imported content. Be sure to separate your tags by a ‘,’.
+
 -   Publish Date: Your XML feed supplies 3 dates you can use as the date for your content, Published, Last Modified, and Created. We recommend setting this to “Published”, as it will typically be the most recent date.
 
--   Remote Import: Some systems can have issues with the Wordpress Sudo Cron. If your importer does not trigger automatically you can enable this option which will send a request to our servers requesting a remote import. (v3.4)
+-   Add OG Tags: OG Tags are what social media sites (particularly Facebook) use to identify pieces of your content for use in sharing your content. Many SEO plugins already provide support for these however if you are not using one or prefer to use ours (which also supports twittercards and google+ items) select the “Add Tags” Option
 
-    -   NOTE: This option will not work on all systems as it requires the use of XML-RPC which can be blocked by some servers.
+-   Update Existing Content: This option will allow you to override your article content within the last 30 days or all of your video content with updated copies from your xml feed. We recommend keeping this option off.
 
-Articles:
+    -   NOTE: If this option is enabled it will take more system resources to run as well as download fresh copies of the article or video images during each run.
+
+-   Remote Import: Some systems can have issues with the Wordpress Sudo Cron. If your importer does not trigger automatically you can enable this option which will send a request to our servers requesting a remote import.
+
+    -   NOTE: This option will not work on all systems as it requires the use of XML-RPC which is can be blocked by some servers.
+
+##Articles:
 
 -   Article Importer Status: Enable the import of Article content from your XML feed.
 
@@ -117,19 +116,27 @@ Articles:
 
 -   Dynamic Author: If you are receiving the ByLine option in your feed this option allows you to dynamically assign the author of your content based on the byline of the content.
 
-    -   This option will search the “Users” for an appropriate match and assign that user as the author. If a user is not found the importer will add a new user to the installation.
+-   Default Author: If your wordpress install has more than 1 user you can set the Author of your imported content. Note that this will be overridden if the Dynamic Author option is enabled for Editorial content, but it will still be used for Video content (assuming you receive Video content).
 
 -   Custom Article Categories: Allows you to add your own categories to the imported article content. Be sure to separate your categories by a ‘,’.
 
+-   {BRAND} Post Type: If you wish to separate your existing content from your imported content you can turn this feature on which will set up a new “blog\_content” post type. You will need to modify your site templates to display your content in this case. (v3.2.0)
+
+    -   Note: You will need to enter a URL slug to prepend to all imported content.
+
+-   Set as Pre-existing Custom Post Type: If you are already using a custom post type and would like to import your content into it you may select it from the drop down Menu. (v3.2.0)
+
+    -   Choosing this option will require you to enter the category and/or tag taxonomy terms associated with your custom post type in order to add associate the XML feed categories with your content.
+
 -   \# Articles to Import: Total Number of articles to import each time the importer runs. The lower the number the fewer system resources are used. (v3.1.8)
 
-Videos:
+##Videos:
 
 -   Video Importer Status: Enable the import of your Video content from your separate Video XML Feed.
 
 -   Public Key & Private Key: These are your unique keys provided by your Account Manager to access your Video XML Feed.
 
--   Feed Number: this number is the node idex for your feed. Most times this number is 0, unless there is more than one video feed for the same account. Your Account Manager will provide you with an alternate value if your feed requires it.
+-   Feed Number: this number is the array number for your feed. Most times this number is 0, unless there is more than one video feed for the same account.
 
 -   Custom Video Categories: Allows you to add your own categories to the imported content. Be sure to separate your categories by a ‘,’.
 
@@ -141,9 +148,9 @@ Videos:
 
     -   VideoJS does not require JQuery however is an HTML5 video player which will not work with all Browsers.
 
--   Insert Video: Display the video before or after the content of your video article.
+-   Video Position : Display the video before or after the content of your video article.
 
-    -   This option will replace the featured image in your articles, displaying the Video instead of the featured image.
+    -   Note: The best option is to modify your templates to display the video instead of the featured image.
 
 -   \# Videos to Import: Total Number of Videos to import each time the importer runs. The lower the number the fewer system resources are used. (v3.1.8)
 
@@ -163,7 +170,7 @@ Videos:
 
     -   Ending CTA Button Image: You may upload an image to use in place of text for the End of Video Button. (v3.2.0)
 
-        -   Button Position: When using the image button you need to specify where the button will appears . (v3.4.1)
+        -   Button Position: When using the image button you need to specify where the button will appears .
 
     -   Ending Button Text: The Call to Action Text appearing in a button available for clicking (keep this short)
 
@@ -177,73 +184,39 @@ Videos:
 
 -   Below The AtlantisJS CTA’s you will notice as you enter your Ending CTA Options you will see an approximation of what your layout will look like. (v3.2.0)
 
-Advanced:
+##ARCH:
 
--   Add Premium Styles: This option will enable 2 other menu items detailed below.
+This is for enabling our Arch Product. Setting this to “On” enables a Call To Action widget available in the Appearance-&gt;Widget menu, and requires the feed ID from the Arch account.
 
--   Add OG Tags: This option will add social site meta data to the &lt;HEAD&gt; of your site including:
+-   Arch Status: Turns the Arch product on or off.
 
-    -   Facebook og:tags
+-   Arch Id: Your unique feed id provided by your Account Manager
 
-    -   Twitter Card tags
-
-    -   Google+ tags
-
-    -   NOTE: Be sure there are no other plugins adding these tags as multiple tags can cause conflicts for some social sites
-
--   Update Existing Content: This option will override any content previously imported currently in your XML feed.
-
-    -   This option, if enabled, will only apply to the next importer run. It is best used when running the importer manually or in conjunction with an archive file.
-
--   Tag Options: Tags are rarely used and hold no true SEO Value, however we provide you with options if you choose to use them. The Option you select must be included in your XML Feed.
-
--   Custom Tags: If you need to add custom tags to your imported content you can list them here separated by “,”.
-
--   Brafton Post Type: The Content Importer will import content into your “Posts”, however we have provided a custom post type option if you need it.
-
-    -   Post Type Name: You must enter a Name for this custom post type.
-
-        -   The Blogs url will be ([www.domain.com/{myName}/](http://www.domain.com/%7bmyName%7d/))
-
-        -   The individual article url will be (www.domain.com/{myName}/{categoryName}/{postTitle})
-
-        -   Categories will be accessesed by (www.domain.com/{myName}/{categoryName})
-
-        -   Archives will be accessed by (www.domain.com/{myName}/archive/{year}/{month})
-
--   Set as Pre-existing Custom Post Type: You can import content into an already establish Custom Post type.
-
--   Choose Pre-existing Custom Category: You can utilize an already defined custom taxonomy instead of the default “Categories”
-
--   Choose Pre-existing Custom Tag: You can utilize an already defined custom taxonomy instead of the default “Tag”
-
--   Debug Mode: Debug mode can help trace the importers operation to better identify bugs if your content is not importing. If there is a vital error encountered during normal operation this option is automatically turned on to aid in identifying the issue.
-
-Archives:
+##Archives:
 
 -   Archive Importer Status: Turn this “on” to enable the uploading of an XML file provided by your Account Manager from our Archives.
 
 -   Upload an XML File: This must be an XML file only! The larger the file the longer it will take to upload to your system. Timeouts can occur with larger files. Simply upload the archive again to begin where you left off.
 
-Error Logs:
+##Error Logs:
+
+-   Debug Mode: enabling Debug Mode collects all errors reported during operation of the content importer plugin.
 
 -   Clear Error Log: Clear the Error Log once errors have been investigated and dismissed or fixed.
 
--   Brafton Log: Display all the errors reported by the system during an importer run.
+-   Error Log: Display all the errors reported by the system during an importer run.
 
-    -   Clicking “(Show Log)” will display the log on the screen.
+    -   \*NOTE: Not all errors reported are related to the importer. Some errors are completely harmless and others may be simply “caught” by the importer error system because they occurred while the importer was running.
 
-    -   \*NOTE: Not all errors reported are related to the importer. Some errors are completely harmless and others may be simply “caught” by the importer error system because they occurred while or after the importer has run.
-
-Note: Errors that result in failure to deliver content are reported to our system to expedite the troubleshooting process. If such an error does occur “Debug Mode” is turned on by default to assist in collecting data that will aid in those efforts.
+> Note: Errors that result in failure to deliver content are reported to our system to expedite the troubleshooting process. If such an error does occur “Debug Mode” is turned on by default to assist in collecting data that will aid in those efforts.
 
 -   Download Error Log: this will download a text file with any error data currently available. Please be sure to include this report with any emails requesting assistance. (v3.2.0)
 
-Manual Control:
+##Manual Control:
 
 This allows you to run the importer manually regardless of your status settings. Note that this will ignore the “Article Importer Status” and “Video Importer Status” options.
 
-Options:
+##Options:
 
 1.  Run the Article Importer
 
@@ -251,25 +224,11 @@ Options:
 
 3.  Import complete list of categories.
 
-Instructions: (v3.4.2)
+#Premium Styles:
 
--   This page displays a PDF of the importer instructions.
+This Option will only be available if “Add Premium Styles” option is turned on under the “General Settings” Tab.
 
-ShortCodes: (v3.4.2)
-
--   Signing up for ARCH provides you with some great form tracking functionality. To add these forms to your site you can use “shortcodes” in your content or any text fields throughout wordpress. You will need the ID of the form you would like to use which can be attained from your Account Manager.
-
-    -   Native From: A native form will display on your page and be interactive in the page as part of the content.
-
-    -   Iframe Form: This form will render in a separate “iframe” and although be interactive in the page will be separate content altogether. This form will not have any effect on your sites content nor will your site have any effects on the iframe form.
-
-    -   PopUp form: This form will display as a popup overlaying your site when a link is clicked. You can utilize any type of content as the link to click including images.
-
-Find Content: (v3.4.2)
-
--   This feature allows you to easily search through content only imported through the XML feed. You may also search for specific articles utilizing the unique brafton id provided through the XML feed. You can search for multiple articles by entering multiple id’s separated by a “,”.
-
-Article Styles: (v3.2.0)
+##Article Styles: (v3.2.0)
 
 -   Enable Pull Quote Styles: Turning this on will effect changes to Pull Quotes that are imported.
 
@@ -291,9 +250,9 @@ Article Styles: (v3.2.0)
 
 -   Inline Image margins: This will space the Inline Image away from surrounding content by the pixel width you specify.
 
-Note: Enabling the Inline Image Styles will apply these changes to any and all images that the writer has inserted into your imported content.
+> Note: Enabling the Inline Image Styles will apply these changes to any and all images that the writer has inserted into your imported content.
 
-Video Style: (v3.2.0)
+##Atlantis Video Style: (v3.2.0)
 
 You now have the option to control some video player elements to help fit better with the look and feel of your site. If you are using this feature all fields will need to be filled out. (v3.2.0)
 
@@ -333,7 +292,7 @@ You now have the option to control some video player elements to help fit better
 
     -   You may use any valid CSS styles to target the appropriate elements.
 
-Updating:
+#Updating:
 
 It is important to keep all your plugins up to date to ensure that bugs are fixed, security holes are patched, and you have the most up to date features available.
 
@@ -343,10 +302,8 @@ Our Plugin can be upgraded by following a few simple steps.
 
 2.  You may click the “Update Available” link to view only the plugins that have updates available, or you can find the plugin in the complete list and see the “update Now” link.
 
+3.  You may also click the “View version {x.x} details” to see what changes have been made to the plugin as well as the requirements for compatibility.
 
-1.  You may also click the “View version {x.x} details” to see what changes have been made to the plugin as well as the requirements for compatibility.
-
-
-1.  Once you make the decision to update your plugin you can click “Update Now” or ” Install Update Now”
+4.  Once you make the decision to update your plugin you can click “Update Now” or ” Install Update Now”
 
 > \*Note: Wordpress v4.2.2 has a bug that requires you to disable the plugin before you update or it may not successfully complete.
