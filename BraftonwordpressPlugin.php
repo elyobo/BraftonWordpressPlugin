@@ -393,7 +393,7 @@ EOC;
     static function BraftonScripts(){
         $ops = new BraftonOptions();
         $static = $ops->getAll();
-        
+
         if($static['braftonImportJquery'] == 'on'){
             wp_enqueue_script('brafton-jquery', "//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js", array(), false);  
         }
