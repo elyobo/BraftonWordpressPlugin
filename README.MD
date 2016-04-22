@@ -4,7 +4,7 @@ Wordpress : v3.5+
 
 PHP: v5.3+, cURL or fOpen (video) with allow\_url\_fopen enabled
 
-| Installation of the Wordpress Plugin is very easy.                        
+Installation of the Wordpress Plugin is very easy.                        
                                                                                                                           
  1.  In your Wordpress Dashboard select Plugins-&gt; Add New                                                              
                                                                                                                           
@@ -14,8 +14,7 @@ PHP: v5.3+, cURL or fOpen (video) with allow\_url\_fopen enabled
                                                                                                                           
  4.  Once your plugin finishes installing you can “Activate Now” or Return to Plugins Page.                               
                                                                                                                           
- 5.  Activate your plugin and find it in the main menu to the left in your Admin Dashboard. {BRAND} Content Importer      |
-|-------------------------------------------------------------------------------------------------------------------------|
+ 5.  Activate your plugin and find it in the main menu to the left in your Admin Dashboard. {BRAND} Content Importer      
 
 **Installation:**
 
