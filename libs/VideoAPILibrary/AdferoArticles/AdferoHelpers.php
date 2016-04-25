@@ -1,5 +1,5 @@
 <?php
-include "/../AdferoConnection.php";
+include dirname(__FILE__) . "/../AdferoConnection.php";
 /**
  * Description of Helpers
  *
