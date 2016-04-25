@@ -84,7 +84,6 @@ class Photo {
 			foreach ($photoInstancesNode->instance as $pi){
 
 				$type = $pi->type;
-				/* @var $pi DomElement */
 				if( $type == "Thumbnail" || $type == "Small")$p->getThumb()->parsePhotoInstance($pi);
 				elseif ($type == "Large" || $type == "Medium")$p->getLarge()->parsePhotoInstance($pi);
 				elseif ($type == "HighRes")$p->getHiRes()->parsePhotoInstance($pi);
