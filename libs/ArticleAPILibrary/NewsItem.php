@@ -129,7 +129,8 @@ class NewsItem	{
                 $ni->id = (string)$n->{ID};
                 //Check if date is valid if not throw exception
                 $ni->publishDate = (string)$n->{PUBLISH_DATE};
-                $ni->href = (string)$n->attributes()[HREF];
+                $ni->href = $n->attributes();
+                $ni->href = (string)$ni->href[HREF];
                 $ni->headline = (string)$n->{HEADLINE};
                 $ni->format = $format;
                 //Add to newslist array

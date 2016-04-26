@@ -25,7 +25,6 @@ jQuery( document ).tooltip();
     <!--directory from the api image folder-->
     <img src="<?php echo plugin_dir_url(__FILE__); ?>/img/banner_<?php echo strtolower(BRAFTON_BRAND); ?>.jpg">
 </div>
-
 <div id="tab-cont" class="tabs">
     <img src="<?php echo plugin_dir_url(__FILE__); ?>/img/banner_<?php echo strtolower(BRAFTON_BRAND); ?>.jpg" style="width:100%;">
     <form method="post" action="<?php echo $_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']; ?>" class="braf_options_form" onsubmit="return settingsValidate()">

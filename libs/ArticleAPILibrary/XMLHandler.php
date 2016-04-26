@@ -60,12 +60,14 @@ class XMLHandler {
     }
     function getAttr($element, $attr, $obj = null){ 
         if($obj != null){
-            return (string)$obj->attributes()[$attr];   
+            $tmp = $obj->attributes();
+            return (string)$tmp[$attr];
         }
         if($this->_doc == null){
             return;
         }
-        return (string)$this->_doc->$element->attributes()[$attr];
+        $tmp = $this->_doc->$element->attributes();
+        return (string)$tmp[$attr];
     }
 	/**
 	 * @param String $element
