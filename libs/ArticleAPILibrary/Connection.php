@@ -71,7 +71,7 @@ class Connection{
     //Retrieve the XML using fopen
     private function fopen_connection(){
         $con = file_get_contents($this->url);
-        $this->parse_Headers_fopen($http_response_header);
+        $this->parse_headers_fopen($http_response_header);
         return $con;
     }
     //Parse the headers if using fopen
@@ -94,7 +94,7 @@ class Connection{
         $this->response = $head;
     }
     //parse the headers if using curl
-    private function parse_Headers_curl($headers){
+    private function parse_headers_curl($headers){
         $headers['Content_type'] = explode(';', $headers['content_type']);
 
         $this->response = $headers;
