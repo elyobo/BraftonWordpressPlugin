@@ -10,6 +10,8 @@ class Connection{
     
     public $response;
     
+    public $isfile = false;
+    
     public function __construct($url){
         $this->url = $this->protocol($url);
 
@@ -36,6 +38,7 @@ class Connection{
     private function protocol($url){
         $parse = parse_url($url);
         if( !($parse['scheme'] == 'http') && !($parse['scheme'] == 'https') ){
+            $this->isfile = true;
             return 'file://'.$url;   
         }
         $scheme = $parse['scheme']."://";
@@ -71,9 +74,21 @@ class Connection{
     //Retrieve the XML using fopen
     private function fopen_connection(){
         $con = file_get_contents($this->url);
-        $this->parse_headers_fopen($http_response_header);
+        if($this->isfile){
+            $this->setFileHeaders();
+            
+        }
+        else{
+            $this->parse_headers_fopen($http_response_header);
+        }
         return $con;
     }
+        private function setFileHeaders(){
+            $head = array(
+                "Content_type" => array('application/xml')
+                );
+            $this->response = $head;
+        }
     //Parse the headers if using fopen
     private function parse_headers_fopen( $headers ){
         $head = array();
