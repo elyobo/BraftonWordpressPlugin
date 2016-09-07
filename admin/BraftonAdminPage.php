@@ -6,9 +6,10 @@ wp_enqueue_script('upload_media_widget', BRAFTON_ROOT.'js/upload-media.js', arra
 wp_enqueue_script('brafton_admin_js', BRAFTON_ROOT .'admin/js/braftonAdmin.js');
 wp_enqueue_script('jquery-ui', "//code.jquery.com/ui/1.10.1/jquery-ui.js", array());
 $plugin_data = get_plugin_data(BRAFTON_PLUGIN);
+$tab = isset($_GET['tab'])? (int)$_GET['tab'] : 0;
 ?>
 <script>
-tab = <?php if(isset($_GET['tab'])){ echo $_GET['tab'];} else{ echo 0;}?>;
+tab = <?php echo $tab; ?>;
 jQuery(function() {
 jQuery( "#tab-cont" ).tabs({
   active: tab
