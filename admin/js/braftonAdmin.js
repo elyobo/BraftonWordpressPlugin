@@ -121,37 +121,7 @@ function braftonDialog(element, optionsArray){
 }
 jQuery(function($){
     getBraftonArticles();
-        /*$('input[name="braftonRemoteOperation"]').change(function(e){
-           if($(this).val() == 1){
-                var $e = $(this);
-                //$('#remoteCheck').css({display:'inline-block'});
-               $('#checkFlasher').html('System Check');
-               $('#checkFlasher').addClass('blinking-text');
-               $('#remoteCheck').find('img').attr('src', '../wp-includes/images/wpspin-2x.gif');
-               $('#remoteCheck').find('img').css({left: '0px', position: 'relative'});
-               var data = {'action': 'health_check'};
-               jQuery.post(ajaxurl, data, function(response){
-                   
-                   if(response == 'ok'){
-                       //$('#remoteCheck').css({display:'none'});
-                       $('#remoteCheck').find('img').attr('src', '../wp-includes/images/uploader-icons-2x.png');
-                       alert('Your system supports Remote Operation.  Save your settings to initialize this option.  The Remote Operation is triggered every 6 hours');
-                   }else if(response == 'fail'){
-                        alert('Your system does not support the Remote Operation.  Please contact your System Administrator to enable the use of XML-RPC on your server');
-                       $e.prop("checked", false);
-                       $e.next('input[type="radio"]').prop("checked", true);
-                       //$('#remoteCheck').css({display:'none'});
-                       $('#remoteCheck').find('img').attr('src', '../wp-includes/images/uploader-icons-2x.png');
-                       $('#remoteCheck').find('img').css({position: 'absolute', left: '-188px'});
-                   }
-                   $('#checkFlasher').html('');
-                   $('#checkFlasher').removeClass('blinking-text');
-               });
-           }else{
-                $('#remoteCheck').find('img').attr('src', '');   
-           }
-        });
-        */
+      
     $('#RemoteStatusAutoCheck').change(function(e){
             console.log($(this).is(':checked'));
            if($(this).is(':checked')){
@@ -234,35 +204,13 @@ jQuery(function($){
         $('#brafton-end-button-preview').css(cor[2], cor[3]+'px');
        //console.log(f_string); 
     });
-    /*
-   $('.archiveStatus').click(function(){
-      var stat = true;
-       if($(this).attr('value') == 1){ stat = false; }else{stat = true;}
-       $('#braftonUpload').prop('disabled', stat);
-   });
-   */
+   
     $('#BraftonArchiveOptionCheck').change(function(){
         var stat = $(this).is(':checked');
         console.log(stat);
         $('#braftonUpload').prop('disabled', !stat);
     });
-    //BraftonPostTypeCheck
-    /*$('input[name="braftonArticlePostType"]').change(function(){
-        
-        if($('input[name="braftonArticlePostType"]:checked').val() == 1){
-            $('#braftonArticleExistingPostType').prop('disabled', true );
-            $('input[name="braftonCustomSlug"]').prop('disabled', false );
-            $('input[name="braftonArticleExistingCategory"]').prop('disabled', true );
-            $('input[name="braftonArticleExistingTag"]').prop('disabled', true );
-        }else{
-            $('#braftonArticleExistingPostType').prop('disabled', false );
-            $('input[name="braftonCustomSlug"]').prop('disabled', true );
-            $('input[name="braftonArticleExistingCategory"]').prop('disabled', false );
-            $('input[name="braftonArticleExistingTag"]').prop('disabled', false );
-            
-        }
-    });
-    */
+    
     $('#BraftonPostTypeCheck').change(function(){
         if($(this).is(':checked')){
             console.log('checked');
