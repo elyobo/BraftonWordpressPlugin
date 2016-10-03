@@ -73,7 +73,15 @@ class Connection{
     }
     //Retrieve the XML using fopen
     private function fopen_connection(){
-        $con = file_get_contents($this->url);
+        //@Issue 68 fopen SSL Bug
+        $ssl = array(
+            "ssl"   => array(
+                "verify_peer"   => false,
+                "verify_peer_name"  => false
+            )
+        );
+        $options = stream_context_create($ssl);
+        $con = file_get_contents($this->url, false, $options);
         if($this->isfile){
             $this->setFileHeaders();
             

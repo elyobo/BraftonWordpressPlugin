@@ -6,6 +6,7 @@ wp_enqueue_script('upload_media_widget', BRAFTON_ROOT.'js/upload-media.js', arra
 wp_enqueue_script('brafton_admin_js', BRAFTON_ROOT .'admin/js/braftonAdmin.js');
 wp_enqueue_script('jquery-ui', "//code.jquery.com/ui/1.10.1/jquery-ui.js", array());
 $plugin_data = get_plugin_data(BRAFTON_PLUGIN);
+//@Issue 64 XSS patch
 $tab = isset($_GET['tab'])? (int)$_GET['tab'] : 0;
 ?>
 <script>
@@ -28,6 +29,7 @@ jQuery( document ).tooltip();
 </div>
 <div id="tab-cont" class="tabs">
     <img src="<?php echo plugin_dir_url(__FILE__); ?>/img/banner_<?php echo strtolower(BRAFTON_BRAND); ?>.jpg" style="width:100%;">
+    <!-- @Issue 65 permission error on saving for multisites -->
     <form method="post" action="<?php echo $_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']; ?>" class="braf_options_form" onsubmit="return settingsValidate()">
         <div class="menu-container">
     <ul id="braftonMenuNavigation">
