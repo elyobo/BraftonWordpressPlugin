@@ -6,21 +6,21 @@ class CustomTypeDateArchives_Widget extends WP_Widget {
     function __construct(){
         $this->typeName = ucfirst(BraftonOptions::getSingleOption('braftonCustomSlug'));
         $this->slugName = strtolower(str_replace(' ', '-', preg_replace("/[^a-z0-9 ]/i", "",$this->typeName) ));
-        $this->siteUrl = site_url();
-        parent::__construct($this->slugName.'_DateArchive', strtoupper(BRAFTON_BRAND).':'.$this->typeName.' Archives', 
+        $this->siteUrl = home_url();
+        parent::__construct($this->slugName.'_DateArchive', strtoupper(BRAFTON_BRAND).':'.$this->typeName.' Archives',
               array(
                   'classname'   => 'widget_archive '.$this->slugName.'_archives',
                   'description' => 'A list or dropdown of '.$this->typeName.' montly archives'
               )
         );
     }
-    
+
     function form($instance){
 
             $title = $instance ? $instance['title'] : '';
             $isdrp = $instance ? (boolean)$instance['isdrp'] : false;
             $count = $instance ? (boolean)$instance['incnt'] : false;
-            
+
 
         ?>
         <p>
@@ -30,16 +30,16 @@ class CustomTypeDateArchives_Widget extends WP_Widget {
         <p>
             <input id="<?php echo $this->get_field_id('isdrp'); ?>" name="<?php echo $this->get_field_name('isdrp'); ?>" type="checkbox" value="1" <?php if($isdrp){ echo 'checked'; } ?>/>
             <label for="<?php echo $this->get_field_id('isdrp'); ?>"><?php _e('Display as Dropdown', 'CustomTypeDateArchives_Widget_plugin'); ?></label>
-            
-        </p> 
+
+        </p>
         <p>
             <input id="<?php echo $this->get_field_id('incnt'); ?>" name="<?php echo $this->get_field_name('incnt'); ?>" type="checkbox" value="1" <?php if($count){ echo 'checked'; } ?>/>
             <label for="<?php echo $this->get_field_id('incnt'); ?>"><?php _e('Include Post Count', 'CustomTypeDateArchives_Widget_plugin'); ?></label>
-            
+
         </p>
    <?php }
 
-    
+
     function update($new_instance, $old_instance){
 
         $instance = $old_instance;
@@ -47,7 +47,7 @@ class CustomTypeDateArchives_Widget extends WP_Widget {
         $instance['title'] = $new_instance['title'];
         $instance['isdrp'] = $new_instance['isdrp'];
         $instance['incnt'] = $new_instance['incnt'];
-        return $instance; 
+        return $instance;
 
     }
 
@@ -61,9 +61,9 @@ class CustomTypeDateArchives_Widget extends WP_Widget {
             $format = 'html';
         };
         $count = (boolean)$instance['incnt'];
-        $siteUrl = site_url();
+        $siteUrl = home_url();
         $url = $siteUrl.'/'.strtolower($this->slugName);
-        
+
         echo $args['before_widget'];
         if($title != '' || $title != null){
             echo $args['before_title'];
@@ -82,7 +82,7 @@ class CustomTypeDateArchives_Widget extends WP_Widget {
             'type'=> 'monthly',
             'format'    => $format,
             'show_post_count'    => $count
-        )); 
+        ));
         if($isdrp){
             echo '</select>';
             ?>
@@ -107,12 +107,12 @@ class CustomTypeDateArchives_Widget extends WP_Widget {
         remove_filter('month_link', array($this, 'modifyDateLinks'));
         remove_filter('getarchives_where', array($this, 'modifySqlWhere'));
 
-    }  
+    }
     function modifyDateLinks($monthlink, $year, $month){
         return $this->siteUrl.'/'.strtolower($this->slugName).'/archive/'.$year.'/'.$month;
     }
     function modifySqlWhere($sql_where, $r){
         $sql_where = str_replace("post_type = 'post'", "post_type = '".strtolower($this->slugName)."'", $sql_where);
-        return $sql_where; 
+        return $sql_where;
     }
 }
