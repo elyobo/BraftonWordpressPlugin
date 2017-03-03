@@ -229,7 +229,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                     }
                 }
                 $post_excerpt = ($e = $article->getHtmlMetaDescription())? $e: $article->getExtract();
-                $post_excerpt = $post_excerpt == null? ' ' : $post_excerpt;
+                $post_excerpt = $post_excerpt == null? '' : $post_excerpt;
                 $post_date_array = $this->getPostDate($article);
                 $post_date = $post_date_array[1];
                 $post_date_gmt = $post_date_array[0];
