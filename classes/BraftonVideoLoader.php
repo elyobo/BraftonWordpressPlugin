@@ -314,7 +314,7 @@ EOC;
                 $post_content = $thisArticle->fields['content'];
                 $post_title = $thisArticle->fields['title'];
                 $post_excerpt = $thisArticle->fields['extract'];
-                $post_excerpt = $post_excerpt == null? ' ': $post_excerpt;
+                $post_excerpt = $post_excerpt == null? '': $post_excerpt;
                 $post_status = $this->options['braftonPostStatus'];
 
                 $post_date_array = $this->getPostDate($thisArticle->fields['date']);
