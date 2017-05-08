@@ -19,7 +19,7 @@ if( class_exists( 'XMLHandler' ) ){
     exit();
 }
 
-define("BRAFTON_VERSION", '3.4.10');
+define("BRAFTON_VERSION", '3.4.11');
 
 define("BRAFTON_ROOT", plugin_dir_url(__FILE__));
 
@@ -403,7 +403,7 @@ EOC;
             $videojs = '//vjs.zencdn.net/4.3/video.js';
             $videocss = '//vjs.zencdn.net/4.3/video-js.css';
             $atlantisjs = 'https://atlantisjs.brafton.com/v1/atlantis.min.v1.3.js';
-            $atlantiscss = 'https:////atlantisjs.brafton.com/v1/atlantisjsv1.4.css';
+            $atlantiscss = 'https://atlantisjs.brafton.com/v1/atlantisjsv1.4.css';
             wp_enqueue_script('brafton-video-playback', $$player, array(), null);
             wp_enqueue_style('brafton-video-css', ($player == "atlantisjs"? $atlantiscss : $videocss), array(),null);
 
