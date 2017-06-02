@@ -25,6 +25,18 @@ class BraftonFeedLoader {
     public $publish_status;
     public $fail = false;
     protected $option_ini;
+    public $supported_seo_plugins = array(
+        'wordpress-seo/wp-seo.php'  => array(
+            'post_title' => '_yoast_wpseo_title',
+            'post_excerpt'  => '_yoast_wpseo_metadesc',
+            'keywords'  => '_yoast_wpseo_metakeywords'
+        ),
+        'all-in-one-seo-pack/all_in_one_seo_pack.php' => array(
+            'post_title'    => '_yoast_wpseo_title',
+            'post_excerpt'  => '_yoast_wpseo_metadesc',
+            'keywords'      => '_yoast_wpseo_metakeywords'
+        )
+    );
     public function __construct(){
         include_once(ABSPATH . 'wp-includes/pluggable.php');
         $this->option_ini = new BraftonOptions();
