@@ -186,7 +186,7 @@ class BraftonWordpressPlugin {
         if($file == plugin_basename(__FILE__)){
             $admin = admin_url('/', 'admin');
             $links[] = '<a href="'.$admin.'admin.php?page=BraftonArticleLoader">Settings</a>';
-            $links[] = '<a href="http://localhost/wp_feature/wp-content/plugins/BraftonWordpressPlugin/ImporterInstructions.pdf" target="_blank">Instructions</a>';
+            //$links[] = '<a href="http://localhost/wp_feature/wp-content/plugins/BraftonWordpressPlugin/ImporterInstructions.pdf" target="_blank">Instructions</a>';
         }
         return $links;
     }

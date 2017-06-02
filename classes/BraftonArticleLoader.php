@@ -299,21 +299,6 @@ class BraftonArticleLoader extends BraftonFeedLoader {
                         $meta_array = array_merge($meta_array, $seo_fields);
                     }
                 }
-                /*
-                if(is_plugin_active('wordpress-seo/wp-seo.php')){
-                    $meta_array = array_merge($meta_array, array(
-                        '_yoast_wpseo_title'    => $post_title,
-                        '_yoast_wpseo_metadesc' => $post_excerpt,
-                        '_yoast_wpseo_metakeywords' => $keywords
-                    ));
-                }
-                if(function_exists('aioseop_get_version')){
-                    $meta_array = array_merge($meta_array, array(
-                        '_aioseop_title'        => $post_title,
-                        '_aioseop_description'  => $post_excerpt,
-                        '_aioseop_keywords'     => $keywords
-                    ));
-                }*/
                 $this->add_needed_meta($post_id, $meta_array);
 
                 //update_post_meta($post_id, 'brafton_id', $brafton_id);
