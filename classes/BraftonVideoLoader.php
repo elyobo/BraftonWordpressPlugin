@@ -400,18 +400,14 @@ EOC;
                     'brafton_id'        => $brafton_id,
                     'brafton_video'     => $embed_code
                 );
-                if(is_plugin_active('wordpress-seo/wp-seo.php')){
-                    $meta_array = array_merge($meta_array, array(
-                        '_yoast_wpseo_title'    => $post_title,
-                        '_yoast_wpseo_metadesc' => $post_excerpt,
-                        '_yoast_wpseo_metakeywords' => ''
-                    ));
-                }
-                if(function_exists('aioseop_get_version')){
-                    $meta_array = array_merge($meta_array, array(
-                        '_aioseop_description'  => $post_excerpt,
-                        '_aioseop_keywords'     => ''
-                    ));
+                foreach($this->supported_seo_plugins as $plugin => $fields){
+                    if(is_plugin_active($plugin)){
+                        $seo_fields = array();
+                        foreach($fields as $key => $value){
+                            $seo_fields[$value] = $$key;
+                        }
+                        $meta_array = array_merge($meta_array, $seo_fields);
+                    }
                 }
                 $this->add_needed_meta($post_id, $meta_array);
 
