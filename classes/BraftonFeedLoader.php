@@ -32,9 +32,9 @@ class BraftonFeedLoader {
             'keywords'  => '_yoast_wpseo_metakeywords'
         ),
         'all-in-one-seo-pack/all_in_one_seo_pack.php' => array(
-            'post_title'    => '_yoast_wpseo_title',
-            'post_excerpt'  => '_yoast_wpseo_metadesc',
-            'keywords'      => '_yoast_wpseo_metakeywords'
+            'post_title'    => '_aioseop_title',
+            'post_excerpt'  => '_aioseop_description',
+            'keywords'      => '_aioseop_keywords'
         )
     );
     public function __construct(){
