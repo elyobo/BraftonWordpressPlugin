@@ -17,7 +17,7 @@ class BraftonArticleLoader extends BraftonFeedLoader {
         //set the url and api key for use during the entire run.
         $this->API_Domain = 'https://'.$this->options['braftonApiDomain'];
         $this->API_Key = $this->options['braftonApiKey'];
-        //$this->method = $this->options['api_method'];
+        //$this->method = $this->options['braftonRequestMethod'];
         if($this->API_Key == 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' || $this->API_Key == ''){
             trigger_error('You have not set your API key');
             $this->fail = true;
