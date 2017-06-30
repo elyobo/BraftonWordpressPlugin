@@ -126,8 +126,6 @@ class BraftonVideoLoader extends BraftonFeedLoader {
         $md_url = $artObj['url'];
         $md_thumb = $artObj['thumbnail'];
         $md_description = $artObj['description'];
-        $md_image = fopen($this->VidSrc,"b");
-        echo '<pre>testing:'. filesize($this->VidSrc) .'</pre>';
         $md_embedurl = $artObj['video'];
         $md_date = $artObj['date'];
         $schema = <<<BBB
@@ -437,7 +435,7 @@ EOC;
                 $meta_array = array(
                     'brafton_id'        => $brafton_id,
                     'brafton_video'     => $embed_code,
-                    'brafton_microdata' => $microdata
+                    'brafton_video_microdata' => $microdata
                 );
 
                 foreach($this->supported_seo_plugins as $plugin => $fields){
