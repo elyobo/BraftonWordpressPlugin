@@ -66,9 +66,6 @@ class Connection{
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-Forwarded-Proto"));
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        //curl_setopt($ch, CURLOPT_CAINFO, BRAFTON_ROOT . '/cert/cacert.pem');
-        //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         $feed_string = curl_exec($ch); 
         $hinfo = curl_getinfo($ch);
         $this->parse_headers_curl($hinfo);
